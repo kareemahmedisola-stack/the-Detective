@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Detective - Awesome-Planet</title>
+<style>
+:root{--night:#120e28;--lamp:#f2a93b;--tape:#ffd400;--dye:#3b4cc0;--red:#ff2d4d;--ink:#f6efe2;--mut:#bdb3d6}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(#120e28,#241a45 70%,#3a2438);color:var(--ink);font-family:"Trebuchet MS",Verdana,system-ui,sans-serif;overflow:hidden}
+[hidden]{display:none!important}
+#siren{position:fixed;inset:0;pointer-events:none;opacity:.16;background:linear-gradient(90deg,var(--red),transparent 40%,transparent 60%,var(--dye));animation:sw 1.6s ease-in-out infinite alternate}
+@keyframes sw{to{transform:scaleX(-1)}}
+.tape{position:fixed;left:-5%;width:110%;transform:rotate(-3deg);background:repeating-linear-gradient(45deg,var(--tape) 0 22px,#111 22px 44px);color:#111;font-weight:800;text-align:center;padding:.2rem;white-space:nowrap;overflow:hidden;pointer-events:none;letter-spacing:.08em}
+.tape.t1{top:7%}.tape.t2{bottom:6%;transform:rotate(2deg)}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.2rem 1rem;text-align:center;overflow:auto}
+h1{margin:.2rem 0;font:900 clamp(2.4rem,9vw,5rem)/1 "Arial Narrow","Franklin Gothic Medium",Impact,sans-serif;letter-spacing:.06em;color:var(--tape);text-shadow:0 0 30px rgba(255,212,0,.35)}
+h1 small{display:block;font-size:.28em;letter-spacing:.3em;color:var(--lamp);margin-top:.5rem}
+.logo{font-size:clamp(3rem,10vw,5.5rem)}
+p{max-width:60ch;line-height:1.55}
+.mut{color:var(--mut)}
+button{font:inherit;cursor:pointer}
+.btn{display:block;width:min(92vw,520px);margin:.5rem auto;padding:.9rem 1.1rem;font-size:1.1rem;text-align:left;border-radius:12px;border:2px solid var(--lamp);background:#1d1538;color:var(--ink)}
+.btn b{display:block;font-size:1.15rem;color:var(--tape)}
+.btn span{display:block;font-size:.92rem;color:var(--mut);margin-top:.15rem}
+.btn:hover,.btn:focus-visible{background:var(--lamp);color:#111;outline:3px solid #fff}
+.btn:hover b,.btn:focus-visible b,.btn:hover span,.btn:focus-visible span{color:#111}
+.btn.big{text-align:center;background:var(--tape);color:#111;border-color:var(--tape);font-weight:800;font-size:1.3rem;animation:pu 1.2s infinite alternate}
+@keyframes pu{to{transform:scale(1.05);box-shadow:0 0 36px rgba(255,212,0,.6)}}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:.6rem}
+.sm{padding:.55rem .9rem;border-radius:9px;border:2px solid var(--lamp);background:#1d1538;color:var(--ink);font-size:.95rem}
+.sm:hover,.sm:focus-visible{background:var(--lamp);color:#111;outline:3px solid #fff}
+details{max-width:60ch;margin-top:.8rem;text-align:left;background:rgba(10,8,24,.7);border:1px solid #55477f;border-radius:10px;padding:.6rem .9rem}
+summary{cursor:pointer;color:var(--tape);font-weight:700}
+kbd{background:#0c0918;border:1px solid #55477f;border-bottom-width:3px;border-radius:5px;padding:0 .4rem;font:600 .9rem ui-monospace,Menlo,Consolas,monospace}
+#stage{position:fixed;inset:0;display:flex;flex-direction:column;background:#000}
+#bar{display:flex;gap:.6rem;align-items:center;justify-content:space-between;padding:.3rem .6rem;background:#0a0818;border-bottom:2px solid var(--tape);min-height:44px}
+#bar .t{color:var(--tape);font-weight:800;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fr{flex:1;width:100%;border:0;background:#000}
+#next{animation:pu 1s infinite alternate;background:var(--tape);color:#111;border-color:var(--tape);font-weight:800}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#inter h1{font-size:clamp(1.4rem,4.4vw,2.3rem)}#inter{text-align:center}
+</style>
+</head>
+<body>
+<div id="siren" aria-hidden="true"></div>
+<div class="tape t1" aria-hidden="true">CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE</div>
+<div class="tape t2" aria-hidden="true">DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS</div>
+
+<!-- 1. Splash: one tap so the browser lets the intro sound play -->
+<section id="splash" class="screen" aria-label="Welcome">
+  <div class="logo" aria-hidden="true">🕵🏾</div>
+  <h1>The Detective<small>AWESOME-PLANET</small></h1>
+  <p class="mut">Two cases. One siege. One campaign. Put on your headphones.</p>
+  <button id="enter" class="btn big" type="button">Press Enter or tap to begin</button>
+</section>
+
+<!-- 2. Menu -->
+<main id="menu" class="screen" hidden>
+  <h1 id="mh" tabindex="-1">The Detective<small>CHOOSE YOUR MISSION</small></h1>
+  <button class="btn" data-g="balogun" type="button"><b>1. The Balogun Case</b><span>Walk the market, echo the drums, defend Tunde with the Constitution.</span></button>
+  <button class="btn" data-g="echo" type="button"><b>2. Echo Detective: The Missing Ledger</b><span>A listening mystery on Lagos Island. Question, catch the liars, name the mastermind.</span></button>
+  <button class="btn" data-g="both" type="button"><b>3. Play both cases</b><span>Solve Balogun first, then continue straight into the Ledger case.</span></button>
+  <button class="btn" data-g="siege" type="button"><b>4. Siege of Ilesanmi</b><span>A war strategy game you play by ear. Listen for rams, towers and sappers, answer each one, hunt the spy in your council, and hold the citadel.</span></button>
+  <button class="btn" data-g="full" type="button"><b>5. Full campaign</b><span>The whole story in order: the Balogun Case, then the Ledger case, then the Siege of Ilesanmi. Your results are kept in a record.</span></button>
+  <p id="rec" class="mut" aria-live="polite"></p>
+  <div class="row">
+    <button id="mute" class="sm" type="button" aria-pressed="false">🔊 Sound: on (M)</button>
+  </div>
+  <details>
+    <summary>What's new in this edition</summary>
+    <ul>
+      <li><b>New: accessibility everywhere.</b> In every game press <kbd>Q</kbd> for an audio compass, <kbd>W</kbd> for where you are, <kbd>G</kbd> for your goal, <kbd>Y</kbd> for a recap, <kbd>E</kbd> for the evidence board, <kbd>K</kbd> for high contrast, <kbd>F</kbd> for partner mode and <kbd>?</kbd> for help.</li>
+      <li><b>New: one campaign.</b> Press 5 to play all three missions in order, with story between them and a record of your results. Danger now shows as a pulsing red vignette, with film grain, scene cuts and cinematic bars at the big moments.</li>
+      <li><b>Rebuilt game:</b> Siege of Ilesanmi is now a deep strategy game. The enemy brings rams, towers, sappers and boats, each with its own sound and its own counter. Build works, hunt a spy who is different every game, and choose your way to win. Headphones recommended.</li>
+      <li>New: Lagos Radio, a map with travel between places, and Heat with police checkpoints in the detective cases.</li>
+      <li>Menu music plays here and before every case begins.</li>
+      <li>Accuse <b>the Chief</b> and he slaps you, then the sad tune plays.</li>
+      <li>Name the wrong person: the sad tune. Make a right decision: applause.</li>
+      <li>Name the real culprit and they run into <b>Lagos traffic</b>. Catch them and the police ask: "Why are you running?"</li>
+      <li>New: animated people who walk, talk, blush and dance, plus a <b>love story</b> in each case. Your choices decide the ending.</li>
+      <li>Watch out for tricks: fall for one and you will feel the emotional damage.</li>
+    </ul>
+    <p class="mut">Inside a case, press <kbd>Alt</kbd>+<kbd>M</kbd> or use the Menu button to come back here.</p>
+  </details>
+</main>
+
+<!-- Between missions -->
+<section id="inter" class="screen" hidden aria-label="Between missions">
+  <h1 id="ih" tabindex="-1">Mission</h1>
+  <p id="it" style="max-width:36rem;margin:.8rem auto"></p>
+  <button id="ibtn" class="btn big" type="button">Continue (Enter)</button>
+</section>
+
+<!-- 3. Game stage -->
+<section id="stage" hidden aria-label="Game">
+  <div id="bar">
+    <button id="back" class="sm" type="button">☰ Menu (Alt+M)</button>
+    <span class="t" id="gt"></span>
+    <span>
+      <button id="next" class="sm" type="button" hidden>Next case ▶</button>
+      <button id="mute2" class="sm" type="button" aria-pressed="false">🔊</button>
+    </span>
+  </div>
+  <iframe id="fr" title="Game" allow="autoplay *"></iframe>
+</section>
+
+<script src="js/sfx.js"></script>
+<script src="js/atmos.js"></script>
+<script src="js/access.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var GAMES = {
+    balogun: { src: 'games/balogun.html', title: 'The Balogun Case' },
+    echo:    { src: 'games/echo.html',    title: 'Echo Detective: The Missing Ledger' },
+    siege:   { src: 'games/siege.html',   title: 'Siege of Ilesanmi' }
+  };
+  var campaign = false, current = null, seq = null;
+  var SEQS = { both: ['balogun', 'echo'], full: ['balogun', 'echo', 'siege'] };
+  var STORY = {
+    echo: 'Tunde walks free, and the drums of Balogun have gone quiet. But the market is whispering about a stolen ledger on Lagos Island, and a detective who listens this well is needed there.',
+    siege: 'Word of your gift for seeing through liars has travelled far beyond Lagos. A rider arrives from the ridge, half dead with dust: the citadel of Ilesanmi is surrounded, three sources are telling three different stories, and there is a spy in the council. They need a commander who can tell who is lying. Put on your headphones.'
+  };
+  function rec() { try { return JSON.parse(localStorage.getItem('dt_record') || '{}'); } catch (e) { return {}; } }
+  function describe(game, res) {
+    if (game === 'balogun') return 'solved with ' + (res && res.hrs != null ? res.hrs : 'some') + ' hours to spare';
+    if (game === 'echo') return (res && res.rank) || 'solved';
+    return (typeof res === 'string' ? res : res && res.rank) || 'finished';
+  }
+  function saveRec(game, res) { var r = rec(); r[game] = describe(game, res); try { localStorage.setItem('dt_record', JSON.stringify(r)); } catch (e) {} paintRecord(); }
+  function recText() {
+    var r = rec(), p = [];
+    if (r.balogun) p.push('The Balogun Case: ' + r.balogun); if (r.echo) p.push('Echo Detective: ' + r.echo); if (r.siege) p.push('Siege of Ilesanmi: ' + r.siege);
+    return p.length ? 'Your record. ' + p.join('. ') + '.' : 'No missions finished yet. Choose one to begin.';
+  }
+  function paintRecord() { var el = $('#rec'); if (el) el.textContent = recText(); }
+  function calm(l) { try { Atmos.danger(l); } catch (e) {} }
+
+  function showOnly(id) {
+    ['splash', 'menu', 'inter', 'stage'].forEach(function (n) { $('#' + n).hidden = n !== id; });
+  }
+  function paintMute() {
+    var m = Sfx.isMuted();
+    $('#mute').textContent = (m ? '🔇 Sound: off' : '🔊 Sound: on') + ' (M)';
+    $('#mute').setAttribute('aria-pressed', String(m));
+    $('#mute2').textContent = m ? '🔇' : '🔊';
+    $('#mute2').setAttribute('aria-label', m ? 'Sound is off. Turn on' : 'Sound is on. Turn off');
+    $('#mute2').setAttribute('aria-pressed', String(m));
+  }
+  function toggleMute() { Sfx.setMuted(!Sfx.isMuted()); paintMute(); }
+
+  function showMenu() {
+    current = null; campaign = false; seq = null; paintRecord(); calm(.12);
+    $('#fr').src = 'about:blank';
+    $('#next').hidden = true;
+    showOnly('menu');
+    Sfx.stopAll(0);
+    Sfx.intro();                       // menu music, every time we are at the menu
+    // The keyboard focus is still inside the (now hidden) game frame. Pull it back, or 1, 2, 3 and M would do nothing.
+    try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); window.focus(); } catch (e) {}
+    $('#mh').focus({ preventScroll: true });
+    setTimeout(function () { try { window.focus(); $('#mh').focus({ preventScroll: true }); } catch (e) {} }, 120);
+  }
+
+  function chain(kind) { seq = SEQS[kind]; launch(seq[0], true); }
+  function showInter(h, text, btn, fn) {
+    showOnly('inter'); $('#ih').textContent = h; $('#it').textContent = text; var b = $('#ibtn'); b.textContent = btn; b.onclick = fn;
+    Sfx.stopAll(0); Sfx.intro(); calm(.18); try { Atmos.cut(420); } catch (e) {}
+    $('#ih').focus({ preventScroll: true }); try { Access.say(h + '. ' + text + ' Press Enter to continue.'); } catch (e) {}
+  }
+  function nextMission() {
+    var i = seq ? seq.indexOf(current) : -1, nxt = seq && seq[i + 1];
+    $('#next').hidden = true;
+    if (nxt) showInter('Mission ' + (i + 2) + ' of ' + seq.length + ': ' + GAMES[nxt].title, STORY[nxt] || '', 'Begin the mission (Enter)', function () { launch(nxt, true); });
+    else showInter('Campaign complete', recText() + (seq && seq.indexOf('siege') >= 0 ? ' You cleared a boy\'s name, caught a ledger thief, and held a citadel. Lagos will remember.' : ' You cleared a boy\'s name and caught a ledger thief. Lagos will remember.'), 'Back to the main menu (Enter)', showMenu);
+  }
+
+  function launch(name, isCampaign) {
+    current = name; campaign = !!isCampaign;
+    $('#gt').textContent = GAMES[name].title;
+    $('#next').hidden = true;
+    showOnly('stage'); calm(0);
+    var fr = $('#fr');
+    fr.onload = function () { try { fr.contentWindow.focus(); } catch (e) {} try { fr.contentWindow.postMessage({ dt: 'prefs', hc: Access.hc, fx: Access.fx, coop: Access.coop, idle: Access.idle }, '*'); } catch (e) {} };
+    fr.src = GAMES[name].src;          // the intro keeps playing until the case actually starts
+  }
+
+  /* messages from the games */
+  addEventListener('message', function (e) {
+    var fr = $('#fr');
+    if (!fr || e.source !== fr.contentWindow) return;
+    var d = e.data || {};
+    if (d.dt === 'intro') { d.on ? Sfx.intro() : Sfx.stopIntro(d.fade); }
+    else if (d.dt === 'menu') showMenu();
+    else if (d.dt === 'done') {
+      saveRec(d.game || current, d.result);
+      if (campaign && seq) {
+        var i = seq.indexOf(current), nxt = seq[i + 1];
+        $('#next').textContent = nxt ? 'Next mission: ' + GAMES[nxt].title + ' \u25B6' : 'Finish the campaign \u25B6';
+        $('#next').hidden = false; $('#next').focus();
+        try { Access.say('Mission complete. Press Enter on the Next mission button when you are ready.'); } catch (e) {}
+      }
+    }
+    else if (d.dt === 'prefs') { try { Access.applyPrefs(d); } catch (e) {}
+    }
+  });
+
+  /* wiring */
+  $('#enter').onclick = function () { showOnly('menu'); paintRecord(); calm(.12); Sfx.intro(); $('#mh').focus({ preventScroll: true }); };
+  document.querySelectorAll('[data-g]').forEach(function (b) {
+    b.onclick = function () { var g = b.dataset.g; g === 'both' || g === 'full' ? chain(g) : launch(g, false); };
+  });
+  $('#back').onclick = showMenu;
+  $('#next').onclick = nextMission;
+  $('#mute').onclick = $('#mute2').onclick = toggleMute;
+
+  addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) { if (e.altKey && (e.key === 'm' || e.key === 'M') && !$('#stage').hidden) { e.preventDefault(); showMenu(); } return; }
+    if (!$('#splash').hidden) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#enter').click(); } return; }
+    if (!$('#inter').hidden) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#ibtn').click(); } return; }
+    if (!$('#menu').hidden) {
+      if (e.key === '1') launch('balogun', false);
+      else if (e.key === '2') launch('echo', false);
+      else if (e.key === '3') chain('both');
+      else if (e.key === '5') chain('full');
+      else if (e.key === '4') launch('siege', false);
+      else if (e.key === 'm' || e.key === 'M') toggleMute();
+    }
+  });
+
+  Access.noPanel = true;
+  Access.register({
+    summary: function () {
+      if (!$('#splash').hidden) return 'Welcome to The Detective. Press Enter to begin.';
+      if (!$('#inter').hidden) return $('#ih').textContent + '. ' + $('#it').textContent;
+      return 'Main menu. 1, The Balogun Case. 2, Echo Detective. 3, both cases. 4, Siege of Ilesanmi. 5, the full campaign. ' + recText();
+    },
+    goal: function () { return 'Choose a mission. For the whole story in order, choose 5, the full campaign. For a gentle start, choose 2.'; }
+  });
+  paintMute();
+  showOnly('splash');
+  $('#enter').focus();
+})();
+</script>
+</body>
+</html>

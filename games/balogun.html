@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Balogun Case - Awesome-Planet</title>
+<style>
+:root{--night:#120e28;--lamp:#f2a93b;--tape:#ffd400;--dye:#3b4cc0;--red:#ff2d4d;--ink:#f6efe2}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:linear-gradient(#120e28,#241a45 70%,#3a2438);color:var(--ink);font-family:"Trebuchet MS",Verdana,sans-serif;overflow:hidden}
+#fx{position:fixed;inset:0;z-index:5;pointer-events:none}
+#siren{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.14;background:linear-gradient(90deg,var(--red),transparent 40%,transparent 60%,var(--dye));animation:sw 1.6s ease-in-out infinite alternate}
+body.hot #siren{opacity:.32;animation-duration:.7s}
+@keyframes sw{to{transform:scaleX(-1)}}
+#flash{position:fixed;inset:0;z-index:6;background:#fff;opacity:0;pointer-events:none}
+body.flash #flash{animation:fl .7s}@keyframes fl{0%{opacity:.9}100%{opacity:0}}
+body.shake main{animation:sh .45s}@keyframes sh{20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
+header{position:fixed;top:0;left:0;right:0;z-index:7;display:flex;justify-content:space-between;gap:1rem;padding:.7rem 1.2rem;background:rgba(10,8,24,.8);font-size:1rem}
+h1{margin:0;font:800 1.5rem "Arial Narrow","Franklin Gothic Medium",sans-serif;letter-spacing:.04em;color:var(--tape)}
+#hrs{font-size:1.6rem;color:var(--lamp)}body.hot #hrs{color:var(--red);animation:pu .7s infinite}@keyframes pu{50%{transform:scale(1.25)}}
+main{position:fixed;inset:0;overflow:hidden}
+#tape{position:absolute;top:22%;left:-5%;width:110%;transform:rotate(-3deg);background:repeating-linear-gradient(45deg,var(--tape) 0 22px,#111 22px 44px);color:#111;font-weight:800;text-align:center;padding:.15rem;white-space:nowrap;overflow:hidden}
+#world{position:absolute;bottom:34%;left:0;width:300vw;height:34vh;transition:transform .42s cubic-bezier(.2,.8,.25,1)}
+.stall{position:absolute;bottom:0;width:20vw;min-width:150px;height:100%;border-radius:10px 10px 0 0;background:linear-gradient(#4a2f2a,#2a1b1b);border-top:10px solid var(--lamp);text-align:center;transition:.3s;filter:brightness(.55)}
+.stall i{display:block;font-style:normal;font-size:3.4rem;margin-top:.8rem}.stall.near{filter:brightness(1.25);box-shadow:0 0 70px var(--lamp);transform:translateY(-8px)}.stall.done{border-top-color:#4be08a}
+.stall span{font-size:.85rem;padding:0 .3rem}
+#det{position:fixed;bottom:34%;left:calc(50vw - 28px);font-size:3.4rem;z-index:3;animation:bob .5s infinite alternate}@keyframes bob{to{transform:translateY(-7px)}}
+#ground{position:absolute;bottom:0;left:0;right:0;height:34%;background:linear-gradient(#2a1d2e,#0c0918)}
+#panel{position:absolute;bottom:0;left:0;right:0;height:34%;z-index:8;padding:1rem 1.5rem;background:rgba(8,6,20,.9);border-top:3px solid var(--tape);overflow:auto}
+#txt{font-size:1.25rem;line-height:1.5;max-width:70ch;margin:0 0 .8rem}
+#opts{display:flex;flex-wrap:wrap;gap:.6rem}
+button{font:inherit;font-size:1.05rem;padding:.7rem 1rem;border-radius:8px;border:2px solid var(--lamp);background:#1d1538;color:var(--ink);cursor:pointer;text-align:left;max-width:60ch}
+button:hover,button:focus-visible{background:var(--lamp);color:#111;outline:3px solid #fff}
+.pad{width:5.5rem;height:5.5rem;border-radius:50%;text-align:center;font-size:1.4rem;transition:.1s}.pad.on{background:var(--tape);color:#111;transform:scale(1.2);box-shadow:0 0 40px var(--tape)}
+#key{font-size:.9rem;opacity:.75;margin:.6rem 0 0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.bar{height:8px;background:var(--red);border-radius:4px;margin:.6rem 0;animation:bar 5s linear forwards}@keyframes bar{from{width:100%}to{width:0}}.bench{color:var(--tape)}#vb,#lb{font-size:.8rem;padding:.3rem .6rem;margin-left:.5rem}#wh{position:fixed;top:3.8rem;left:50%;transform:translateX(-50%);z-index:9;background:rgba(10,8,24,.9);border:2px solid var(--tape);padding:.4rem .9rem;border-radius:8px;max-width:90vw;text-align:center;color:var(--tape);display:none}#wh:not(:empty){display:block}.emb h1{display:none}.emb header{justify-content:flex-end;padding:.35rem .8rem}
+#panel{display:flex;flex-direction:column;height:44%;padding:.7rem 1.1rem;overflow:hidden}
+#txt{flex:1;min-height:0;overflow:auto;font-size:clamp(.95rem,2.3vh,1.2rem);margin:0 0 .5rem}
+#opts{flex:none;max-height:48%;overflow:auto}#opts button{font-size:.98rem;padding:.55rem .85rem}#key{display:none}
+#world{bottom:44%}#ground{height:44%}
+#det{bottom:44%;width:12vh;height:23vh;left:calc(50vw - 6vh);animation:none}#det .pp{width:100%;height:100%}#det{transition:transform .26s cubic-bezier(.4,0,.2,1)}.stall.near{animation:nearp 1.5s ease-in-out infinite}@keyframes nearp{50%{box-shadow:0 0 120px var(--lamp);transform:translateY(-12px)}}#sk{color:var(--tape)}
+.pp.npc{position:absolute;bottom:0;width:11vh;height:21vh;transition:left 2.4s cubic-bezier(.45,.05,.25,1)}.nm{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.75rem;color:var(--tape);text-shadow:0 1px 4px #000}
+.hh{position:absolute;left:40%;width:20%;bottom:44%;height:30vh;pointer-events:none;z-index:7}
+body.court{background:linear-gradient(#2a2118,#4a3822)}body.court #tape,body.dawn #tape{display:none}body.court #ground{background:linear-gradient(#3a2a1a,#150f08)}
+body.dawn{background:linear-gradient(#f2a93b,#e9747a 45%,#5b3a6e)}body.dawn #ground{background:linear-gradient(#5b3a6e,#2a1d2e)}body.dawn #siren{opacity:0}
+</style></head><body>
+<canvas id="fx" aria-hidden="true"></canvas><div id="siren" aria-hidden="true"></div><div id="flash" aria-hidden="true"></div>
+<div id="wh" aria-live="polite"></div><header><h1>The Balogun Case</h1><div>Hours before Tunde is charged: <b id="hrs">24</b> &nbsp; Clues: <b id="cl">0</b>/4 &nbsp; &#128151; <b id="lv">0</b> &nbsp; &#128293; <b id="sk">0</b> &nbsp; &#128680; Heat <b id="ht">0</b>/5 <button id="vb" type="button" onclick="nextVoice()">Voice: default (V)</button><button id="lb" type="button" onclick="nextLang()">Language: English (L)</button></div></header>
+<main id="app" role="application" aria-label="The Balogun Case. Left and Right arrows or A and D walk, Enter talks, C opens the Constitution casebook." tabindex="0"><div id="tape" aria-hidden="true">CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE</div>
+<div id="ground" aria-hidden="true"></div><div id="world" aria-hidden="true"></div><div id="det" aria-hidden="true"></div>
+<section id="panel" aria-label="Story and choices"><p id="txt" aria-live="polite"></p><div id="opts"></div>
+<p id="key">Keys: Left and Right arrows (or A and D) walk, answer correctly three times in a row for a streak bonus, Enter talks, 1 to 3 choose or play drums, R repeats, C opens the Constitution casebook, L changes the language (English, Pidgin, Yoruba, Igbo, Hausa), V changes the voice, X turns the voice on or off, R reads the text again. You can also use the buttons.</p></section></main>
+<script src="../js/sfx.js"></script>
+<script src="../js/traffic.js"></script>
+<script src="../js/people.js"></script>
+<script src="../js/lagos.js"></script>
+<script src="../js/atmos.js"></script>
+<script src="../js/access.js"></script>
+<script>
+const $=s=>document.querySelector(s),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+$('#det').appendChild(People.el(People.cast.ada));
+const ST=[
+{v:1.25,x:15,n:"Mama Nkechi's bead stall",ic:'📿',f:262,pat:[0,2,1,0],clue:'A brass ring tapped the counter.',
+ s:"Mama Nkechi is crying. The market's savings box, the ajo, is gone, and the police have taken young Tunde, a boy who sweeps her floor. She heard the thief knock a code on her counter. Listen, then echo it back on the drums: 1 high, 2 middle, 3 low.",
+ q:"Tunde has been in a cell for two days and nobody has told him, in writing, why he was arrested. Which part of the Constitution is being broken?",
+ o:["Section 35: an arrested person must be told the facts and grounds in writing within 24 hours, in a language they understand","Section 43: the right to own property","Section 40: freedom of assembly"],a:0,
+ e:"Section 35 of the 1999 Constitution protects personal liberty, and an arrested person must be informed in writing within 24 hours."},
+{v:.8,x:40,n:"Mr Okoro's tailor shop",ic:'🧵',f:330,pat:[1,1,2,0,2],clue:'The thief smelt of indigo dye.',
+ s:"Mr Okoro sews in the lamplight. He saw a man slip away smelling of indigo. Then he lowers his voice. Last night officers pushed into Tunde's mother's room with no warrant and read her phone messages. Echo the tailor's tapping to hear what he knows.",
+ q:"The officers entered her home and read her messages without a warrant. Which right protects her?",
+ o:["Section 41: freedom of movement","Section 37: the privacy of citizens, their homes, correspondence and telephone conversations","Section 38: freedom of religion"],a:1,
+ e:"Section 37 guarantees and protects the privacy of citizens, their homes, correspondence and telephone conversations."},
+{v:.7,x:65,n:"Baba Dayo's night kiosk",ic:'🏮',f:392,pat:[2,0,1,2,0],clue:'The thief limped on the left foot.',
+ s:"Baba Dayo the night watchman holds his lantern. Footsteps passed that night, one heavy, one dragging. Inspector Danladi laughed at Tunde in the cell: 'You are guilty until you prove you are not.' Echo the watchman's stick on the ground.",
+ q:"What does the Constitution say about a person charged with a crime?",
+ o:["Section 36(5): they are presumed innocent until proved guilty","They must prove their innocence first","Only the police decide guilt"],a:0,
+ e:"Section 36(5): every person charged with a criminal offence is presumed innocent until proved guilty. Fair hearing is a right."},
+{v:1.4,x:90,n:"Sade's mobile money kiosk",ic:'💳',f:440,pat:[0,2,2,1,0],clue:'The thief paid off a big debt at dawn with crisp new notes.',
+ s:"Sade, a young mobile money agent, trembles behind her counter. At dawn a man paid off a huge debt with crisp new notes, and she saw his face in the lamplight. Then officers shut her kiosk and would not let the market women leave until they cooperated. Echo her nervous tapping.",
+ q:"Officers will not let the market women leave the compound until they cooperate. Which right is being broken?",
+ o:["Section 39: freedom of expression","Section 44: compensation for property","Section 41: the right to move freely throughout Nigeria"],a:2,
+ e:"Section 41 gives every citizen the right to move freely throughout Nigeria and to live in any part of it, subject to what the law reasonably allows."}];
+const SUS=[["Alhaji Bello, a cloth trader. Brass ring, indigo-stained hands, a limp on his left foot, and he recently cleared a big debt.",1],
+["Madam Ify, a pepper seller. Brass ring, clean hands, walks well, and owes nothing.",0],
+["Inspector Danladi. No ring, indigo-dyed uniform, a limp on his left foot, and no known debts.",0],
+["Chief Eze, the landlord of the market. Brass ring, clean hands, a limp on his left foot, and he was seen counting crisp new notes.",0],
+["Musa, a tout who runs the motor park. No ring, indigo on his sleeves, walks well, and was seen counting crisp new notes.",0]];
+const LAW={'1':"Section 1(3): the Constitution is supreme. Any law that conflicts with it is void to the extent of the conflict.",
+'34':"Section 34: every person has the right to respect for the dignity of their person, so torture and inhuman or degrading treatment are forbidden.",
+'35':"Section 35: the right to personal liberty. An arrested person must be told in writing, within 24 hours and in a language they understand, the facts and grounds of the arrest, and be brought before a court within a reasonable time.",
+'36':"Section 36: the right to a fair hearing. Under Section 36(5) a person charged with an offence is presumed innocent until proved guilty.",
+'37':"Section 37: the privacy of citizens, their homes, correspondence and telephone conversations is guaranteed and protected.",
+'39':"Section 39: every person has the right to freedom of expression, including freedom to hold opinions and to receive and share ideas, and the press may hold government to account.",
+'42':"Section 42: freedom from discrimination because of ethnic group, place of origin, sex, religion or political opinion.",
+'41':"Section 41: every citizen has the right to move freely throughout Nigeria and to live in any part of it, subject to what the law reasonably allows.",
+'44':"Section 44: property cannot be taken compulsorily except as the law allows, and with prompt payment of compensation."};
+const JQ=[{sec:'34',q:"Officers beat Tunde to force a confession. Which section protects his dignity?",o:["Section 34: respect for the dignity of the person, so no torture or inhuman treatment","Section 44: compensation for property","Section 39: freedom of the press"],a:0},
+{sec:'1',q:"A state law says suspects can be kept a month without seeing a court. What happens to a law that conflicts with the Constitution?",o:["It overrides the Constitution","It applies only at night","It is void to the extent of the conflict, under Section 1(3)"],a:2},
+{sec:'39',q:"A radio presenter criticises the police over Tunde's arrest. Which right protects her?",o:["Section 37: privacy of the home","Section 39: freedom of expression and the press","Section 44: compensation for property"],a:1},
+{sec:'44',q:"Officers take Mama Nkechi's stall for the investigation and pay nothing. Which section stops that?",o:["Section 38: freedom of religion","Section 44: no compulsory taking of property without prompt compensation","Section 40: freedom of assembly"],a:1},
+{sec:'42',q:"Inspector Danladi treats Tunde harshly only because of his village. Which section forbids discrimination by place of origin?",o:["Section 37: privacy","Section 44: compensation","Section 42: freedom from discrimination"],a:2}];
+ST[0].sec='35';ST[1].sec='37';ST[2].sec='36';ST[3].sec='41';
+ST.forEach(s=>s.e+=' This section is now in your casebook.');
+let g,ac,voice=true,P=[],held={};
+const LANGS={
+en:{name:'English',code:'en',w:[],ok:[],bad:[],open:'',win:'',fear:["Hush. Was that a footstep behind the stalls?","The lamp flickers. Someone is watching you.","Time is running out."]},
+pg:{name:'Naija Pidgin',code:'en-NG',w:["Oga, how far? Abeg come, make I tell you wetin I see.","Welcome o, madam lawyer. Wahala dey this market tonight.","Abeg lower your voice. Na wahala o.","My sister, abeg no shout. Dem dey watch us."],ok:["Oya! You do am well o!","Gbam! Na correct!","Chai! You sharp o!"],bad:["Chai! E no correct o.","Ah ah! Try again abeg.","Wahala o! No be so."],open:"You don land! Welcome to Balogun market.",win:"Na so o! Justice don speak!",fear:["Abeg, quiet. I think say I hear footsteps.","Something no dey right for this market tonight.","Time dey run o. Make we hurry."]},
+yo:{name:'Yoruba',code:'yo-NG',w:["Ẹ kú alẹ́, Madam. Ẹ jọ̀wọ́, ẹ gbọ́ mi.|Good evening, Madam. Please listen to me.","Ẹ káàbọ̀, agbẹjọ́rò.|Welcome, lawyer.","Ẹ má sọ̀rọ̀ sókè. Ẹ̀rù ń bà mí.|Do not speak loudly. I am afraid.","Ẹ jọ̀wọ́, ẹ ràn mí lọ́wọ́.|Please help me."],ok:["Ó dára gan-an!|Very good!","O ṣé gan-an!|Thank you very much!","Ẹ kú iṣẹ́!|Well done!"],bad:["Ẹ má bínú, kò tọ̀nà.|Sorry, that is not right.","Gbìyànjú lẹ́ẹ̀kan sí i.|Try once more."],open:"Ẹ káàbọ̀!|Welcome!",win:"Òtítọ́ borí!|The truth has won!",fear:["Ẹ dákẹ́ jẹ́ẹ́. Mo gbọ́ ìró ẹsẹ̀.|Be quiet. I hear footsteps.","Àkókò ń lọ.|Time is passing."]},
+ig:{name:'Igbo',code:'ig-NG',w:["Ndewo, madam. Biko gee m ntị.|Hello, madam. Please listen to me.","Nnọọ, onye ọka iwu.|Welcome, lawyer.","Biko, kwuo nwayọọ. Ụjọ na-atụ m.|Please speak softly. I am afraid.","Biko nyere m aka.|Please help me."],ok:["Ị mere nke ọma!|You did well!","Ọ dị mma!|That is good!","Ọ bụ eziokwu!|That is the truth!"],bad:["Biko, nwaa ọzọ.|Please try again.","Ọ bụghị nke ahụ.|That is not it."],open:"Nnọọ!|Welcome!",win:"Ọ dị mma nke ukwuu!|That is very good indeed!",fear:["Gbachi nkịtị. Anụrụ m ụda ụkwụ.|Be quiet. I hear the sound of feet.","Oge na-agafe.|Time is passing."]},
+ha:{name:'Hausa',code:'ha-NG',w:["Barka da dare, hajiya. Don Allah ki saurare ni.|Good evening, madam. Please listen to me.","Barka da zuwa, lauya.|Welcome, lawyer.","Kar ki yi magana da ƙarfi. Ina tsoro.|Do not speak loudly. I am afraid.","Don Allah, ki taimake ni.|Please help me."],ok:["Madalla!|Excellent!","Kin yi kyau sosai!|You did very well!","Ina godiya!|Thank you!"],bad:["Kash! Ba haka ba ne.|Oh no! That is not it.","A sake gwadawa.|Try again."],open:"Barka da zuwa!|Welcome!",win:"Gaskiya ta yi nasara!|The truth has won!",fear:["Ki yi shiru. Ina jin takun ƙafa.|Be quiet. I hear footsteps.","Lokaci na tafiya.|Time is passing."]}};
+const LK=Object.keys(LANGS);let lang='en';try{lang=localStorage.getItem('bal_lang')||'en'}catch(e){}if(!LANGS[lang])lang='en';let LG=LANGS[lang],wt;
+const pr=ok=>{const a=ok?LG.ok:LG.bad;return a.length?a[Math.random()*a.length|0]:''};
+let VL=[],vi=-1;const vload=()=>{const a=speechSynthesis.getVoices();VL=a.filter(v=>/^en/i.test(v.lang));if(!VL.length)VL=a};
+if(window.speechSynthesis){vload();speechSynthesis.onvoiceschanged=vload}
+const speak=(t,p,lc,keep)=>{if(!voice||!window.speechSynthesis)return;if(!keep)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.95;u.pitch=p||(/^Prosecutor/.test(t)?.6:(g&&g.vp)||1);if(lc&&lc!=='en')u.lang=lc;else if(vi>=0&&VL[vi])u.voice=VL[vi];speechSynthesis.speak(u)};
+function streak(ok){if(!g)return;if(!ok){if((g.sx||0)>=3)g.sk='Your streak of '+g.sx+' is broken.';g.sx=0}else{g.sx=(g.sx||0)+1;if(g.sx===3||g.sx===5||g.sx===7){const b=g.sx===3?1:2;g.hrs=Math.min(24,g.hrs+b);hud();g.sk='Streak of '+g.sx+'! Momentum earns you '+b+' bonus hour'+(b>1?'s':'')+'.';burst(innerWidth/2,innerHeight*.45,'#ff8a3d',70,8);setTimeout(chime,300)}}const e=$('#sk');if(e)e.textContent=g.sx;if(ok)lagosOk()}
+const say=t=>{try{Access.note(t)}catch(x){}if(g&&g.sk){t+=' '+g.sk;g.sk=''}setTimeout(contBtn,0);const pre=g&&g.pre;if(g)g.pre='';if(pre){const[n,gl]=pre.split('|');$('#txt').textContent=n+(gl?' ('+gl+') ':' ')+t;speak(n,1,LG.code);speak(t,0,0,1)}else{$('#txt').textContent=t;speak(t)}};
+const whisper=t=>{const[n,gl]=t.split('|');$('#wh').textContent=n+(gl?' ('+gl+')':'');speak(n,.7,LG.code);clearTimeout(wt);wt=setTimeout(()=>$('#wh').textContent='',7000)};
+function nextLang(){lang=LK[(LK.indexOf(lang)+1)%LK.length];LG=LANGS[lang];try{localStorage.setItem('bal_lang',lang)}catch(e){}$('#lb').textContent='Language: '+LG.name+' (L)';if(LG.open)whisper(LG.open);else speak('Language: English.',1)}
+setInterval(()=>{if(g&&g.mode==='walk'){fx('flash');tone(70,.9,.3,'sawtooth',(Math.random()-.5)*1.6);whisper(LG.fear[Math.random()*LG.fear.length|0])}},26000);
+function nextVoice(){if(!window.speechSynthesis)return;vload();voice=true;if(!VL.length){$('#vb').textContent='No other voices';return}vi=(vi+1)%VL.length;const n=VL[vi].name;$('#vb').textContent='Voice: '+n.slice(0,24)+' (V)';speak('Voice '+(vi+1)+' of '+VL.length+'. This is '+n+'. Press R to hear the text again in this voice.',1)}
+const opts=(a,fn)=>{const o=$('#opts');o.innerHTML='';a.forEach((t,i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+t;b.onclick=()=>fn(i);o.appendChild(b)})};
+const W=ms=>new Promise(r=>setTimeout(r,ms));
+function A(){if(!ac)ac=new (window.AudioContext||webkitAudioContext)();ac.resume()}
+function tone(f,d,v,type,pan,f2){if(!ac)return;const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(),p=ac.createStereoPanner();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d*.7);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);p.pan.value=pan||0;o.connect(g);g.connect(p);p.connect(ac.destination);o.start(t);o.stop(t+d)}
+const drum=(k,pan)=>{const f=[420,280,180][k];tone(f*1.5,.35,.5,'triangle',pan||0,f);const pd=$('#p'+k);if(pd){pd.classList.add('on');setTimeout(()=>pd.classList.remove('on'),160)}};
+const sting=ok=>{if(g)g.pre=pr(ok);if(ok)Sfx.play('clap',{maxMs:2400,fade:500});ok?[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.5,.3,'triangle'),i*110)):[196,156,110].forEach((f,i)=>setTimeout(()=>tone(f,.6,.4,'sawtooth'),i*160))};
+function burst(x,y,c,n,s){if(RM)return;for(let i=0;i<n;i++){const a=Math.random()*6.28,v=Math.random()*s+1;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,l:70+Math.random()*50,c,r:2+Math.random()*3})}}
+const fx=(c)=>{if(RM)return;document.body.classList.add(c);setTimeout(()=>document.body.classList.remove(c),700)};
+const cv=$('#fx'),cx=cv.getContext('2d'),rs=()=>{cv.width=innerWidth;cv.height=innerHeight};addEventListener('resize',rs);rs();
+(function loop(){cx.clearRect(0,0,cv.width,cv.height);if(!RM&&P.length<70&&Math.random()<.5)P.push({x:Math.random()*cv.width,y:cv.height+4,vx:(Math.random()-.5)*.6,vy:-.5-Math.random(),l:260,c:'rgba(255,190,100,.55)',r:1.6,amb:1});
+P=P.filter(p=>p.l-->0);for(const p of P){p.x+=p.vx;p.y+=p.vy;if(!p.amb)p.vy+=.07;cx.globalAlpha=Math.min(1,p.l/40);cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.3);cx.fill()}requestAnimationFrame(loop)})();
+function hud(){$('#hrs').textContent=g.hrs;$('#cl').textContent=g.clues.length;document.body.classList.toggle('hot',g.hrs<=8);try{Atmos.danger(Math.max(0,Math.min(1,(g.heat||0)/5*.4+(1-g.hrs/24)*.8)))}catch(x){}}
+function cost(h,q){if(h>=2)heatUp(1,'wrong');g.hrs=Math.max(0,g.hrs-h);hud();fx('shake');fx('flash');burst(innerWidth/2,innerHeight*.5,'#ff2d4d',50,6);if(!q)sting(0);if(g.hrs<=0){end(false,'The 24 hours run out. The police charge Tunde with a crime he did not commit. His mother holds the bars and says nothing at all. Press Enter to try again.');return 1}}
+function build(){const w=$('#world');w.innerHTML='';ST.forEach((s,i)=>{const d=document.createElement('div');d.className='stall';d.id='s'+i;d.style.left=s.x*3+'vw';d.innerHTML='<i>'+s.ic+'</i><span>'+s.n+'</span>';w.appendChild(d);const n=People.el(Object.assign({cls:'npc',style:'left:calc('+s.x*3+'vw + 10vw - 5.5vh)'},People.cast[['nkechi','okoro','baba','sade'][i]]));n.id='n'+i;w.appendChild(n)})}
+function start(){Sfx.stopIntro(800);Sfx.stop('sad',300);A();SUS.sort(()=>Math.random()-.5);g={cards:new Set(),vp:1,pos:2,hrs:24,clues:[],done:[],mode:'walk',love:0,sx:0,sk:'',heat:0,rumour:[],cps:0,okc:0,radio:0,rIdx:0};$('#sk').textContent=0;$('#ht').textContent=0;document.body.classList.remove('court','dawn');$('#det .pp').className='pp';$('#lv').textContent=0;build();hud();g.pre=LG.open||'';say("Lagos, past midnight. Balogun market is sealed with tape. You are Barrister Ada Obi, Tunde's lawyer. The police will not look any further, so you must investigate yourself, then fight for him in court. Tunde, a sixteen year old boy, sits in a cell, accused of stealing the market's savings. You have 24 hours before he is charged. Walk with the Left and Right arrows. Listen: every stall hums a note in your left or right ear, louder when you are close. Press Enter at a stall to talk.");g.mode='walk';move(0);walkBtns();$('#app').focus()}
+function walkBtns(){opts(['◀ Walk left','Walk right ▶','Talk (Enter)','Radio (B)'],i=>{if(i===2){const n=near();n>=0?talk(n):say('No stall is close. Walk towards the humming sound.')}if(i===3)radio(false)});const b=document.querySelectorAll('#opts button');[[0,-2],[1,2]].forEach(([i,d])=>{let t;const go=e=>{e.preventDefault();move(d);clearInterval(t);t=setInterval(()=>move(d),90)},stp=()=>clearInterval(t);b[i].onclick=null;b[i].onpointerdown=go;['pointerup','pointerleave','pointercancel','blur'].forEach(ev=>b[i].addEventListener(ev,stp));b[i].onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();move(d)}}})}
+function near(){let b=-1,m=99;ST.forEach((s,i)=>{const d=Math.abs(s.x-g.pos);if(d<m){m=d;b=i}});return m<9?b:-1}
+function move(d){if(g.mode!=='walk')return;g.pos=Math.max(0,Math.min(100,g.pos+d));$('#world').style.transform='translateX('+(50-g.pos*3)+'vw)';$('#det').style.transform=d<0?'scaleX(-1)':'';if(d){const p=$('#det .pp');People.walk(p,true);clearTimeout(move.t);move.t=setTimeout(()=>People.walk(p,false),300)}const n=near();ST.forEach((s,i)=>{$('#s'+i).classList.toggle('near',i===n);const e=$('#n'+i);if(e)e.classList.toggle('wave',i===n&&!g.done.includes(i))});if(d){tone(90,.08,.25,'square',0)}if(n>=0&&n!==g.last){g.last=n;say(ST[n].n+(g.done.includes(n)?'. You have finished here.':'. Press Enter to talk.'))}if(n<0)g.last=-1;if(!g.met&&g.mode==='walk'&&g.pos>=26&&g.pos<=32)meet();if(!g.tricked&&g.mode==='walk'&&g.pos>=50&&g.pos<=56)tout();if(!g.tipped&&g.mode==='walk'&&g.pos>=76&&g.pos<=82)tipEvent();if(d&&g.mode==='walk'){g.cps=(g.cps||0)+1;if(g.heat>=3&&g.cps>=(g.heat>=5?8:16)){g.cps=0;checkpoint()}}}
+setInterval(()=>{if(!g||g.mode!=='walk'||!ac)return;ST.forEach(s=>{const dx=s.x-g.pos;tone(s.f,.4,.18*Math.max(0,1-Math.abs(dx)/55),'triangle',Math.max(-1,Math.min(1,dx/35)))})},650);
+setInterval(()=>{if(!g||!ac||g.mode==='end'||g.mode==='title')return;tone(58,.16,.5,'sine',0);setTimeout(()=>tone(52,.2,.4,'sine',0),170)},1400);
+function tout(){g.tricked=1;g.mode='trick';
+say('A tout in an indigo cap steps out of the dark and pushes an envelope into your hand. "Psst, madam lawyer. A free clue about the thief. Take it quickly, before the police see." Press 1 to take the envelope, or 2 to ignore him.');
+opts(['Take the envelope','Ignore him and keep walking'],trickAns)}
+function trickAns(i){if(g.mode!=='trick')return;
+if(i===0){g.mode='busy';$('#opts').innerHTML='';say('You tear open the envelope. Inside is a note: "Gotcha, counsellor! Free things cost the most." The tout cackles and vanishes into the crowd.');
+Sfx.play('emotional');fx('shake');setTimeout(()=>{if(cost(1,1))return;g.mode='walk';walkBtns();$('#app').focus()},3800)}
+else{g.mode='walk';sting(1);walkBtns();$('#app').focus();say('Good instincts. The tout melts back into the shadows. Real clues are never free. Keep walking.')}}
+
+/* ===================== THE CITY: Heat, checkpoints and the radio ===================== */
+function heatUp(n,why){if(!g)return;const r=Lagos.addHeat(g,n,why);const e=$('#ht');if(e)e.textContent=g.heat;if(r.msg)g.sk=(g.sk?g.sk+' ':'')+r.msg;return r}
+function lagosOk(){g.okc=(g.okc||0)+1;if(g.okc%2===0&&g.heat>0)heatUp(-1)}
+/* A police checkpoint on the street. Cite the right Section to pass, or settle am. */
+function checkpoint(){
+ g.mode='cp';g.sc=Lagos.checkpoint(g);const sc=g.sc;Lagos.sfx.siren(1500);setTimeout(()=>Lagos.sfx.whistle(),700);
+ say('Police checkpoint! '+sc.off+' '+sc.q+' '+sc.o.map((t,i)=>'Option '+(i+1)+': '+t+'.').join(' ')+' Or option 4: settle am, and slip him some money, which costs you an hour.'+Access.coopSay());
+ opts(sc.o.concat(['Settle am: slip him some money']),cpAns)}
+function cpAns(i){
+ if(g.mode!=='cp')return;const sc=g.sc;g.mode='lafter';$('#opts').innerHTML='';
+ if(i===3){Lagos.sfx.pay();g.rumour.push('bribe');if(cost(1,1))return;say('You press a folded note into his palm. He waves you on. It cost you an hour, and people talk. Press Enter to keep walking.')}
+ else if(i===sc.a){Lagos.sfx.ok();streak(1);heatUp(-1);say('Correct. The officer steps aside. '+sc.why+' Press Enter to keep walking.')}
+ else{Lagos.sfx.bad();streak(0);if(cost(2,1))return;say('Wrong. The officer keeps you waiting two hours. '+sc.why+' Press Enter to keep walking.')}}
+/* Lagos Radio: B turns it on or plays the next bulletin, Shift and B turns it off. Works while walking. */
+function radio(off){
+ if(!g||g.mode!=='walk'){if(g)whisper('Radio works while you are walking.');return}
+ if(off){if(g.radio){g.radio=0;Lagos.sfx.stat(.2);say('Radio off.')}return}
+ const first=!g.radio;g.radio=1;const bl=Lagos.radio.bulletin(g,{game:'balogun',hrs:g.hrs,clues:g.done.length});
+ Lagos.sfx.jingle();if(bl.fx==='gen')Lagos.sfx.bed('generator',2600);
+ say((first?Lagos.radio.intro:'')+bl.text)}
+/* A planted tip that fits SOME of your clues. Critical thinking: a story that matches three clues out of four proves nothing. */
+function tipEvent(){g.tipped=1;g.mode='tip';
+const k=People.el(Object.assign({cls:'npc',style:'left:'+(g.pos+24)*3+'vw;margin-left:-5.5vh'},People.cast.ify));k.id='c_ify';$('#world').appendChild(k);
+People.walk(k,true);setTimeout(()=>{k.style.left=(g.pos+10)*3+'vw'},60);setTimeout(()=>{People.walk(k,false);People.react(k,'wave',2600)},2600);
+say('Madam Ify, the pepper seller, rushes out from behind a stall, out of breath. "Barrister! I did not want to say, but I saw it with my own eyes. Chief Eze, the landlord, counting crisp new notes by the gate. He wears a brass ring and he limps. Arrest him before he runs!" Press 1 to believe her and add Chief Eze to your case, 2 to test her story against your clues, or 3 to thank her and walk on.');
+opts(['Believe her and add Chief Eze to your case','Test her story against your clues','Thank her and keep walking'],tipAns)}
+function tipAns(i){if(g.mode!=='tip')return;const k=$('#c_ify');
+if(i===0){g.mode='busy';$('#opts').innerHTML='';streak(0);heatUp(1,'bluff');Sfx.play('emotional');fx('shake');
+say('You write Chief Eze in your notebook and spend an hour chasing him. His hands are clean and nobody saw indigo on him. You wasted time on a story that fitted only some of your clues. A tip is not proof, and a clue that fits many people proves nothing.');
+setTimeout(()=>{if(cost(1,1))return;g.mode='walk';walkBtns();$('#app').focus()},4200)}
+else if(i===1){g.mode='lafter';$('#opts').innerHTML='';streak(1);g.hrs=Math.min(24,g.hrs+1);hud();fx('flash');burst(innerWidth/2,innerHeight*.5,'#ffd400',70,7);sting(1);k&&People.react(k,'sad',3600);
+say('You hold her story up against your clues. '+(g.done.includes(1)?'The tailor saw indigo on the thief, and Chief Eze has clean hands. ':'You do not yet hold all four clues, so you ask what is missing from her story. ')+'A story that matches some clues but not all of them is not proof. Ify cannot meet your eye. She whispers that Chief Eze threatened to double her stall rent unless somebody else took the blame. She was pointing at him to protect herself. You gain an hour for staying calm. Press Enter to keep walking.')}
+else{g.mode='walk';walkBtns();$('#app').focus();say('You thank her and walk on, but you never learn why she was so eager to point at Chief Eze. Check every tip against your clues.')}}
+async function talk(i){const s=ST[i];g.vp=s.v;if(g.done.includes(i))return say('You already have the clue from here.');g.mode='story';g.st=i;npc(i,1);g.pre=LG.w[i]||'';burst(innerWidth/2,innerHeight*.45,'#ffd400',30,4);say(s.s);opts(['Begin the drum echo'],()=>rhythm(i))}
+async function rhythm(i){const s=ST[i];g.mode='demo';g.in=[];$('#opts').innerHTML='<div style="display:flex;gap:1rem">'+[0,1,2].map(k=>'<button class="pad" id="p'+k+'" aria-label="Drum '+(k+1)+'">'+(k+1)+'</button>').join('')+'</div>';[0,1,2].forEach(k=>$('#p'+k).onclick=()=>hit(k));say('Listen to the pattern.');await W(1600);for(const k of s.pat){drum(k,(k-1)*.7);await W(520)}g.mode='echo';say('Now echo it back, '+s.pat.length+' beats. Press 1, 2 or 3. R plays it again.')}
+function hit(k){if(g.mode!=='echo')return;drum(k,(k-1)*.7);g.in.push(k);const s=ST[g.st],j=g.in.length-1;if(g.in[j]!==s.pat[j]){g.mode='demo';if(cost(2))return;say('Wrong beat. The market holds its breath. Listen again.');return setTimeout(()=>rhythm(g.st),1200)}
+if(g.in.length===s.pat.length){g.mode='quiz';burst(innerWidth/2,innerHeight*.5,'#4be08a',70,7);sting(1);g.clues.push(s.clue);hud();say('Clue found: '+s.clue+' Now the law. '+s.q+' '+s.o.map((t,n)=>'Option '+(n+1)+': '+t+'.').join(' '));opts(s.o,ans)}}
+function ans(n){if(g.mode!=='quiz')return;const s=ST[g.st],ok=n===s.a;g.mode='after';npc(g.st,0);g.cards.add(s.sec);if(ok){streak(1);g.hrs=Math.min(24,g.hrs+2);hud();fx('flash');burst(innerWidth/2,innerHeight*.5,'#ffd400',90,8);sting(1);say('Correct. You cite the Constitution to the magistrate and win two more hours. '+s.e+' Press Enter to keep walking.')}else{streak(0);if(cost(3))return;say('Not quite. '+s.e+' It cost you three hours. Press Enter to keep walking.')}
+g.done.push(g.st);$('#s'+g.st).classList.add('done');$('#opts').innerHTML=''}
+function book(){say('Constitution casebook. '+(g.cards.size?'You have unlocked '+g.cards.size+' of '+Object.keys(LAW).length+' sections. ':'No sections yet. Answer the legal questions to unlock them. ')+[...g.cards].map(c=>LAW[c]).join(' ')+(g.mode==='walk'?' Keep walking.':''))}
+function hearing(){scene();g.hq=JQ.slice().sort(()=>Math.random()-.5).slice(0,3);g.hi=0;fx('flash');hnext(1)}
+function hnext(f){tk('magistrate',3500);const q=g.hq[g.hi];g.mode='hear';say((f?'Dawn. You carry the clues to Magistrate Adeyemi, who will test your knowledge of the law before she hears you. ':'')+'Question '+(g.hi+1)+' of 3. '+q.q+' '+q.o.map((t,n)=>'Option '+(n+1)+': '+t+'.').join(' '));opts(q.o,hans)}
+function hans(n){if(g.mode!=='hear')return;const q=g.hq[g.hi],ok=n===q.a;g.mode='hafter';g.cards.add(q.sec);if(ok){streak(1);g.hrs=Math.min(24,g.hrs+1);hud();fx('flash');burst(innerWidth/2,innerHeight*.5,'#ffd400',80,8);sting(1);say('Correct. The magistrate nods. '+LAW[q.sec]+' Press Enter.')}else{streak(0);if(cost(2))return;say('Not quite. It cost two hours. '+LAW[q.sec]+' Press Enter.')}$('#opts').innerHTML=''}
+function accuseStart(){lineup();g.mode='accuse';fx('flash');say("The courtroom is silent. Inspector Danladi has confessed that he was paid to blame a poor boy. The magistrate turns to you: who really took the market's savings? "+SUS.map((x,i)=>'Number '+(i+1)+': '+x[0]).join(' '));opts(SUS.map(x=>x[0]),acc)}
+function cont(){if(g.done.length===ST.length)hearing();else{g.vp=1;g.mode='walk';walkBtns();$('#app').focus();say('Keep walking. '+(ST.length-g.done.length)+' stalls to go.')}}
+const gav=()=>{tone(120,.12,.9,'square');setTimeout(()=>tone(95,.16,.9,'square'),230)};
+const OB=[["Prosecutor: My Lord, the Inspector read the private messages on Tunde's mother's phone, taken without a warrant, and they are now exhibit one.",1,"Sustained. Section 37 protects the privacy of her home and phone, and under Section 14 of the Evidence Act the court may exclude improperly obtained evidence unless admitting it clearly outweighs the harm of admitting it."],
+["Prosecutor: The witness will tell the court what time he saw the accused near the market.",0,"Rightly allowed. This is a plain question of fact for a witness who was there."],
+["Prosecutor: My Lord, everyone in the market knows this boy is a thief.",1,"Sustained. Section 36(5) presumes Tunde innocent, and market gossip is hearsay, not evidence."]];
+function court(){g.mode='mafter';tk('magistrate',4000);if(g.love>0){const k=$('#c_kelechi');k&&k.classList.add('wave');g.hrs=Math.min(24,g.hrs+1);hud();heart(1);g.pre='In the gallery Kelechi catches your eye and mouths, You have got this. You blush, stand straighter, and win an hour. '}gav();fx('flash');burst(innerWidth/2,innerHeight*.4,'#ffd400',90,8);g.m={fn:r1};say("Act two: the courtroom. The State insists on trying Tunde this morning, and you are his lawyer. Magistrate Adeyemi takes her seat and the gavel falls. You face three tests: a motion, objections in real time, and a cross-examination. Press Enter.")}
+function mcq(t,o,a,okT,badT,c,fn){g.mode='mcq';g.m={a,okT,badT,c,fn};say(t+' '+o.map((x,n)=>'Option '+(n+1)+': '+x+'.').join(' '));opts(o,mans)}
+function mans(n){if(g.mode!=='mcq')return;const m=g.m;g.mode='mafter';$('#opts').innerHTML='';if(n===m.a){streak(1);g.hrs=Math.min(24,g.hrs+1);hud();fx('flash');burst(innerWidth/2,innerHeight*.5,'#ffd400',80,8);sting(1);say(m.okT+' Press Enter.')}else{streak(0);if(cost(m.c))return;say(m.badT+' It cost '+m.c+' hours. Press Enter.')}}
+function r1(){mcq("Round one, the motion. Tunde has been held for days without a charge or a court appearance. What do you ask the judge for?",["A new chair for the accused","His release, because holding him this long without taking him to court breaks Section 35","That the Constitution be rewritten"],1,"The magistrate orders the prosecution to justify the detention. Section 35 limits how long anyone can be held before a court appearance.","The magistrate frowns. That is not a legal ground.",3,()=>obj(0))}
+function obj(i){g.mode='obj';g.oi=i;tk('prosecutor',2800);gav();const o=OB[i];const AS=Sfx.assist(),txt='Objection round '+(i+1)+' of 3. '+o[0]+' Press O or 1 to object, or Space or 2 to let it pass. '+(AS?'Take your time, there is no timer. Press T to turn assisted mode off.':'You get ten seconds after I finish reading. Press T for assisted mode with no timer.');
+say(txt);opts(['Object! (O or 1)','Let it pass (Space or 2)'],j=>oans(j===0?1:0));clearTimeout(g.ot);
+if(!AS)g.ot=setTimeout(()=>{if(g.mode!=='obj')return;$('#opts').insertAdjacentHTML('afterbegin','<div class="bar" style="animation-duration:10s"></div>');g.ot=setTimeout(()=>oans(-1),10000)},txt.length*75)}
+function oans(x){if(g.mode!=='obj')return;clearTimeout(g.ot);const o=OB[g.oi];g.mode='oafter';$('#opts').innerHTML='';let r;if(x===1&&o[1]){streak(1);g.hrs=Math.min(24,g.hrs+1);hud();fx('flash');burst(innerWidth/2,innerHeight*.5,'#ffd400',80,8);sting(1);r='Objection!'}else if(x===1){streak(0);if(cost(1))return;r='Overruled. That cost you an hour.'}else if(o[1]){streak(0);if(cost(2))return;r=(x<0?'Too slow. ':'')+'The bad question stands and the room murmurs. It cost two hours.'}else r=x<0?'Time passes, but nothing was wrong with it.':'Good. You saved your objections.';say(r+' '+o[2]+' Press Enter.')}
+function r3(){tk('danladi',4000);mcq("Round three, the cross-examination. Inspector Danladi swears he slept at home all night. His uniform is stained with indigo and he limps on his left foot. Your move?",["Shout that he is the thief","Ask short, calm questions that pin him to his alibi, then confront him with the indigo, the limp, and who gained from jailing Tunde","Ask him to recite Section 36"],1,"Danladi sweats, then cracks: Alhaji Bello's lawyer paid him to blame a poor boy. The courtroom gasps.","He bristles and the moment is lost, but the truth is still in the room.",3,accuseStart)}
+function acc(i){if(g.mode!=='accuse')return;const sus=SUS[i];
+if(sus[1]){catchThief();return}
+g.mode='busy';$('#opts').innerHTML='';
+if(/^Chief Eze/.test(sus[0])){const ez=$('#c_eze');ez&&ez.classList.add('angry');setTimeout(()=>ez&&ez.classList.remove('angry'),2600);Sfx.slapFx('Chief Eze');setTimeout(()=>wrongAcc(2),1700)}else wrongAcc(0)}
+function wrongAcc(extra){
+Sfx.play('sad',{maxMs:9000,fade:1500});streak(0);
+if(cost(6+extra,1))return;
+g.mode='accuse';
+say((extra?'Chief Eze slaps you across the face. "How dare you accuse the landlord of this market!" ':'')+'Your accusation does not fit all four clues. The suspect is released and the real thief watches from the dark. It cost '+(6+extra)+' hours. Choose again.');
+opts(SUS.map(x=>x[0]),acc)}
+function catchThief(){
+g.mode='chase';$('#opts').innerHTML='';fx('flash');const bl=$('#c_bello');if(bl){People.run(bl,true);bl.style.transition='transform 2.8s cubic-bezier(.5,0,.9,.6)';bl.style.transform='translateX(60vw)'}
+say('Alhaji Bello freezes, then bolts out of the courtroom, jumps into a waiting car and speeds into the Lagos traffic. After him!');
+setTimeout(()=>Traffic.start({target:'Alhaji Bello',plate:'BELLO 1',speak:t=>speak(t),onDone:win}),3600)}
+function win(){end(true,'The police catch Alhaji Bello at the roadside, the brass ring glinting under the lamp. Indigo on his hands, a limp, and the crisp new notes he paid his debt with give him away. The savings box is found under his cloth. The magistrate strikes out the charge, and Tunde walks out of the dock into his mother\'s arms, crying and laughing. The Constitution held. You finished with '+g.hrs+' hours to spare, and you unlocked '+g.cards.size+' of '+Object.keys(LAW).length+' sections of the Constitution. Press Enter.');g.mode='epi0'}
+function end(w,t){try{Atmos.letterbox(false);Atmos.danger(0)}catch(x){}g.mode='end';$('#opts').innerHTML='';if(w){fx('flash');for(let k=0;k<6;k++)setTimeout(()=>burst(Math.random()*innerWidth,innerHeight*.35,['#ffd400','#4be08a','#ff2d4d','#3b4cc0'][k%4],80,9),k*250);sting(1);Sfx.play('clap');Sfx.done('balogun',{hrs:g.hrs});if(LG.win)g.pre=LG.win}else Sfx.play('sad',{maxMs:9000,fade:1500});say(t)}
+addEventListener('keydown',e=>{if(!g){if(e.key==='Enter')start();else if(e.key==='l'||e.key==='L')nextLang();else if(e.key==='v'||e.key==='V')nextVoice();return}const k=e.key,m=g.mode;if(e.target.tagName==='BUTTON'&&(k==='Enter'||k===' '))return;if((k==='c'||k==='C')&&['walk','after','end','mafter','oafter'].includes(m)){book();return}if(k==='v'||k==='V'){nextVoice();return}if(k==='t'||k==='T'){Sfx.setAssist(!Sfx.assist());whisper('Assisted mode '+(Sfx.assist()?'on':'off'));return}if(k==='l'||k==='L'){nextLang();return}if(k==='x'||k==='X'){voice=!voice;speechSynthesis&&speechSynthesis.cancel();$('#vb').textContent=voice?'Voice on (V)':'Voice off (X)';return}if((k==='r'||k==='R')&&m!=='echo'){speak($('#txt').textContent);return}if(k==='b'||k==='B'){radio(e.shiftKey);return}else if(m==='cp'&&'1234'.includes(k)){cpAns(+k-1);return}
+if(m==='walk'){if(k==='ArrowRight'||k==='d'||k==='D'){e.preventDefault();move(2)}else if(k==='ArrowLeft'||k==='a'||k==='A'){e.preventDefault();move(-2)}else if(k==='Enter'){const n=near();n>=0?talk(n):say('No stall is close. Walk towards the humming sound.')}}
+else if(m==='story'&&k==='Enter')rhythm(g.st);else if(m==='echo'){if('123'.includes(k))hit(+k-1);else if(k==='r'||k==='R')rhythm(g.st)}
+else if(m==='quiz'&&'123'.includes(k)&&k)ans(+k-1);else if(m==='after'&&k==='Enter')cont();else if(m==='hear'&&'123'.includes(k))hans(+k-1);else if(m==='hafter'&&k==='Enter'){g.hi++;g.hi<3?hnext():court()}else if(m==='mcq'&&'123'.includes(k))mans(+k-1);else if(m==='mafter'&&k==='Enter')g.m.fn();else if(m==='oafter'&&k==='Enter')g.oi<2?obj(g.oi+1):r3();else if(m==='obj'){if(k==='o'||k==='O'||k==='1')oans(1);else if(k===' '||k==='2'){e.preventDefault();oans(0)}}else if(m==='accuse'&&'12345'.includes(k))acc(+k-1);else if(m==='trick'&&'12'.includes(k))trickAns(+k-1);else if(m==='tip'&&'123'.includes(k))tipAns(+k-1);else if(m==='love'&&'123'.includes(k))loveAns(+k-1);else if(m==='lafter'&&k==='Enter')loveDone();else if(m==='epi0'&&k==='Enter')epi();else if(m==='epi'&&'12'.includes(k))epiAns(+k-1);else if(m==='end'&&k==='Enter')start()});
+$('#lb').textContent='Language: '+LG.name+' (L)';$('#txt').textContent='Press Enter to open the case file. Press L to choose English, Naija Pidgin, Yoruba, Igbo or Hausa.';opts(['Open the case file'],start);Sfx.intro();
+
+/* ---- people, scenes and the love story (Kelechi Nwosu) ---- */
+const tk=(k,ms)=>{const e=$('#c_'+k);if(!e)return;e.classList.add('talk');setTimeout(()=>e.classList.remove('talk'),ms||2500)};
+const npc=(i,on)=>{const e=$('#n'+i);if(e)e.classList.toggle('talk',!!on)};
+const chime=()=>[659,784,988,1319].forEach((f,i)=>setTimeout(()=>tone(f,.7,.22,'sine'),i*170));
+function cast(L){const w=$('#world');w.innerHTML='';w.style.transform='translateX(0)';L.forEach(([k,x,n])=>{const p=People.el(Object.assign({cls:'npc',style:'left:'+x+'vw;margin-left:-5.5vh'},People.cast[k]));p.id='c_'+k;if(n){const l=document.createElement('div');l.className='nm';l.textContent=n;p.appendChild(l)}w.appendChild(p)})}
+function scene(){document.body.classList.add('court');cast([['tunde',8,'Tunde'],['danladi',26,'Inspector Danladi'],['prosecutor',66,'Prosecutor'],['magistrate',82,'Magistrate Adeyemi'],['kelechi',95]])}
+function lineup(){const K=[['bello','Alhaji Bello'],['ify','Madam Ify'],['danladi','Inspector Danladi'],['eze','Chief Eze'],['musa','Musa']];cast(SUS.map((x,i)=>{const a=K.find(a=>x[0].indexOf(a[1])===0);return[a[0],[8,24,40,60,76][i],a[1]]}))}
+function heart(n){g.love=(g.love||0)+n;$('#lv').textContent=g.love;if(n>0){const d=document.createElement('div');d.className='hh';$('#app').appendChild(d);People.hearts(d,6);setTimeout(()=>d.remove(),4500)}}
+function contBtn(){if(!g)return;const o=$('#opts');if(o.children.length||!['after','hafter','mafter','oafter','lafter','epi0','end'].includes(g.mode))return;const b=document.createElement('button');b.textContent=g.mode==='end'?'Play again \u25B6 (Enter)':'Continue \u25B6 (Enter)';b.onclick=()=>dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));o.appendChild(b)}
+function meet(){g.met=1;g.mode='love';const k=People.el(Object.assign({cls:'npc',style:'left:'+(g.pos+24)*3+'vw;margin-left:-5.5vh'},People.cast.kelechi));k.id='c_kelechi';$('#world').appendChild(k);People.walk(k,true);setTimeout(()=>{k.style.left=(g.pos+10)*3+'vw'},60);setTimeout(()=>People.walk(k,false),2600);$('#det .pp').classList.add('blush');
+say('A tall man in rolled-up sleeves steps out from behind a stall with a flask in one hand and a paper of hot suya in the other. "Barrister Ada Obi? Kelechi Nwosu, Radio Lagos. I have been reporting Tunde\'s arrest all night, and you look like you have not eaten since it began." His smile is warm, and for a moment you forget the clock. Press 1 to accept the suya, 2 to decline politely, or 3 to ask what he knows.');
+opts(['Accept the suya and smile at him','Decline politely: there is no time','Ask what he has learned about the case'],loveAns)}
+function loveAns(i){if(g.mode!=='love')return;g.mode='lafter';$('#opts').innerHTML='';const k=$('#c_kelechi');k.classList.add('talk','wave');
+const T=['He laughs, soft and low. "Careful, barrister. Smile like that and the police will think you are plotting something." The suya is hot, the pepper bites, and your head clears. You gain an hour.',
+'He nods, not offended. "Then take the flask for later." He presses it into your hand and his fingers brush yours. You walk on, and your cheeks are warm all the same.',
+'His face turns serious. "Officers have been leaning on every market woman. I will say it on air at dawn, so the whole city listens." He squeezes your hand once. "Go. I will be around." You gain an hour.'][i];
+if(i!==1){g.hrs=Math.min(24,g.hrs+1);hud()}heart([2,1,1][i]);chime();say(T+' Press Enter to keep walking.')}
+function loveDone(){$('#det .pp').classList.remove('blush');const k=$('#c_kelechi');k&&k.classList.remove('talk');g.mode='walk';walkBtns();$('#app').focus()}
+function epi(){const L=g.love||0,w=$('#world');g.mode='epi';document.body.classList.remove('court');document.body.classList.add('dawn');w.style.transform='translateX(0)';w.innerHTML='';
+[['tunde',22],['kelechi',72]].forEach(([k,x])=>{const p=People.el(Object.assign({cls:'npc',style:'left:'+x+'vw;margin-left:-5.5vh'},People.cast[k]));p.id='c_'+k;w.appendChild(p)});$('#c_tunde').classList.add('wave');
+if(L<1){g.mode='end';say('Dawn breaks over Balogun. Tunde runs into his mother\'s arms and the whole market cheers. Across the square Kelechi lowers his microphone and gives you a respectful nod, nothing more. Some cases end with a verdict, and some stories simply have not begun. Press Enter to play again.');return}
+const k=$('#c_kelechi');People.walk(k,true);k.style.left='calc(50vw + 9vh)';setTimeout(()=>People.walk(k,false),2400);$('#det .pp').classList.add('blush');chime();
+say('Dawn breaks over Balogun. Tunde runs into his mother\'s arms. Then Kelechi crosses the square with two cups of tea, and your heart does something no cross-examination ever made it do. "You were magnificent in there," he says. "I would very much like to hear the rest of your day, and the rest of your week." What do you do?');
+opts(L>=3?['Take his hand and dance in the dawn light','Rest your head on his shoulder']:['Say yes, and mean it','Smile and ask him to ask again after you have slept'],epiAns)}
+function epiAns(i){if(g.mode!=='epi')return;const L=g.love||0,k=$('#c_kelechi'),a=$('#det .pp');g.mode='end';$('#opts').innerHTML='';let t;
+if(L>=3&&i===0){a.classList.add('dance');k.classList.add('dance','rev');[392,440,494,587,494,440,392,330].forEach((f,j)=>setTimeout(()=>tone(f,.45,.2,'triangle'),j*330));heart(1);setTimeout(()=>heart(1),1800);
+t='A radio somewhere plays an old highlife tune. Kelechi takes your hand, and the market, the case file, the clocks, all of it goes quiet. Under the dawn light you dance, slowly, badly, perfectly. "Barrister Ada Obi," he whispers, "I would like to report that I am falling for you." You laugh, and you do not let go. The end. Press Enter to play again.'}
+else if(L>=3){a.classList.add('blush');heart(2);chime();t='You rest your head on his shoulder and watch the sun climb over the market. Neither of you says anything, and neither of you needs to. Tomorrow there will be other cases and other nights, but this morning belongs to you both. The end. Press Enter to play again.'}
+else{a.classList.add('blush');heart(1);chime();t=(i===0?'"Then it is a date," he says, grinning so widely that the tea nearly spills. ':'He laughs. "I will ask again after you have slept, and the day after that, and the day after that." ')+'The sun rises over Balogun, and for the first time in two days, you are in no hurry at all. The end. Press Enter to play again.'}
+say(t)}
+
+/* ===================== ACCESSIBILITY + ATMOSPHERE (shared layers) ===================== */
+Access.register({
+ name:"balogun",
+ speak:t=>{if(voice&&window.speechSynthesis)speak(t);else Access.live(t)},
+ busy:()=>!g||g.mode!=='walk',
+ compass(){
+  if(!g||g.mode!=='walk')return null;
+  const items=ST.map((s,i)=>{const dx=s.x-g.pos;return{pan:Math.max(-1,Math.min(1,dx/40)),dx,label:s.n+(g.done.includes(i)?" (done)":"")}}).filter(o=>Math.abs(o.dx)<=60);
+  if(!items.length)return null;
+  return{items,say:"Stalls near you, from left to right: "+items.slice().sort((a,b)=>a.pan-b.pan).map(o=>o.label+", "+(Math.abs(o.dx)<9?"right here":Math.round(Math.abs(o.dx)/2)+" steps to your "+(o.dx<0?"left":"right"))).join(". ")+"."}},
+ summary(){
+  if(!g)return "The Balogun Case. Press Enter to begin.";
+  if(g.mode!=='walk')return ($('#txt').textContent||"").slice(0,220);
+  const n=near();return "You are at position "+g.pos+" of 100 on the market street. "+(n>=0?"You are beside "+ST[n].n+". ":"No stall is close. ")+g.hrs+" hours left before Tunde is charged. "+g.done.length+" of 4 clues. Heat "+(g.heat||0)+" of 5."},
+ goal(){
+  if(!g)return "Press Enter to begin the case.";
+  return "Goal: visit all four stalls and collect a clue from each, answering the Constitution question at each one, then name the thief at the lineup before time runs out. One clue never proves a thief, so count how many of your clues match each suspect. You have "+g.hrs+" hours and "+g.done.length+" of 4 clues."},
+ evidence(){
+  if(!g)return null;
+  const rows=g.done.map(i=>({h:ST[i].n,t:ST[i].clue,tag:"clue"}));
+  [...(g.cards||[])].forEach(sec=>{if(typeof LAW!=='undefined'&&LAW[sec])rows.push({h:"Law learned",t:LAW[sec],tag:"constitution"})});
+  if(!rows.length)rows.push({h:"Nothing yet",t:"Walk to a stall and press Enter to talk. Each stall gives you a clue and a question about the Constitution."});
+  return{title:"Casebook: "+g.done.length+" of 4 clues",rows,say:"Casebook. "+g.done.length+" of 4 clues. "+g.done.map(i=>ST[i].n+": "+ST[i].clue).join(" ")+" Press Escape to close."}}
+});
+
+</script></body></html>

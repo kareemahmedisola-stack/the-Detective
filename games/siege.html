@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Siege of Ilesanmi - a war strategy game you can play by ear</title>
+<style>
+:root{--ink:#120c14;--ash:#241a22;--ember:#ff8a3d;--gold:#f2c14e;--blood:#c43c2e;--text:#f6ecdf;--mut:#c5b4b0;--line:#5b3d3a;--steel:#7f98a8;--ok:#7dd18b}
+*{box-sizing:border-box;min-width:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(120% 70% at 50% -10%,#3a1f25 0%,var(--ink) 62%);color:var(--text);font:1.05rem/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:7.5rem}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+header{display:flex;flex-wrap:wrap;gap:.4rem 1rem;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--line);background:rgba(10,6,10,.6)}
+.brand{font:800 1.05rem/1.2 Georgia,"Iowan Old Style",Palatino,serif;letter-spacing:.04em;margin:0;color:var(--gold)}
+#hud{color:var(--mut);font-size:.92rem}
+#sceneWrap{max-width:60rem;margin:0 auto;padding:.5rem .8rem 0;position:sticky;top:0;z-index:4;background:linear-gradient(#120c14 88%,rgba(18,12,20,0))}
+#sc{display:block;width:100%;height:auto;max-height:34vh;border-radius:12px;border:1px solid var(--line);background:#0b0710}
+#sc.shake{animation:shk .55s ease-out}
+@keyframes shk{0%{transform:translate(0,0)}10%{transform:translate(-9px,3px)}22%{transform:translate(8px,-3px)}36%{transform:translate(-6px,2px)}52%{transform:translate(4px,-1px)}72%{transform:translate(-2px,1px)}100%{transform:translate(0,0)}}
+main{max-width:46rem;margin:0 auto;padding:.8rem 1rem 2rem}
+h2{font:800 clamp(1.5rem,5.5vw,2.2rem)/1.15 Georgia,"Iowan Old Style",Palatino,serif;margin:.3rem 0 .5rem;outline:none;color:var(--gold)}
+h2:focus-visible{outline:3px solid var(--ember);outline-offset:6px}
+p{margin:.45rem 0 .8rem;max-width:64ch}
+.hint{color:var(--mut);font-size:.95rem}
+.btn{display:block;width:100%;text-align:left;font:inherit;font-weight:600;color:var(--text);background:#2d1d22;border:2px solid #6a4540;border-radius:.6rem;padding:.7rem .9rem;margin:.4rem 0;cursor:pointer}
+.btn:hover{background:#3b262b}.btn:focus-visible{outline:3px solid var(--ember);outline-offset:2px}
+.btn.primary{background:var(--ember);color:#1b0d05;border-color:var(--ember);text-align:center;font-size:1.1rem}
+.btn.ghost{background:transparent}.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:.5rem}.row .btn{width:auto;flex:1 1 9rem}
+.card{background:#221820;border:1px solid var(--line);border-radius:.7rem;padding:.8rem 1rem;margin:.7rem 0}
+.card b{color:var(--gold)}
+.pill{display:inline-block;padding:.05rem .55rem;border-radius:1rem;background:#3a2428;color:#ffd9b0;font-weight:700;font-size:.9rem}
+.strip{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin:.4rem 0}
+.strip .pp{width:64px;height:122px;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}.strip .pp.hot{transform:scale(1.18)}
+.bar{height:10px;border-radius:6px;background:#2d1d22;overflow:hidden;margin:.2rem 0 .6rem}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blood),var(--ember))}
+.timer{height:12px;border-radius:7px;background:#2d1d22;overflow:hidden;margin:.6rem 0}.timer i{display:block;height:100%;width:100%;background:var(--blood);transform-origin:left;animation:tm linear forwards}
+@keyframes tm{to{transform:scaleX(0)}}
+label.f{display:block;margin:.6rem 0}label.f select,label.f input{display:block;margin-top:.2rem;width:100%;font:inherit;padding:.45rem;border-radius:.4rem;border:2px solid #6a4540;background:#1a1117;color:var(--text)}
+kbd{background:#0c0710;border:1px solid #6a4540;border-bottom-width:3px;border-radius:5px;padding:0 .4rem;font:600 .9rem ui-monospace,Menlo,Consolas,monospace}
+#cap{position:fixed;left:0;right:0;bottom:0;background:rgba(10,5,9,.94);border-top:2px solid var(--ember);padding:.7rem 1rem;font-size:.98rem;max-height:30vh;overflow:auto;color:#ffe9d1}
+.board{display:grid;gap:.25rem}.board div{padding:.15rem 0;border-bottom:1px dashed #4a3340}.board div:last-child{border:0}.chip{display:inline-block;margin:0 .25rem .2rem 0;padding:0 .5rem;border-radius:1rem;background:#2c3a2f;color:#cdeed2;font-weight:700;font-size:.85rem}.chip.bad{background:#4a2020;color:#ffc9c0}.pct{display:inline-block;height:8px;border-radius:4px;background:var(--ember);vertical-align:middle;margin-left:.4rem}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><h1 class="brand">Siege of Ilesanmi</h1><div id="hud" aria-live="off"></div></header>
+<div id="sceneWrap" aria-hidden="true"></div>
+<main id="main" tabindex="-1"></main>
+<div id="cap" aria-hidden="true"></div>
+<div id="live" class="sr" aria-live="off" role="status"></div>
+<script src="../js/sfx.js"></script>
+<script src="../js/people.js"></script>
+<script src="../js/siegecore.js"></script>
+<script src="../js/atmos.js"></script>
+<script src="../js/access.js"></script>
+<script>
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const SG=Siege;
+const NAME=SG.NAME,SECT=SG.SECT;
+
+/* ===================== SETTINGS (shares the voice choices you made in Echo Detective) ===================== */
+let ST={mode:"game",vol:.8,rate:1,voice:""};
+try{Object.assign(ST,JSON.parse(localStorage.getItem("ed_settings")||"{}"));Object.assign(ST,JSON.parse(localStorage.getItem("sg_settings")||"{}"))}catch(e){}
+function saveST(){try{localStorage.setItem("sg_settings",JSON.stringify(ST))}catch(e){}}
+
+/* ===================== SPEECH ===================== */
+const SYN=window.speechSynthesis||null;let voices=[],pool=[];
+function scoreV(v){let s=0;if(/natural|neural|online/i.test(v.name))s+=4;if(/en-NG/i.test(v.lang))s+=3;else if(/en-(GB|ZA|KE|GH|IE|AU)/i.test(v.lang))s+=1;if(/google|siri|samantha|daniel|karen|moira|serena|aria|jenny|guy|sonia|ryan|libby|abeo|ezinne/i.test(v.name))s+=1;if(/espeak|compact|robot|zira desktop|david desktop/i.test(v.name))s-=3;return s}
+function loadV(){voices=SYN?SYN.getVoices().filter(v=>/^en/i.test(v.lang)):[];pool=[...voices].sort((a,b)=>scoreV(b)-scoreV(a));const el=$("#vsel");if(el)fillVoiceSel()}
+if(SYN){loadV();SYN.onvoiceschanged=loadV}
+function fillVoiceSel(){const el=$("#vsel");el.innerHTML='<option value="">Automatic (most natural first)</option>'+voices.map(v=>`<option value="${v.name.replace(/"/g,"")}">${v.name.replace(/</g,"")}</option>`).join("");el.value=ST.voice||""}
+function voiceFor(v){if(!pool.length)return null;const narr=(ST.voice&&voices.find(x=>x.name===ST.voice))||pool[0];if(v===0)return narr;const o=pool.filter(x=>x!==narr),arr=o.length?o:pool;return arr[(v-1)%arr.length]}
+/* voice 0 narrator, 1 Adaora (scout), 2 Baba Sule (veteran), 3 Kolade (deserter), 4 Iya Tola (quartermaster), 5 the officer/enemy */
+const PROF={0:{p:.95,r:.95},1:{p:1.2,r:1.05},2:{p:.75,r:.88},3:{p:1.0,r:1.0},4:{p:1.1,r:.95},5:{p:.85,r:.92}};
+let LAST=[],spoken=0;
+function estMs(t){return Math.max(600,t.length*68/ST.rate)}
+function sayq(segs){
+  LAST=segs;try{Access.note(segs.map(s=>s.t).join(" "))}catch(x){}const txt=segs.map(s=>s.t).join(" ");$("#cap").textContent=txt;spoken++;
+  const live=$("#live");live.setAttribute("aria-live",ST.mode==="sr"?"polite":"off");
+  if(ST.mode==="sr"||!SYN){live.textContent="";setTimeout(()=>live.textContent=txt,40);return estMs(txt)}
+  SYN.cancel();let est=0;
+  segs.forEach(s=>{const pr=PROF[s.v||0],vo=voiceFor(s.v||0);(s.t.match(/[^.!?]+[.!?]*/g)||[s.t]).forEach(part=>{
+    const u=new SpeechSynthesisUtterance(part.trim());if(!u.text)return;u.pitch=pr.p;u.rate=pr.r*ST.rate;u.volume=1;if(vo)u.voice=vo;est+=part.length*68/(pr.r*ST.rate);SYN.speak(u)})});
+  return est;
+}
+const say=(t,v=0)=>sayq([{t,v}]);
+const wait=ms=>new Promise(r=>{const t=setTimeout(()=>{skipFn=null;r()},ms);skipFn=()=>{clearTimeout(t);skipFn=null;r()}});
+let skipFn=null;
+
+/* ===================== WAR SOUND ENGINE (all procedural: no files, works offline) ===================== */
+const AU=(()=>{
+  let ac=null,master=null,comp=null,beds=[],heartT=null;
+  const rnd=Math.random;
+  function init(){
+    if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();comp=ac.createDynamicsCompressor();master=ac.createGain();master.gain.value=ST.vol;master.connect(comp);comp.connect(ac.destination)}catch(e){return null}}
+    if(ac.state==="suspended")try{ac.resume()}catch(e){}return ac}
+  const ok=()=>!(window.Sfx&&Sfx.isMuted&&Sfx.isMuted())&&init();
+  function setVol(v){if(master)master.gain.value=v}
+  function ch(vol,pan){const g=ac.createGain();g.gain.value=vol;let last=g;if(ac.createStereoPanner){const p=ac.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan||0));g.connect(p);last=p}last.connect(master);return g}
+  function osc(type,f,t0,dur,vol,pan,f2,atk){const o=ac.createOscillator(),g=ch(.0001,pan);o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(Math.max(1,f2),t0+dur);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+(atk||.015));g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);o.start(t0);o.stop(t0+dur+.05);return o}
+  function noise(dur){const n=Math.floor(ac.sampleRate*dur),b=ac.createBuffer(1,n,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=rnd()*2-1;const s=ac.createBufferSource();s.buffer=b;return s}
+  function nb(t0,dur,type,f,vol,pan,f2,atk){const s=noise(dur+.05),fl=ac.createBiquadFilter(),g=ch(.0001,pan);fl.type=type;fl.frequency.setValueAtTime(f,t0);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t0+dur);fl.Q.value=type==="bandpass"?1.2:.7;s.connect(fl);fl.connect(g);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+(atk||.01));g.gain.exponentialRampToValueAtTime(.0001,t0+dur);s.start(t0);return s}
+  const T=()=>ac.currentTime;
+  const A={
+    init,setVol,
+    drum(p,f,v,len){if(!ok())return;const t=T();f=f||90;len=len||.4;osc("sine",f,t,len,v||.5,p,f*.5);nb(t,.05,"lowpass",900,(v||.5)*.4,p)},
+    /* talking drum: each source has its own tone-language motif, so you can tell who is speaking by ear */
+    motif(src,p){if(!ok())return;const M={adaora:[[330,.12],[440,.12],[392,.22]],sule:[[196,.2],[165,.2],[196,.3]],kolade:[[300,.1],[300,.1],[520,.28]],tola:[[262,.15],[330,.15],[262,.2]],defectors:[[250,.1],[350,.1],[250,.1],[350,.1]]}[src]||[[300,.15]];let t=T();M.forEach(([f,d])=>{osc("sine",f,t,d*1.6,.22,p,f*(f>300?.85:1.15),.01);osc("sine",f*2,t,d*1.2,.05,p);t+=d})},
+    horn(p,f,len,vol){if(!ok())return;const t=T();f=f||110;len=len||1.4;[1,1.006,.5].forEach((m,i)=>{const o=osc("sawtooth",f*m,t,len,(vol||.12)*(i===2?.8:1),p,f*m*1.06,.35);try{const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=5.5;lg.gain.value=f*m*.012;l.connect(lg);lg.connect(o.frequency);l.start(t);l.stop(t+len+.05)}catch(e){}})},
+    clash(p,v){if(!ok())return;const t=T(),d=(rnd()*.3-.15);nb(t,.09,"bandpass",2800*(1+d),(v||.18),p);osc("square",1700*(1+d),t,.14,(v||.18)*.25,p);osc("square",2350*(1+d),t,.1,(v||.18)*.18,p)},
+    swords(p,ms,density,v){if(!ok())return;let t=0;const stop=Date.now()+ms;(function go(){if(Date.now()>stop)return;A.clash(p+(rnd()*.3-.15),v);setTimeout(go,(1000/(density||6))*(.4+rnd()*1.2))})()},
+    arrows(p,n,vol){if(!ok())return;n=n||8;for(let i=0;i<n;i++){const t=T()+i*(.05+rnd()*.12);nb(t,.55,"highpass",5500,(vol||.1),p+(rnd()*.4-.2),1400,.05);nb(t+.5,.05,"lowpass",250,(vol||.1)*1.4,p+(rnd()*.4-.2))}},
+    ram(p){if(!ok())return;const t=T();osc("sine",62,t,.55,.5,p,32);nb(t,.45,"lowpass",320,.4,p);nb(t+.05,.3,"bandpass",180,.25,p)},
+    fire(p,ms,v){if(!ok())return;const stop=Date.now()+ms;nb(T(),ms/1000,"lowpass",700,(v||.05),p,500,.3);(function go(){if(Date.now()>stop)return;nb(T(),.04+rnd()*.05,"highpass",3000+rnd()*2000,(v||.05)*1.5,p+(rnd()*.3-.15));setTimeout(go,40+rnd()*130)})()},
+    march(p,ms,vol,speed){if(!ok())return;const stop=Date.now()+ms,iv=(speed||440);let side=1;(function go(){if(Date.now()>stop)return;nb(T(),.09,"lowpass",420,(vol||.12),p+side*.12);nb(T()+.02,.07,"bandpass",1200,(vol||.12)*.3,p+side*.12);side=-side;setTimeout(go,iv*(.92+rnd()*.16))})()},
+    roar(p,ms,mood,vol){if(!ok())return;const t=T(),d=ms/1000,f1=mood==="low"?420:mood==="bright"?900:650,f2=f1*1.8;nb(t,d,"bandpass",f1,(vol||.14),p,f1*(mood==="bright"?1.4:.8),d*.35);nb(t,d,"bandpass",f2,(vol||.14)*.6,p,f2*(mood==="bright"?1.3:.8),d*.35)},
+    heart(bpm,ms,vol){A.stopHeart();if(!ok())return;const stop=Date.now()+(ms||1e9),iv=60000/bpm;(function go(){if(Date.now()>stop){heartT=null;return}const t=T();osc("sine",58,t,.14,vol||.45,0,40);osc("sine",52,t+.16,.12,(vol||.45)*.7,0,36);heartT=setTimeout(go,iv)})()},
+    stopHeart(){if(heartT){clearTimeout(heartT);heartT=null}},
+    tick(urgent){if(!ok())return;const t=T();osc("square",urgent?1700:1100,t,.03,.07,0)},
+    bell(p,vol){if(!ok())return;const t=T();[[520,1],[1040,.5],[1560,.3],[780,.2]].forEach(([f,m])=>osc("sine",f,t,2.4*m+.4,(vol||.14)*m,p,f*.995,.004))},
+    rain(ms,vol){if(!ok())return;nb(T(),ms/1000,"highpass",2600,(vol||.05),0,null,.6)},
+    cough(p){if(!ok())return;[0,.22,.4].forEach(d=>nb(T()+d,.1,"bandpass",600,.14,p))},
+    song(p){if(!ok())return;let t=T();[392,440,494,440,392,330].forEach((f,i)=>{osc("triangle",f,t+i*.4,.5,.1,p,f*1.01,.05)})},
+    water(p){if(!ok())return;nb(T(),1.4,"lowpass",500,.1,p,300,.2);[0,.4,.9].forEach(d=>osc("sine",900+rnd()*400,T()+d,.1,.05,p,500))},
+    rumble(p){if(!ok())return;const t=T();nb(t,1.6,"lowpass",260,.4,p,90,.1);osc("sine",48,t,1.6,.3,p,30)},
+    steps(p){if(!ok())return;A.march(p,1600,.1,300)},
+    cheer(p){A.roar(p,1800,"bright",.16);A.horn(p,150,1.2,.08)},
+    groan(p){A.roar(p,1500,"low",.16)},
+    alarm(){if(!ok())return;for(let i=0;i<4;i++)A.bellLater(i*.35)},
+    bellLater(d){setTimeout(()=>A.bell(0,.12),d*1000)},
+    crash(p){if(!ok())return;const t=T();nb(t,.7,"lowpass",600,.55,p);osc("sine",80,t,.6,.45,p,36);for(let i=0;i<4;i++)nb(t+i*.09,.12,"bandpass",1800+rnd()*1400,.12,p+(rnd()*.4-.2))},
+    pay(){if(!ok())return;},
+    win(){if(!ok())return;const t=T();[196,247,294,392].forEach((f,i)=>osc("sawtooth",f,t+i*.25,2.4,.07,0,f*1.01,.5));A.horn(-.3,196,2.4,.1);A.horn(.3,247,2.4,.1)},
+    lose(){if(!ok())return;const t=T();[147,139,131,110].forEach((f,i)=>osc("sawtooth",f,t+i*.7,2.6,.07,0,f*.97,.6));A.bell(0,.18)},
+    ok(){if(!ok())return;const t=T();[523,659,784].forEach((f,i)=>osc("sine",f,t+i*.09,.3,.09,0))},
+    bad(){if(!ok())return;osc("sawtooth",150,T(),.5,.1,0,75)},
+    /* a living bed: slow dread under everything. level 0 to 1 */
+    drone(level){A.stopDrone();if(!ok())return;const g=ch(.0001,0),fl=ac.createBiquadFilter();fl.type="lowpass";fl.frequency.value=180+level*220;fl.connect(g);const os=[55,55.6,82.4].map((f,i)=>{const o=ac.createOscillator();o.type=i<2?"sawtooth":"sine";o.frequency.value=f;o.connect(fl);o.start();return o});const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=.12;lg.gain.value=level*.03;l.connect(lg);lg.connect(g.gain);l.start();g.gain.setTargetAtTime(.025+level*.07,T(),1.2);beds.push({stop(){try{g.gain.setTargetAtTime(.0001,T(),.5);setTimeout(()=>{os.forEach(o=>{try{o.stop()}catch(e){}});try{l.stop()}catch(e){}},900)}catch(e){}},kind:"drone"})},
+    stopDrone(){beds=beds.filter(b=>{if(b.kind==="drone"){b.stop();return false}return true})},
+    creak(p){if(!ok())return;const t=T();nb(t,1.6,"bandpass",260,.22,p,150,.3);nb(t+.2,1.2,"bandpass",420,.12,p,230,.2);osc("sawtooth",70,t,1.5,.05,p,48,.4)},
+    scrape(p){if(!ok())return;for(let i=0;i<7;i++){const t=T()+i*(.18+rnd()*.25);nb(t,.09+rnd()*.07,"highpass",3200+rnd()*1800,.07,p+(rnd()*.1-.05))}osc("sine",50,T(),1.2,.12,p,40)},
+    oars(p){if(!ok())return;for(let i=0;i<5;i++){const t=T()+i*.42;nb(t,.28,"lowpass",900,.1,p+(i%2?.12:-.12),400,.03);osc("sine",300,t+.12,.12,.03,p,180)}},
+    clatter(p){if(!ok())return;for(let i=0;i<6;i++){const t=T()+i*(.1+rnd()*.12);osc("square",260+rnd()*140,t,.06,.07,p+(rnd()*.2-.1),150);nb(t,.05,"bandpass",1500,.05,p)}},
+    burn(p){A.fire(p,1800,.07);A.crash(p)},
+    wind(ms){if(!ok())return;nb(T(),ms/1000,"bandpass",500,.05,0,300,1.2)},
+    stopAll(){A.stopHeart();A.stopDrone();try{SYN&&0}catch(e){}}
+  };
+  return A})();
+
+/* ===================== CAST ===================== */
+Object.assign(People.cast,{
+  adaora:{dress:1,hair:"gele",hc:"#2e7d5b",top:"#7a5a2e",skin:"#6b4028"},
+  sule:{hair:"cap",hc:"#d9d9d9",top:"#6b4a2a",bot:"#3a3020",skin:"#5a3a28"},
+  kolade:{hair:"short",hc:"#150d0d",top:"#8a2f2f",bot:"#2a2a2a",skin:"#7b4a2e"},
+  tola:{dress:1,hair:"gele",hc:"#d4a017",top:"#2f6f4f",skin:"#8d5a3b"}
+});
+const WHO={adaora:{n:"Adaora, your chief scout",v:1,c:"adaora",pan:-.5},sule:{n:"Baba Sule, the veteran",v:2,c:"sule",pan:.5},kolade:{n:"Kolade, the deserter",v:3,c:"kolade",pan:0},defectors:{n:"Three enemy defectors",v:5,c:"kolade",pan:0},tola:{n:"Iya Tola, the quartermaster",v:4,c:"tola",pan:0}};
+const PAN={W:-.85,N:0,R:.85,res:0};
+const DIR={W:"on your left",N:"straight ahead",R:"on your right"};
+const nm=s=>NAME[s],cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const word=n=>["zero","one","two","three","four","five","six","seven","eight","nine","ten"][n]||String(n);
+const fmt=n=>(Math.round(n*2)/2).toString().replace(".5"," and a half").replace(/^0 and a half$/,"half");
+const rank=["Fallen Commander","Survivor of Ilesanmi","Defender of Ilesanmi","Legend of Ilesanmi"];
+
+/* ===================== STATE / VIEWS ===================== */
+let S=null,cur="title",ctx={},backFn=null,SEQ=0;
+const main=$("#main");
+function go(v,a){try{Atmos.cut(260)}catch(x){}SEQ++;skipFn=null;cur=v;ctx=a||{};backFn=null;V[v](ctx);const h=$("#vh");if(h)h.focus({preventScroll:true});window.scrollTo(0,0);
+  main.setAttribute("role",["orders","choose","setup","decide","night","battle","dawn","aftermath"].includes(v)?"application":"group");hud()}
+function hud(){const h=$("#hud");if(!S){h.textContent="";return}
+  h.textContent=`Day ${S.day} · Orders ${S.ap} · Troops ${SG.total(S)} · Food ${fmt(S.food)} · Morale ${Math.round(S.morale)}/10 · Walls ${["W","N","R"].map(s=>Math.round(S.wall[s])).join("/")}`;
+  paintScene();try{Atmos.danger(dangerNow())}catch(x){}}
+function dangerNow(){if(!S||cur==='title'||cur==='end')return 0;const night=['night','assault','decide'].includes(cur);return Math.min(1,(10-S.morale)/16+(night?.45:.08)+S.day/S.R*.2)}
+function moraleWord(m){return m>=8?"high":m>=6?"steady":m>=4?"shaky":m>=2?"low":"near breaking"}
+function enemyWords(){const e=S.enemy,a=e.str>=200?"a vast host":e.str>=140?"a large army":e.str>=90?"a thinning army":"a battered remnant",b=e.morale>=7?"confident":e.morale>=4?"uneasy":"close to breaking";return a+", "+b}
+function reliefWords(){return S.relief?"The relief army reaches the pass at dawn on day "+S.R+".":"The relief army is expected between day six and day eight. Nobody knows exactly when."}
+function recWords(src){const r=S.src[src];return r.right+r.wrong===0?"no record yet":"right "+word(r.right)+", wrong "+word(r.wrong)}
+
+/* ===================== THE BATTLEFIELD (SVG) ===================== */
+const NS="http://www.w3.org/2000/svg";
+const SX={W:{x:50,w:210,y:150,c:"#4f8a5a"},N:{x:330,w:240,y:118,c:"#d99a3c"},R:{x:640,w:210,y:150,c:"#4a7fb5"}};
+function sceneHTML(){
+  let stars="";for(let i=0;i<46;i++)stars+=`<circle cx="${(i*97)%900}" cy="${(i*53)%110}" r="${1+(i%3)*.4}" fill="#fff" opacity="${.25+(i%5)*.12}"/>`;
+  const sect=s=>{const o=SX[s],top=o.y,tw=Array.from({length:Math.floor(o.w/26)},(_,i)=>`<rect x="${o.x+4+i*26}" y="${top-12}" width="16" height="12" fill="#4a3a3f"/>`).join("");
+    return `<g id="g-${s}"><rect x="${o.x}" y="${top}" width="${o.w}" height="${235-top}" fill="#3b2f33" stroke="#1a1215" stroke-width="3"/>${tw}
+    <path id="cr-${s}" d="M${o.x+o.w*.3} ${top+6} l10 24 l-12 20 l14 30 M${o.x+o.w*.65} ${top+8} l-8 28 l12 18" stroke="#0a0508" stroke-width="3" fill="none" opacity="0"/>
+    <circle id="gl-${s}" cx="${o.x+o.w/2}" cy="${top+8}" r="72" fill="url(#glow)" opacity="0"/>
+    <rect x="${o.x+o.w/2-2}" y="${top-54}" width="4" height="44" fill="#2a1d1f"/><path d="M${o.x+o.w/2+2} ${top-54}l34 9l-34 11z" fill="${o.c}"/>
+    <g id="tk-${s}"></g><text id="wk-${s}" x="${o.x+o.w/2}" y="${top+104}" fill="#f2c14e" font-size="11" text-anchor="middle" font-family="Georgia,serif"></text><text id="ty-${s}" x="${o.x+o.w/2}" y="${top+120}" fill="#ff9a3c" font-size="12" font-weight="700" text-anchor="middle"></text><text id="bx-${s}" x="${o.x+o.w/2}" y="${top-18}" fill="#ff3b2a" font-size="15" font-weight="800" text-anchor="middle"></text><rect x="${o.x+10}" y="${top+58}" width="${o.w-20}" height="8" rx="4" fill="#1a1215"/><rect id="wb-${s}" x="${o.x+10}" y="${top+58}" width="${o.w-20}" height="8" rx="4" fill="${o.c}"/>
+    <text x="${o.x+o.w/2}" y="${top+88}" fill="#f6ecdf" font-size="15" text-anchor="middle" font-family="Georgia,serif">${nm(s).replace("the ","").toUpperCase()}</text></g>`};
+  const enemy=s=>{const o=SX[s];let f="";for(let i=0;i<9;i++){const x=o.x+14+i*(o.w-28)/8,y=262+((i*37)%24);f+=`<g class="tc" style="animation-delay:${(i*.17).toFixed(2)}s"><circle cx="${x}" cy="${y}" r="9" fill="url(#glow)"/><circle cx="${x}" cy="${y}" r="3" fill="#ffd28a"/></g>`}return `<g id="en-${s}" opacity=".35" style="transition:opacity 1s">${f}</g>`};
+  return `<svg id="sc" viewBox="0 0 900 320" role="presentation" focusable="false"><style>.tc{animation:fl .9s ease-in-out infinite alternate}@keyframes fl{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}.rp{animation:rp 5s linear infinite}@keyframes rp{to{transform:translateX(-40px)}}</style>
+  <defs><linearGradient id="skyN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06040c"/><stop offset="1" stop-color="#2a1a30"/></linearGradient><linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a30"/><stop offset="1" stop-color="#e0803f"/></linearGradient><radialGradient id="glow"><stop offset="0" stop-color="#ff9a3c" stop-opacity=".85"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></radialGradient></defs>
+  <rect id="sky" width="900" height="320" fill="url(#skyD)"/><g id="stars" opacity="0">${stars}</g><circle id="orb" cx="780" cy="70" r="24" fill="#ffd9a0"/>
+  <path d="M0 235 Q220 218 450 232 T900 226 V320 H0Z" fill="#2a1c19"/><path d="M640 240 q60 -10 120 0 t140 0 V320 H640Z" fill="#17364f"/><g class="rp" opacity=".35"><path d="M650 270h60M740 285h70M820 262h50" stroke="#7fb6dc" stroke-width="2"/></g>
+  ${enemy("W")}${enemy("N")}${enemy("R")}${sect("W")}${sect("N")}${sect("R")}
+  <g id="g-res"><rect x="270" y="172" width="54" height="63" fill="#35272b" stroke="#1a1215" stroke-width="3"/><path d="M266 172h62l-8 -14h-46z" fill="#4a3a3f"/><text x="297" y="198" fill="#f6ecdf" font-size="11" text-anchor="middle">RESERVE</text><text id="rs" x="297" y="222" fill="#f2c14e" font-size="20" font-weight="700" text-anchor="middle">0</text></g>
+  <rect id="fl" width="900" height="320" fill="#fff" opacity="0"/></svg>`}
+$("#sceneWrap").innerHTML=sceneHTML();
+function paintScene(){
+  if(!S||!$("#sc"))return;
+  SECT.forEach(s=>{const o=SX[s],n=Math.min(12,Math.ceil(S.troops[s]/10));let g="";for(let i=0;i<n;i++){const col=i%6,row=Math.floor(i/6);g+=`<circle cx="${o.x+22+col*((o.w-44)/5)}" cy="${o.y+18+row*17}" r="6" fill="${o.c}" stroke="#120c14" stroke-width="2"/>`}
+    g+=`<text x="${o.x+o.w-10}" y="${o.y+52}" fill="#f6ecdf" font-size="13" text-anchor="end">${S.troops[s]}</text>`;$("#tk-"+s).innerHTML=g;
+    $("#wb-"+s).setAttribute("width",Math.max(0,(o.w-20)*S.wall[s]/10));const cr=$("#cr-"+s);cr.setAttribute("opacity",S.wall[s]<=3?1:S.wall[s]<=5?.5:0);
+    $("#gl-"+s).setAttribute("opacity",S.traps[s]?.85:0)});
+  $("#rs").textContent=S.troops.res;
+}
+function setSky(night){$("#sky").setAttribute("fill",night?"url(#skyN)":"url(#skyD)");$("#stars").setAttribute("opacity",night?1:0);const o=$("#orb");o.setAttribute("fill",night?"#f4ecd0":"#ffd9a0");o.setAttribute("cy",night?60:105)}
+function enemyGlow(h){SECT.forEach(s=>{$("#en-"+s).setAttribute("opacity",h?(.25+h[s]*.75).toFixed(2):.35)})}
+function fxShake(){const sc=$("#sc");sc.classList.remove("shake");void sc.getBoundingClientRect();sc.classList.add("shake")}
+function fxFlash(c,a){const f=$("#fl");f.setAttribute("fill",c||"#fff");f.animate([{opacity:a||.6},{opacity:0}],{duration:420,easing:"ease-out"})}
+function fxArrows(s,n,out){const sc=$("#sc"),o=SX[s];for(let i=0;i<(n||12);i++){const x0=o.x+10+Math.random()*(o.w-20),y0=out?o.y-6:292,y1=out?285:o.y-4,x1=x0+(Math.random()*30-15);
+  const el=document.createElementNS(NS,"path");el.setAttribute("d","M0 0 l-3 11");el.setAttribute("stroke","#f2c14e");el.setAttribute("stroke-width","2");el.setAttribute("fill","none");sc.appendChild(el);
+  el.animate([{transform:`translate(${x0}px,${y0}px)`,opacity:1},{transform:`translate(${(x0+x1)/2}px,${Math.min(y0,y1)-55}px)`,offset:.5},{transform:`translate(${x1}px,${y1}px)`,opacity:.9}],{duration:650+Math.random()*350,delay:i*55,easing:"ease-in",fill:"both"}).onfinish=()=>el.remove()}}
+function fxSparks(s,n){const sc=$("#sc"),o=SX[s];for(let i=0;i<(n||14);i++){const x=o.x+Math.random()*o.w,y=o.y+Math.random()*10,el=document.createElementNS(NS,"circle");el.setAttribute("r",1.5+Math.random()*2);el.setAttribute("fill",i%3?"#ffd28a":"#fff");sc.appendChild(el);
+  el.animate([{transform:`translate(${x}px,${y}px)`,opacity:1},{transform:`translate(${x+(Math.random()*80-40)}px,${y+Math.random()*60-10}px)`,opacity:0}],{duration:500+Math.random()*500,delay:Math.random()*200}).onfinish=()=>el.remove()}}
+function fxCharge(s){const g=$("#en-"+s);g.setAttribute("opacity","1");g.animate([{transform:"translateY(0)"},{transform:"translateY(-46px)"},{transform:"translateY(0)"}],{duration:1500,easing:"ease-in-out"})}
+function fxPulse(s,c){const g=$("#gl-"+s);g.animate([{opacity:0},{opacity:1},{opacity:.2}],{duration:900})}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ===================== async speech for scripted sequences ===================== */
+function say2(segs,locked){return new Promise(res=>{
+  LAST=segs;try{Access.note(segs.map(s=>s.t).join(" "))}catch(x){}const txt=segs.map(s=>s.t).join(" ");$("#cap").textContent=txt;let done=false,tm;
+  const fin=()=>{if(done)return;done=true;clearTimeout(tm);skipFn=null;res()};
+  if(!locked)skipFn=()=>{if(SYN)SYN.cancel();fin()};else skipFn=null;
+  const live=$("#live");live.setAttribute("aria-live",ST.mode==="sr"?"polite":"off");
+  if(ST.mode==="sr"||!SYN){live.textContent="";setTimeout(()=>live.textContent=txt,40);tm=setTimeout(fin,estMs(txt)+400);return}
+  SYN.cancel();let est=0,last=null;
+  segs.forEach(s=>{const pr=PROF[s.v||0],vo=voiceFor(s.v||0);(s.t.match(/[^.!?]+[.!?]*/g)||[s.t]).forEach(part=>{const u=new SpeechSynthesisUtterance(part.trim());if(!u.text)return;u.pitch=pr.p;u.rate=pr.r*ST.rate;u.volume=1;if(vo)u.voice=vo;est+=part.length*68/(pr.r*ST.rate);SYN.speak(u);last=u})});
+  if(last)last.onend=fin;tm=setTimeout(fin,est+3500)})}
+
+/* ===================== REFORGED: helpers that replace the old ones ===================== */
+const TYP=SG.TYPES,SRCS=SG.SRCS,SN=SG.SRCNAME;
+const OUT={held:"holds with ease",costly:"holds at a cost",barely:"holds, barely",breach:"is breached"};
+function worksText(s){const w=S.works[s],l=[];if(w.plat)l.push("archer platform");if(w.mine)l.push("counter-mine");if(w.boom)l.push("river boom");return l.length?l.join(" and "):"no works"}
+function reliefWords(){return S.relief?"The relief army reaches the pass at dawn on day "+S.R+".":"The relief army is expected between day nine and day eleven. Nobody knows exactly when."}
+function engineWords(){const on=["ram","tower","sappers","boats"].filter(t=>S.enemy.ready[t]<=S.day);return on.length?"In the field now: ladders, "+on.map(t=>TYP[t].name).join(", ")+".":"Only ladders so far. Heavier weapons are being built."}
+function hud(){const h=$("#hud");if(!S){h.textContent="";return}
+  h.textContent=`Day ${S.day} · Orders ${S.ap} · Troops ${SG.total(S)} · Food ${fmt(S.food)} · Timber ${Math.floor(S.timber)} · Oil ${S.oil} · Morale ${Math.round(S.morale)}/10 · Walls ${SECT.map(s=>Math.round(S.wall[s])).join("/")}`;
+  paintScene();try{Atmos.danger(dangerNow())}catch(x){}}
+function dangerNow(){if(!S||cur==='title'||cur==='end')return 0;const night=['night','battle','assault','decide'].includes(cur);return Math.min(1,(10-S.morale)/16+(night?.45:.08)+S.day/S.R*.2)}
+function paintScene(){
+  if(!S||!$("#sc"))return;
+  SECT.forEach(s=>{const o=SX[s],n=Math.min(12,Math.ceil(S.troops[s]/10));let g="";for(let i=0;i<n;i++){const col=i%6,row=Math.floor(i/6);g+=`<circle cx="${o.x+22+col*((o.w-44)/5)}" cy="${o.y+18+row*17}" r="6" fill="${o.c}" stroke="#120c14" stroke-width="2"/>`}
+    g+=`<text x="${o.x+o.w-10}" y="${o.y+52}" fill="#f6ecdf" font-size="13" text-anchor="end">${S.troops[s]}</text>`;$("#tk-"+s).innerHTML=g;
+    $("#wb-"+s).setAttribute("width",Math.max(0,(o.w-20)*S.wall[s]/10));const cr=$("#cr-"+s);cr.setAttribute("opacity",S.wall[s]<=3?1:S.wall[s]<=5?.5:0);
+    $("#gl-"+s).setAttribute("opacity",S.cmd&&S.cmd.some(c=>c.s===s&&(c.k==="oil"||c.k==="fire"))?.85:0);
+    $("#wk-"+s).textContent=worksText(s)==="no works"?"":worksText(s);$("#bx-"+s).textContent=S.breach[s]?"BREACHED":""});
+  $("#rs").textContent=S.troops.res;
+}
+function showTypes(h){SECT.forEach(s=>{$("#ty-"+s).textContent=h&&h[s]&&h[s].type?TYP[h[s].type].name.replace(/^a /,""):""})}
+
+/* ---- speech texts ---- */
+function typeBit(r){return r.type?` I think it comes with ${TYP[r.type].name}.`:""}
+function reportText(r){
+  const c=nm(r.claim);
+  if(r.src==="adaora")return `The ridge drums speak of ${c}.${typeBit(r)} I am ${r.conf}.`;
+  if(r.src==="sule")return `Forty years taught me one thing: the enemy goes where we are weakest. Today that is ${c}.`;
+  if(r.src==="kolade")return `I heard it in the officers' tent myself. ${cap1(c)}. I am certain. Do not doubt me.`;
+  return `We heard their captains arguing. They said ${c}. We are ${r.conf}.`;
+}
+function reportList(){const l=S.reports.slice();if(S.reports.defectors)l.push(S.reports.defectors);return l}
+function recWords(src){const r=S.src[src];return r.right+r.wrong===0?"no record yet":"right "+word(r.right)+", wrong "+word(r.wrong)}
+function assessWords(){const a=SG.assessment(S);if(S.src[S.mole].exposed)return SN[S.mole]+" is the unmasked spy.";return "Your rough assessment of who the spy is: "+a.map(x=>SN[x.src]+" "+x.p+" percent").join(", ")+"."}
+function boardCard(){return `<div class="card board">${SECT.map(s=>`<div><b>${cap1(nm(s))}</b> (${DIR[s]}): ${S.troops[s]} soldiers, wall ${Math.round(S.wall[s])}, ${worksText(s)}.${S.breach[s]?' <span class="chip bad">BREACHED</span>':""}</div>`).join("")}<div><b>Reserve</b>: ${S.troops.res} soldiers. Food ${fmt(S.food)} days, timber ${Math.floor(S.timber)}, oil ${S.oil}. Morale ${moraleWord(S.morale)}.</div></div>`}
+
+/* ===================== TITLE / BRIEF / SETUP ===================== */
+const V={};
+V.title=()=>{
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Siege of Ilesanmi: Reforged</h2>
+  <p class="hint">A war strategy game you play by ear. Use headphones: the West Gate is on your left, the North Wall straight ahead, and the River Gate on your right.</p>
+  <div class="card"><p>The citadel of Ilesanmi has stood on its ridge for three hundred years. This dry season the warlord Zarkan and his Northern Confederacy have surrounded it. Behind you, thirty thousand people. In front, drums. A relief army marches from the coast, but the roads are long.</p>
+  <p><b>How the war works.</b> By day you give orders: build, scout, raid, send riders, hunt the spy. At dusk you listen to the enemy. Rams thud, towers creak, sappers scratch under the ground, boats splash. Then you answer each weapon with the right counter. At night the enemy strikes, and when a line breaks you choose: commit the reserve, fall back, or hold. <b>One of your three informants is the enemy's spy, and it is different every game.</b></p></div>
+  <label class="f">How should the game speak?<select id="sm"><option value="game">Built-in voices (recommended)</option><option value="sr">My screen reader reads it</option></select></label>
+  <label class="f">Difficulty<select id="df"><option value="easy">Recruit: a fairer fight, good for your first siege</option><option value="hard">Commander: a larger enemy, earlier weapons</option><option value="warlord">Warlord: a vast host, scarce supplies, weapons arrive early</option></select></label>
+  <label class="f">Voice<select id="vsel"></select></label>
+  <label class="f">Speech speed<select id="sr"><option value="0.85">Slower</option><option value="1">Normal</option><option value="1.2">Faster</option></select></label>
+  <label class="f">Sound volume<input type="range" id="sv" min="0.2" max="1" step="0.05" aria-label="Sound volume"></label>
+  <button class="btn primary" id="start">Begin the siege</button>
+  <div class="card"><b>Keys.</b> <kbd>1</kbd> to <kbd>9</kbd> and <kbd>0</kbd> choose. <kbd>Enter</kbd> continues or skips speech. <kbd>S</kbd> status. <kbd>I</kbd> intelligence, including who the spy may be. <kbd>M</kbd> hear the menu again. <kbd>H</kbd> a strategic hint (costs a little renown). <kbd>R</kbd> repeat. <kbd>L</kbd> listen to the night again. <kbd>T</kbd> longer decision time. <kbd>Esc</kbd> back. <kbd>Alt</kbd>+<kbd>M</kbd> main menu.</div>`;
+  $("#df").value=ST.diff||"easy";$("#df").onchange=e=>{ST.diff=e.target.value;saveST()};$("#sm").value=ST.mode==="sr"?"sr":"game";$("#sr").value=String(ST.rate);$("#sv").value=ST.vol;fillVoiceSel();
+  $("#sm").onchange=e=>{ST.mode=e.target.value;saveST()};$("#vsel").onchange=e=>{ST.voice=e.target.value;saveST()};$("#sr").onchange=e=>{ST.rate=+e.target.value;saveST()};
+  $("#sv").oninput=e=>{ST.vol=+e.target.value;saveST();AU.setVol(ST.vol)};
+  $("#start").onclick=()=>{AU.init();Sfx.stopIntro&&Sfx.stopIntro(800);newRun();go("brief")};
+  try{Sfx.intro()}catch(e){}
+  sayq([{t:"Siege of Ilesanmi, reforged. A war strategy game you play by ear. Use headphones. Choose how the game speaks and how hard the war is, then press the Begin button.",v:0}]);
+};
+function newRun(){S=SG.newGame(undefined,{diff:ST.diff||"easy"});S.hintsUsed=0;S.firstDawn=true;S.hints=0}
+V.brief=()=>{
+  main.innerHTML=`<h2 id="vh" tabindex="-1">The night before</h2>
+  <p>You stand on the North Wall as the last fires of the enemy camp flare to life. Three sectors to hold: the West Gate on your left, the North Wall ahead, the River Gate on your right. A hundred and twenty soldiers, ten days of food, and three informants you must learn to read.</p>
+  <div class="strip">${["adaora","sule","kolade","tola"].map(k=>People.html(Object.assign({},People.cast[k],{cls:""}))).join("")}</div>
+  <div class="card"><p><b>Adaora</b> reads the enemy drums and can name the weapon as well as the place. <b>Baba Sule</b> says the enemy always strikes where you are weakest. <b>Kolade</b> deserted yesterday and brings very good news. <b>Iya Tola</b> keeps the stores.</p>
+  <p><b>One of the three is the enemy's spy.</b> In old wars it was usually the deserter, but not always. Question them, whisper baits, weigh their records, and arrest the right one. Arrest an innocent and you pay.</p>
+  <p><b>The enemy's weapons.</b> Ladders at first. Later rams at the gates, sappers under the walls, boats on the river, and a siege tower at the North Wall. Each has a counter: oil for rams and ladders, fire arrows for towers and boats, a counter-mine for sappers, a boom for boats, and a sally for anything.</p></div>
+  <button class="btn primary" id="go">Position your soldiers (Enter)</button>`;
+  $("#go").onclick=()=>go("setup");
+  AU.drone(.2);AU.wind(6000);AU.heart(54,12000,.2);
+  sayq([{t:"The night before. You stand on the North Wall as the last fires of the enemy camp flare to life. Three sectors to hold: the West Gate on your left, the North Wall ahead, the River Gate on your right. A hundred and twenty soldiers, ten days of food, and three informants you must learn to read.",v:0},
+    {t:"Adaora reads the enemy drums.",v:1},{t:"Baba Sule has fought for forty years. The enemy always goes where you are weakest.",v:2},{t:"Kolade deserted from the enemy camp yesterday, and he brings very good news.",v:3},
+    {t:"Iya Tola keeps the granary and the morale of the garrison.",v:4},{t:"One of these three is the enemy's spy. In old wars it was usually the deserter, but not always. The enemy will bring ladders first, then rams, sappers, boats and a siege tower, and each has a counter. Press Enter to position your soldiers.",v:0}]);
+};
+const PRESETS=[["Balanced: 30 at each sector and 30 in reserve",[30,30,30,30]],["Walls first: 40 at each sector, no reserve",[40,40,40,0]],["Flexible: 25 at each sector and 45 in reserve",[25,25,25,45]]];
+V.setup=()=>{
+  ctx.a=ctx.a||[0,0,0,0];const left=120-ctx.a.reduce((x,y)=>x+y,0);
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Position your soldiers</h2>
+  <p>You have <b>${left}</b> soldiers to place. Place West ${ctx.a[0]}, North ${ctx.a[1]}, River ${ctx.a[2]}, reserve ${ctx.a[3]}.</p>
+  ${PRESETS.map((p,i)=>`<button class="btn" data-k="${i+1}">${i+1}. ${p[0]}</button>`).join("")}
+  <button class="btn" data-k="4">4. Add 10 to the West Gate</button><button class="btn" data-k="5">5. Add 10 to the North Wall</button><button class="btn" data-k="6">6. Add 10 to the River Gate</button><button class="btn" data-k="7">7. Add 10 to the reserve</button><button class="btn ghost" data-k="8">8. Start again</button>
+  <button class="btn primary" id="done" ${left?"disabled":""}>${left?"Place all 120 soldiers first":"Take your positions (Enter)"}</button>`;
+  $$("[data-k]").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(k<=3){ctx.a=PRESETS[k-1][1].slice()}else if(k<=7){if(left>0)ctx.a[k-4]+=10;else{sayq([{t:"All soldiers are placed. Press 8 to start again, or Enter to take your positions.",v:0}]);return}}else ctx.a=[0,0,0,0];V.setup();$("#vh").focus();
+    const l=120-ctx.a.reduce((x,y)=>x+y,0);sayq([{t:"West "+ctx.a[0]+", North "+ctx.a[1]+", River "+ctx.a[2]+", reserve "+ctx.a[3]+". "+(l?l+" soldiers left to place.":"All placed. Press Enter to take your positions."),v:0}])});
+  $("#done").onclick=()=>{if(left)return;SG.setup(S,...ctx.a);go("dawn")};
+  if(!ctx.said){ctx.said=1;sayq([{t:"Position your soldiers. You have 120. Press 1 for balanced, 2 for walls first, or 3 for flexible with a large reserve. Or build your own: 4 adds ten to the West Gate, 5 to the North Wall, 6 to the River Gate, 7 to the reserve, and 8 starts again. The reserve costs you strength on the walls, but it is the only thing that can rescue a failing sector.",v:0}])}
+};
+
+/* ===================== DAWN: events, then reports ===================== */
+V.dawn=(c)=>{
+  if(!c.began){SG.beginDay(S);c.began=1;if(S.over){go("end");return}}
+  setSky(false);enemyGlow(null);showTypes(null);paintScene();
+  if(S.pending&&!c.stage){
+    const p=S.pending;
+    main.innerHTML=`<h2 id="vh" tabindex="-1">Day ${S.day} dawns</h2><p class="hint">${reliefWords()}</p>
+    ${S.news.length?`<div class="card"><b>From the enemy camp.</b> ${S.news.join(" ")}</div>`:""}
+    <div class="card"><b>A decision.</b> ${p.text}</div>
+    ${p.opts.map((o,i)=>`<button class="btn" data-k="${i+1}">${i+1}. ${o.t}</button>`).join("")}`;
+    $$("[data-k]").forEach((b,i)=>b.onclick=()=>{SEQ++;if(SYN)SYN.cancel();const r=SG.resolveEvent(S,i);c.stage=1;c.evMsg=r.msg;hud();AU.ok();V.dawn(c);$("#vh").focus()});
+    if(S.eventSfx){const f=({rain:()=>AU.rain(3000),cough:()=>AU.cough(0),song:()=>AU.song(0),water:()=>AU.water(.85),rumble:()=>AU.rumble(0),horn:()=>AU.horn(0,130,1.4),steps:()=>AU.steps(-.3)})[S.eventSfx];f&&f()}
+    AU.drone(.2);AU.bell(0,.12);
+    sayq([{t:`Day ${S.day} dawns. ${S.news.join(" ")} ${p.text} `+p.opts.map((o,i)=>`Press ${i+1}. ${o.t}`).join(" "),v:0}]);
+    return;
+  }
+  const my=SEQ,reps=reportList(),first=S.firstDawn;S.firstDawn=false;
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Day ${S.day} dawns</h2>
+  <p class="hint">${reliefWords()} ${engineWords()}</p>
+  ${S.news.length?`<div class="card"><b>From the enemy camp.</b> ${S.news.join(" ")}</div>`:""}
+  ${S.eventText&&!S.pending&&!c.evMsg?`<div class="card"><b>News.</b> ${S.eventText}</div>`:""}
+  ${c.evMsg?`<div class="card"><b>Your decision.</b> ${c.evMsg}</div>`:""}
+  <div class="card"><b>Iya Tola.</b> Food for ${fmt(S.food)} days, ${Math.floor(S.timber)} loads of timber, ${S.oil} of oil. The garrison's morale is ${moraleWord(S.morale)}. The enemy looks like ${enemyWords()}.</div>
+  <div class="strip">${reps.map(r=>People.html(Object.assign({},People.cast[WHO[r.src].c],{cls:"",style:""}))).join("")}</div>
+  ${reps.map(r=>`<div class="card"><b>${WHO[r.src].n}.</b> "${reportText(r)}" <span class="pill">${r.src==="defectors"?"no record":recWords(r.src)}</span></div>`).join("")}
+  ${SRCS.filter(k=>S.src[k].jailed||S.src[k].exposed).length?`<div class="card">${SRCS.filter(k=>S.src[k].jailed).map(k=>SN[k]+" is in the cells.").join(" ")} ${S.src[S.mole].exposed?SN[S.mole]+" has been unmasked as the spy.":""}</div>`:""}
+  <button class="btn primary" id="go">Give your orders (Enter)</button>`;
+  $("#go").onclick=()=>{SEQ++;if(SYN)SYN.cancel();AU.stopHeart();go("orders",{fresh:1})};
+  const pps=$$(".strip .pp");
+  (async()=>{
+    AU.drone(Math.min(1,.15+S.day/S.R*.4));AU.bell(0,.12);AU.wind(5000);
+    if(S.eventSfx&&!c.stage&&!S.pending){const f=({rain:()=>AU.rain(4000),cough:()=>AU.cough(0),song:()=>AU.song(0),water:()=>AU.water(.85),rumble:()=>AU.rumble(0),horn:()=>AU.horn(0,130,1.4),steps:()=>AU.steps(-.3)})[S.eventSfx];f&&f()}
+    await say2([{t:`Day ${S.day} dawns. ${reliefWords()} ${S.news.join(" ")} ${c.evMsg||(S.pending?"":S.eventText||"")}`,v:0},{t:`Iya Tola reports: food for ${fmt(S.food)} days, ${Math.floor(S.timber)} loads of timber, ${S.oil} of oil. Morale is ${moraleWord(S.morale)}. The enemy looks like ${enemyWords()}.`,v:4}]);if(my!==SEQ)return;
+    for(let i=0;i<reps.length;i++){const r=reps[i],w=WHO[r.src];if(pps[i])pps[i].classList.add("hot");AU.motif(r.src,PAN[r.claim]);await wait(850);if(my!==SEQ)return;
+      if(pps[i])People.talk(pps[i],4500);
+      await say2([{t:`${w.n.split(",")[0]}: ${reportText(r)}`+(r.src==="defectors"?"":" Record: "+recWords(r.src)+"."),v:w.v}]);if(my!==SEQ)return;if(pps[i])pps[i].classList.remove("hot")}
+    await say2([{t:"Those are your reports. They do not all agree, and one of your informants is lying to you for the enemy. Press Enter to give your orders."+(first?" You have four orders a day. Press S for status, I for intelligence, M to hear the menu, and H for a hint.":""),v:0}],true)})();
+};
+
+/* ===================== ORDERS ===================== */
+function openBreach(){return SECT.filter(s=>S.breach[s])}
+function ordersList(){
+  return [
+   ["Defences: redeploy, fortify, build works, seal a breach"+(openBreach().length?" (there is a breach!)":""),0,()=>chooseDef()],
+   ["Intelligence: scout, question, bait, arrest the spy",0,()=>chooseIntel()],
+   ["Offence: raids, parley"+(SG.canSortie(S)?", the grand sortie":""),0,()=>chooseOff()],
+   ["Supplies: forage, rally the troops, rations",0,()=>chooseSup()],
+   ["Send a rider to hurry the relief army"+(S.riders.ok>=2?" (done: two have got through)":""),1,()=>doAct(SG.rider(S),r=>{AU.steps(.5);setTimeout(()=>r.win?AU.horn(0,150,1.2,.1):AU.bad(),1100)})],
+   ["End the day: nightfall",0,()=>endDay()]];
+}
+function keyOf(i,L){return i===L.length-1?0:i+1}
+function menuSpeech(){const L=ordersList();return "Orders. You have "+S.ap+" of "+S.apMax+". "+L.map((o,i)=>keyOf(i,L)+", "+o[0]+(o[1]?", "+o[1]+" order":"")+".").join(" ")}
+V.orders=({fresh,msg})=>{
+  setSky(false);showTypes(null);
+  const L=ordersList();
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Orders for day ${S.day}</h2>
+  <p>You have <b>${S.ap}</b> of ${S.apMax} orders left. ${S.scouted&&Object.keys(S.scouted).length?"Scouts report: "+Object.keys(S.scouted).map(s=>nm(s)+" is "+S.scouted[s].role+", with "+TYP[S.scouted[s].type].name).join("; ")+".":""}</p>
+  ${boardCard()}
+  ${L.map((o,i)=>{const k=keyOf(i,L),dis=o[1]>S.ap;return `<button class="btn${i===L.length-1?" primary":""}" data-k="${k}" data-why="${dis?"That needs "+o[1]+" order and you have "+S.ap+".":""}" ${dis?'aria-disabled="true" style="opacity:.5"':""}>${k}. ${o[0]}${o[1]?" ("+o[1]+" order)":""}</button>`}).join("")}`;
+  $$("[data-k]").forEach((b,i)=>b.onclick=()=>{if(b.dataset.why){sayq([{t:b.dataset.why,v:0}]);return}L[i][2]()});
+  if(fresh){AU.drone(.25);sayq([{t:menuSpeech(),v:0}])}else if(msg)sayq([{t:msg+" "+S.ap+" orders left. Press M to hear the menu.",v:0}]);
+};
+function doAct(r,snd){
+  if(!r.ok){AU.bad();go("orders",{});sayq([{t:r.msg,v:0}]);return}
+  snd&&snd(r);fxFlash("#ffcf80",.12);hud();go("orders",{msg:r.msg});
+}
+function choose(prompt,opts,cb,back){go("choose",{prompt,opts,cb});backFn=back||(()=>go("orders",{msg:"Cancelled."}))}
+V.choose=({prompt,opts,cb})=>{
+  main.innerHTML=`<h2 id="vh" tabindex="-1">${prompt}</h2>${opts.map((o,i)=>`<button class="btn" data-k="${i+1}">${i+1}. ${o.t}</button>`).join("")}<button class="btn ghost" id="bk">Back (Escape)</button>`;
+  $$("[data-k]").forEach((b,i)=>b.onclick=()=>cb(opts[i].v));$("#bk").onclick=()=>backFn();
+  sayq([{t:prompt+" "+opts.map((o,i)=>(i+1)+", "+o.t+".").join(" ")+" Or press Escape to go back.",v:0}]);
+};
+function secOpt(s,extra){return {t:cap1(nm(s))+" ("+DIR[s]+"). "+S.troops[s]+" soldiers, wall "+Math.round(S.wall[s])+", "+worksText(s)+(S.breach[s]?", breached":"")+(extra?". "+extra:""),v:s}}
+function chooseSector(prompt,cb,filter){choose(prompt,SECT.filter(filter||(()=>true)).map(s=>secOpt(s)),cb)}
+function chooseSrc(prompt,cb){
+  const a=SG.assessment(S);
+  choose(prompt,SRCS.filter(k=>!S.src[k].jailed&&!S.src[k].exposed).map(k=>{const x=a.find(y=>y.src===k);return {t:WHO[k].n.split(",")[0]+". Record: "+recWords(k)+". Suspicion about "+(x?x.p:0)+" percent."+(S.src[k].slips?" Slips: "+word(S.src[k].slips)+".":""),v:k}}),cb);
+}
+function chooseDef(){
+  choose("Defences. What do you order?",[
+    {t:"Redeploy 20 soldiers from one place to another (1 order)",v:"re"},
+    {t:"Fortify a wall (1 order, 1 timber)",v:"fo"},
+    {t:"Build a work: archer platform, counter-mine or river boom (1 order, 2 or 3 timber)",v:"bu"},
+    {t:"Seal a breach (1 order, 2 timber)"+(openBreach().length?"":". There is no breach now"),v:"se"}],v=>{
+    if(v==="re")chooseFrom();
+    else if(v==="fo")chooseSector("Fortify which wall?",s=>doAct(SG.fortify(S,s),()=>{for(let i=0;i<4;i++)setTimeout(()=>AU.clash(PAN[s],.1),i*230)}));
+    else if(v==="bu")choose("Build what? You have "+Math.floor(S.timber)+" timber.",Object.keys(SG.WORKS).map(k=>{const W=SG.WORKS[k];return {t:cap1(W.name)+", "+W.cost+" timber. "+W.what,v:k}}),k=>chooseSector("Build "+SG.WORKS[k].name+" at which sector?",s=>doAct(SG.build(S,s,k),()=>{for(let i=0;i<5;i++)setTimeout(()=>AU.clash(PAN[s],.08),i*200);setTimeout(()=>AU.ok(),1100)}),s=>SG.WORKS[k].where.includes(s)&&!S.works[s][k]));
+    else chooseSector("Seal the breach at which sector?",s=>doAct(SG.seal(S,s),()=>{for(let i=0;i<5;i++)setTimeout(()=>AU.clash(PAN[s],.1),i*200)}),s=>S.breach[s]);
+  });
+}
+function chooseFrom(){choose("Move soldiers from where?",["W","N","R","res"].map(s=>({t:cap1(nm(s))+": "+S.troops[s]+" soldiers",v:s})),from=>choose("Move them to where?",["W","N","R","res"].filter(s=>s!==from).map(s=>({t:cap1(nm(s))+": "+S.troops[s]+" soldiers",v:s})),to=>doAct(SG.redeploy(S,from,to),()=>AU.march((PAN[from]+PAN[to])/2,1600,.12,330))))}
+function chooseIntel(){
+  const k=S.src[S.mole],opts=[
+    {t:"Send a scout to look at a sector. He learns how heavy the attack is and what weapon it brings (1 order)",v:"sc"},
+    {t:"Question an informant. A guilty man slips more often (1 order)",v:"q"},
+    {t:"Whisper a bait to an informant: tell him a sector is thinly held. If he is the spy, the enemy will strike there (1 order)",v:"b"},
+    {t:"Arrest an informant as the spy. Be sure (1 order)",v:"a"}];
+  if(k.exposed&&!k.turned)opts.push({t:"Turn "+SN[S.mole]+" into your double agent (1 order)",v:"t"});
+  if(k.turned)opts.push({t:"Feed "+SN[S.mole]+" a false plan for the enemy (1 order)",v:"f"});
+  choose("Intelligence. "+assessWords()+" What do you order?",opts,v=>{
+    if(v==="sc")chooseSector("Send the scout toward which sector?",s=>doAct(SG.scout(S,s),r=>{AU.steps(PAN[s]);setTimeout(()=>r&&r.lost?AU.bad():AU.motif("adaora",PAN[s]),1400)}));
+    else if(v==="q")chooseSrc("Question whom?",x=>doAct(SG.interrogate(S,x),r=>AU.drum(0,80,.4)));
+    else if(v==="b")chooseSrc("Whisper the bait to whom?",x=>chooseSector("Tell "+SN[x]+" that which sector is thinly held tonight?",s=>doAct(SG.bait(S,x,s),()=>AU.steps(0))));
+    else if(v==="a")chooseSrc("Arrest whom as the spy?",x=>choose("Arrest "+SN[x]+"? If he is innocent, morale falls and you lose his reports for good.",[{t:"Yes. Arrest him.",v:1},{t:"No. Not yet.",v:0}],y=>y?doAct(SG.arrest(S,x),r=>{r.right?(AU.clash(0,.2),setTimeout(()=>AU.ok(),500)):AU.bad()}):go("orders",{msg:"Cancelled."})));
+    else if(v==="t")doAct(SG.turnAgent(S),()=>AU.steps(0));
+    else chooseSector("Which sector will the spy say is thinly held?",s=>doAct(SG.feed(S,s),()=>AU.steps(PAN[s])));
+  });
+}
+function chooseOff(){
+  const opts=[
+    {t:"Burn the enemy supply wagons. Badly hurts enemy morale if it works (2 orders)",v:"sup"},
+    {t:"Raid the siege park to burn one weapon for three days (2 orders)",v:"eng"},
+    {t:"Burn the ladders opposite one sector. Weakens tonight's attack there (2 orders)",v:"sec"},
+    {t:"Parley with the enemy envoy for a night of truce (2 orders)",v:"par"}];
+  if(SG.canSortie(S))opts.push({t:"Launch the grand sortie. The enemy is shaken. About "+Math.round(SG.sortieChance(S)*100)+" percent to win the war now, but a failure costs forty soldiers (2 orders)",v:"sor"});
+  choose("Offence. What do you order?",opts,v=>{
+    const snd=t=>r=>{AU.steps(t==="supply"?.85:PAN[t]||0);setTimeout(()=>{if(r.win){AU.fire(t==="supply"?.85:PAN[t]||0,2500);AU.horn(0,150,1)}else{AU.clash(.5);AU.bad()}},1200)};
+    if(v==="sup")doAct(SG.raid(S,"supply"),snd("supply"));
+    else if(v==="eng")choose("Raid for which weapon?",["ram","tower","sappers","boats"].map(t=>({t:cap1(TYP[t].name)+". "+(S.enemy.ready[t]<=S.day?"It is in the field now.":"It is still being built."),v:t})),t=>doAct(SG.raid(S,t),snd("supply")));
+    else if(v==="sec")chooseSector("Burn ladders opposite which sector?",s=>doAct(SG.raid(S,s),snd(s)));
+    else if(v==="par")doAct(SG.parley(S),r=>{AU.horn(0,98,1.2,.08);setTimeout(()=>r.win?AU.ok():AU.bad(),1300)});
+    else doAct(SG.sortie(S),r=>{AU.horn(0,120,1.6,.14);setTimeout(()=>{if(r.win){AU.cheer(0)}else AU.bad()},1500)});
+  });
+}
+function chooseSup(){
+  choose("Supplies. What do you order?",[
+    {t:"Forage outside the walls for timber and food. A quarter of the time the party is ambushed (1 order)",v:"fg"},
+    {t:"Rally the troops. Morale rises, a little food is eaten (1 order)",v:"ra"},
+    {t:"Rations: "+(S.ration==="full"?"full now. Change to short (free)":"short now. Change to full (free)"),v:"rt"}],v=>{
+    if(v==="fg")doAct(SG.forage(S),r=>{AU.steps(.4);setTimeout(()=>r.win?AU.ok():AU.bad(),1000)});
+    else if(v==="ra")doAct(SG.rally(S),()=>AU.cheer(0));
+    else doAct(SG.setRation(S,S.ration==="full"?"short":"full"),()=>AU.ok());
+  });
+}
+
+/* ===================== NIGHTFALL: listen from the wall ===================== */
+function endDay(){const d=SG.dusk(S);S.fedNote=d.changed;go("night")}
+function heardWord(h){const l=h.lvl,w=l>.8?"thunderous, a great host on the move":l>.55?"steady, with many torches":l>.35?"a few drums and scattered fires":"only whispers";
+  return w+". "+(h.type?cap1(TYP[h.type].hear):l<.3?"You cannot make out the weapon":"You cannot tell what weapon it is")}
+function hearSound(type,p,lvl){
+  switch(type){case "ram":AU.ram(p);setTimeout(()=>AU.ram(p),650);setTimeout(()=>AU.ram(p),1300);break;case "tower":AU.creak(p);break;case "sappers":AU.scrape(p);break;case "boats":AU.oars(p);break;case "ladders":AU.clatter(p);break;default:AU.wind(1500)}
+  AU.march(p,1800,.03+lvl*.12,520-lvl*140);AU.drum(p,60+lvl*30,.1+lvl*.35);
+}
+async function listenNight(my){
+  const h=S.heard;enemyGlow(Object.fromEntries(SECT.map(s=>[s,h[s].lvl])));showTypes(h);
+  await say2([{t:"Night falls. You climb the tower and listen. The sounds are placed where the enemy is.",v:0}]);if(my!==SEQ)return;
+  for(const s of SECT){hearSound(h[s].type,PAN[s],h[s].lvl);await wait(1700);if(my!==SEQ)return;
+    await say2([{t:cap1(DIR[s])+", "+nm(s).replace("the ","")+": "+heardWord(h[s])+".",v:0}]);if(my!==SEQ)return}
+}
+V.night=()=>{
+  const my=SEQ;setSky(true);paintScene();
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Night falls on Ilesanmi</h2>
+  <p>You stand on the tower and listen. The sounds come from where the enemy is. Louder means more of them, and the sound of the weapon tells you what they are bringing. But the dark plays tricks: you will be right about three times in four.</p>
+  <div class="card">${SECT.map(s=>`<b>${cap1(nm(s))}</b>: ${heardWord(S.heard[s])}.`).join("<br>")}</div>
+  <div class="row"><button class="btn" id="again">Listen again (L)</button><button class="btn primary" id="go">Give battle orders (Enter)</button></div>`;
+  $("#go").onclick=()=>{SEQ++;if(SYN)SYN.cancel();AU.stopHeart();go("battle",{})};
+  $("#again").onclick=()=>{SEQ++;const m=SEQ;listenNight(m)};
+  AU.drone(.7);AU.heart(64,40000,.3);(async()=>{await listenNight(my);if(my!==SEQ)return;await say2([{t:"Press L to listen again, or Enter to give your battle orders. You have "+S.cp+" command points.",v:0}],true)})();
+};
+
+/* ===================== BATTLE ORDERS: answer each weapon ===================== */
+function cmdList(){return S.cmd.length?S.cmd.map(c=>SG.CMD[c.k].name+" at "+nm(c.s)).join("; "):"none yet"}
+function battleMenuSpeech(){return "Battle orders. "+S.cp+" command points left. Given so far: "+cmdList()+". Oil left: "+S.oil+". Press 1 to pour boiling oil, which burns rams and ladders. 2 to loose fire arrows, which burn towers and boats. 3 to sally out against any siege engine. 4 to brace a wall. 5 to cancel all orders. 6 to hear the night again. Enter to begin the battle."}
+V.battle=({msg})=>{
+  setSky(true);showTypes(S.heard);paintScene();
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Battle orders</h2>
+  <p>You have <b>${S.cp}</b> command points. Oil left: <b>${S.oil}</b>. Given so far: ${cmdList()}.</p>
+  <div class="card">${SECT.map(s=>`<b>${cap1(nm(s))}</b> (${DIR[s]}): ${heardWord(S.heard[s])}. ${S.troops[s]} soldiers, ${worksText(s)}.`).join("<br>")}</div>
+  <button class="btn" data-k="1">1. ${SG.CMD.oil.name}. ${SG.CMD.oil.what}</button>
+  <button class="btn" data-k="2">2. ${SG.CMD.fire.name}. ${SG.CMD.fire.what}</button>
+  <button class="btn" data-k="3">3. ${SG.CMD.sally.name}. ${SG.CMD.sally.what}</button>
+  <button class="btn" data-k="4">4. ${SG.CMD.brace.name}. ${SG.CMD.brace.what}</button>
+  <button class="btn ghost" data-k="5">5. Cancel all battle orders</button><button class="btn ghost" data-k="6">6. Listen to the night again</button>
+  <button class="btn primary" id="go">Begin the battle (Enter)</button>`;
+  const K=["oil","fire","sally","brace"];
+  $$("[data-k]").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;
+    if(k<=4){if(S.cp<1){AU.bad();sayq([{t:"You have no command points left. Press 5 to cancel, or Enter to begin the battle.",v:0}]);return}
+      choose(SG.CMD[K[k-1]].name+" at which sector?",SECT.map(s=>({t:cap1(nm(s))+" ("+DIR[s]+"). You heard: "+(S.heard[s].type?TYP[S.heard[s].type].name:"nothing clear")+". "+S.troops[s]+" soldiers.",v:s})),s=>{const r=SG.addCmd(S,K[k-1],s);r.ok?AU.ok():AU.bad();hud();go("battle",{msg:r.msg})},()=>go("battle",{msg:"Cancelled."}))}
+    else if(k===5){const r=SG.clearCmds(S);hud();go("battle",{msg:r.msg})}
+    else{SEQ++;const m=SEQ;listenNight(m).then(()=>{if(m===SEQ)say2([{t:"Press Enter to begin the battle, or give more orders.",v:0}],true)})}});
+  $("#go").onclick=()=>{SEQ++;if(SYN)SYN.cancel();AU.stopHeart();runAssault()};
+  if(msg)sayq([{t:msg+" "+S.cp+" command points left. Press M to hear the menu, Enter to begin the battle.",v:0}]);else sayq([{t:battleMenuSpeech(),v:0}]);
+};
+
+/* ===================== THE ASSAULT ===================== */
+const CONTACT={ladders:"Ladders slam against the stone.",ram:"The ram batters the gate.",tower:"The siege tower grinds against the wall.",sappers:"The ground trembles as sappers burrow under the wall.",boats:"Boats grind onto the bank below the gate."};
+function contactSound(t,p,k){switch(t){case "ram":AU.ram(p);setTimeout(()=>AU.ram(p),600);break;case "tower":AU.creak(p);setTimeout(()=>AU.crash(p),900);break;case "sappers":AU.scrape(p);setTimeout(()=>AU.rumble(p),900);break;case "boats":AU.oars(p);break;default:AU.clatter(p)}}
+function answerText(s,x){const i=x.info,t=x.type;
+  if(i.sally==="fail")return "The sally is cut off in the dark and loses men.";
+  if(i.answer==="oil")return t==="ram"?"Boiling oil pours onto the ram. It burns and collapses.":"Boiling oil pours down on the ladders. The attackers scream and fall back.";
+  if(i.answer==="fire")return t==="tower"?"Fire arrows streak into the siege tower. It burns like a torch.":"Fire arrows set the boats ablaze on the river.";
+  if(i.answer==="sally")return "A sally slips out, smashes the engine and returns before the enemy can answer.";
+  if(i.answer==="mine")return "Your counter-miners meet the tunnel in the dark. The sappers are caught underground.";
+  if(i.answer==="boom")return "The river boom stops the boats short of the bank.";
+  if(t==="ram")return "The ram hammers the gate unchecked.";
+  if(t==="tower")return "The siege tower reaches the wall with no one to burn it.";
+  if(t==="sappers")return "The wall shudders and slumps: the sappers have undermined it.";
+  if(t==="boats")return "Boats land soldiers under the gate.";
+  return ""}
+function outText(s,x){
+  const n=cap1(nm(s)),loss=x.defLoss,o=x.out;
+  if(x.fb)return `${n}: you fall back behind the inner wall. The outer wall is given up, but the line is saved. ${loss} fell.`;
+  if(o==="held")return `${n}: the attackers break against the wall. The line holds with hardly a scratch. ${loss} fell.`;
+  if(o==="costly")return `${n}: a brutal fight on the parapet. The line holds, but the wall is scarred. ${loss} fell.`;
+  if(o==="barely")return `${n}: the line bends, and bends again, and only just holds. ${loss} fell.`;
+  return `${n}: the wall is breached! Attackers pour through the gap. ${loss} fell.`}
+async function runAssault(){
+  const my=++SEQ;try{Atmos.letterbox(true,90000)}catch(x){}cur="assault";backFn=null;ctx={};
+  main.innerHTML=`<h2 id="vh" tabindex="-1">The assault</h2><p>Listen.</p>`;$("#vh").focus();main.setAttribute("role","application");
+  const st=SG.assault(S);setSky(true);paintScene();
+  if(st.truce){
+    AU.stopDrone();AU.drone(.3);AU.wind(5000);
+    await say2([{t:"The truce holds. No drums, no ladders. Across the plain you hear hammers, and the creak of timber. The enemy is not resting. It is building.",v:0}]);if(my!==SEQ)return;
+    const res=SG.finish(S,st,null);return afterNightUI(res,st)}
+  AU.horn(0,98,2.2,.16);fxFlash("#ff9a3c",.25);await wait(900);if(my!==SEQ)return;
+  SECT.forEach(s=>{fxCharge(s);AU.drum(PAN[s],70,.5);setTimeout(()=>AU.drum(PAN[s],70,.4),300)});
+  await say2([{t:"The enemy horns sound. The drums quicken. Torches pour across the plain toward all three sectors at once!"+(S.cmd.length?" Your orders go out along the wall.":""),v:0}]);if(my!==SEQ)return;
+  const maxA=Math.max(...SECT.map(s=>st.sec[s].A));
+  for(const s of SECT){const x=st.sec[s],k=x.A/maxA;fxArrows(s,6+Math.round(k*10));AU.arrows(PAN[s],4+Math.round(k*8),.07+k*.08);contactSound(x.type,PAN[s]);AU.swords(PAN[s],1400,3+k*8,.06+k*.12);fxSparks(s,6+Math.round(k*12));
+    if(x.info.answer==="oil"||x.info.answer==="fire")fxPulse(s);
+    await say2([{t:cap1(DIR[s])+": "+CONTACT[x.type]+" "+answerText(s,x),v:0}]);if(my!==SEQ)return;
+    if(x.info.destroyed||x.info.answer==="mine"||x.info.answer==="boom"){AU.ok();await wait(300)}}
+  fxShake();
+  let choice=null;
+  if(st.pending.length){
+    AU.heart(130,12000,.5);AU.horn(0,120,1,.1);
+    choice=await decide(st,my);if(my!==SEQ)return;
+    main.innerHTML=`<h2 id="vh" tabindex="-1">The assault</h2><p>Listen.</p>`;$("#vh").focus();
+  }
+  AU.stopHeart();
+  const res=SG.finish(S,st,choice);
+  for(const s of SECT){const x=res.sec[s];
+    if(x.out==="held"){AU.cheer(PAN[s]);fxArrows(s,10,true)}else if(x.out==="costly"){AU.swords(PAN[s],1400,9,.12);AU.groan(PAN[s]);fxSparks(s,16)}else if(x.out==="barely"){AU.groan(PAN[s]);AU.clash(PAN[s],.2);fxSparks(s,22);fxShake()}else{AU.crash(PAN[s]);AU.alarm();fxShake();fxFlash("#ff3b2a",.4);fxSparks(s,30)}
+    paintScene();await say2([{t:outText(s,x)+(x.reserve?" The reserve fought here.":""),v:0}]);if(my!==SEQ)return}
+  if(res.fell){AU.lose();await say2([{t:res.overrun?`The line at ${nm(res.fell)} is overrun and cannot be rallied. Ilesanmi is falling.`:`A second gap opens in the walls. The breach at ${nm(res.fell)} cannot be closed. Ilesanmi is falling.`,v:0}]);if(my!==SEQ)return}
+  else if(res.breached.length){await say2([{t:`The enemy holds a foothold at ${nm(res.breached[0])}. At dawn you must seal the breach, or the next blow may end the siege. A second open breach loses the citadel.`,v:4}]);if(my!==SEQ)return}
+  afterNightUI(res,st);
+}
+function decide(st,my){return new Promise(res=>{
+  const wait_=(Sfx.assist&&Sfx.assist()?12000:7000)*Access.timeScale(),pend=st.pending.slice(),hasRes=S.troops.res>0,opts=[];
+  if(hasRes)pend.forEach(s=>opts.push({k:"reserve",s,t:`Send the reserve of ${S.troops.res} to ${nm(s)} (${DIR[s]})`}));
+  pend.forEach(s=>opts.push({k:"fall",s,t:`Fall back behind the inner wall at ${nm(s)} (${DIR[s]}). You lose the outer wall but save the line`}));
+  main.innerHTML=`<h2 id="vh" tabindex="-1">The line is breaking!</h2>
+  <p>${pend.map(s=>cap1(nm(s))).join(" and ")} ${pend.length>1?"are":"is"} close to giving way. Decide now.</p>
+  <div class="timer"><i style="animation-duration:${wait_}ms"></i></div>
+  ${opts.map((o,i)=>`<button class="btn primary" data-k="${i+1}">${i+1}. ${o.t}</button>`).join("")}<button class="btn ghost" data-k="0">0. Hold. Spend nothing</button>`;
+  $("#vh").focus();let done=false,ticks=[];
+  const fin=v=>{if(done)return;done=true;ticks.forEach(clearTimeout);AU.stopHeart();if(SYN)SYN.cancel();cur="assault";res(v?{k:v.k,s:v.s}:null)};
+  cur="decide";backFn=null;ctx={fin:v=>fin(v),opts};
+  $$("[data-k]").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;fin(k===0?null:opts[k-1])});
+  sayq([{t:`The line is breaking at ${pend.map(nm).join(" and ")}! `+opts.map((o,i)=>`Press ${i+1}: ${o.t}.`).join(" ")+" Press 0 to hold."+Access.coopSay(),v:5}]);
+  const n=Math.floor(wait_/1000);for(let i=1;i<=n;i++)ticks.push(setTimeout(()=>AU.tick(i>n-3),i*1000));
+  ticks.push(setTimeout(()=>{if(!done){sayq([{t:"Too late. The moment passes, and the line must fend for itself.",v:5}])}fin(null)},wait_))})}
+function afterNightUI(res,st){try{Atmos.letterbox(false)}catch(x){}hud();go("aftermath",{res,st})}
+V.aftermath=({res,st})=>{
+  const my=SEQ;setSky(false);enemyGlow(null);showTypes(null);paintScene();
+  const rv=res.reveal||[],heard=S.heard||{};
+  const learn=res.truce?[]:SECT.map(s=>{const ht=heard[s]&&heard[s].type,rt=res.plan.type[s];return ht&&ht!==rt?`At ${nm(s)} you heard ${TYP[ht].name}, but it was ${TYP[rt].name}.`:null}).filter(Boolean);
+  const baitLine=res.bait?(res.bait.real?`The enemy struck exactly where you whispered to ${SN[res.bait.src]}, and your men were waiting. He is almost certainly the spy.`:res.bait.hit?`The main blow fell where you whispered to ${SN[res.bait.src]}. That may be the spy at work, or luck.`:`The main blow fell elsewhere. ${SN[res.bait.src]} did not pass your bait on.`):"";
+  main.innerHTML=`<h2 id="vh" tabindex="-1">${res.truce?"A night of truce":"Dawn after the assault"}</h2>
+  ${res.truce?"<p>No assault came tonight. But the enemy used the time.</p>":`<div class="card">${SECT.map(s=>{const x=res.sec[s];return `<b>${cap1(nm(s))}</b> ${x.fb?"fell back":OUT[x.out]}. ${x.defLoss} of yours fell, wall now ${Math.round(x.wall)} of 10. That was ${x.role==="main"?"the main attack":x.role==="feint"?"the feint":"a probe"}, with ${TYP[x.type].name}.${x.info.answer?" "+answerText(s,{info:x.info,type:x.type}):""}`}).join("<br>")}</div>`}
+  ${learn.length?`<div class="card"><b>What the dark hid.</b> ${learn.join(" ")}</div>`:""}
+  ${rv.length?`<div class="card"><b>Who was right?</b> The main assault fell on ${nm(res.plan.main)}.<br>${rv.map(r=>`${WHO[r.src].n.split(",")[0]} said ${nm(r.claim)}: <b>${r.ok?"right":"wrong"}</b>.`).join("<br>")}</div>`:""}
+  ${baitLine?`<div class="card"><b>The bait.</b> ${baitLine}</div>`:""}
+  <div class="card"><b>Renown earned tonight:</b> ${res.score||0}. Total ${S.score}. ${SG.assessment(S).length&&!S.src[S.mole].exposed?assessWords():""}</div>
+  ${(res.upkeep||[]).map(u=>`<div class="card">${u}</div>`).join("")}
+  <button class="btn primary" id="go">${S.over?"Continue":"Continue to the next day (Enter)"}</button>`;
+  $("#go").onclick=()=>{SEQ++;if(SYN)SYN.cancel();S.over?go("end"):go("dawn")};
+  (async()=>{
+    const segs=[];
+    if(res.truce)segs.push({t:"A night of truce. No assault came, but the enemy used the time to build.",v:0});
+    else{segs.push({t:`The night is over. You lost ${res.defLoss} soldiers. The enemy lost ${res.enemyLoss>70?"heavily":res.enemyLoss>35?"many":"some"}.`,v:0});
+      segs.push({t:`Wall strength now: West ${Math.round(S.wall.W)}, North ${Math.round(S.wall.N)}, River ${Math.round(S.wall.R)}.`,v:0})}
+    if(learn.length)segs.push({t:learn.join(" "),v:0});
+    if(rv.length)segs.push({t:`The main assault fell on ${nm(res.plan.main)}. `+rv.map(r=>`${WHO[r.src].n.split(",")[0]} said ${nm(r.claim)}: ${r.ok?"right":"wrong"}.`).join(" "),v:0});
+    if(baitLine)segs.push({t:baitLine,v:0});
+    if(res.counters&&res.counters.length&&!res.truce)segs.push({t:`Your answers worked ${res.counters.length} time${res.counters.length>1?"s":""} tonight.`,v:0});
+    segs.push({t:`Renown earned: ${res.score||0}.`,v:0});
+    (res.upkeep||[]).forEach(u=>segs.push({t:u,v:4}));
+    await say2(segs);if(my!==SEQ)return;
+    await say2([{t:S.over?"Press Enter to continue.":"Press Enter to see the next dawn.",v:0}],true)})();
+};
+
+/* ===================== THE END ===================== */
+V.end=()=>{
+  const e=SG.ending(S),st=S.stats;let best="",bs=0;
+  try{const old=localStorage.getItem("sg_best"),ob=+(localStorage.getItem("sg_bestscore")||0);if(!old||rank.indexOf(e.rank)>rank.indexOf(old))localStorage.setItem("sg_best",e.rank);if(e.score>ob)localStorage.setItem("sg_bestscore",String(e.score));best=localStorage.getItem("sg_best");bs=+localStorage.getItem("sg_bestscore")}catch(x){}
+  const lines=[];
+  if(e.exposed)lines.push(`You unmasked ${SN[e.mole]} as the enemy's spy. Counter-intelligence protects your decisions as much as your walls.`);
+  else lines.push(`The spy was ${SN[e.mole]}, and you never unmasked him.`+(st.wrongArrest?" You arrested an innocent man along the way.":""));
+  if(st.counters>=3)lines.push("You answered the enemy's weapons with the right counters. That is the whole art of siege defence: match the answer to the threat.");
+  if((st.scouts||0)>=2)lines.push("You verified intelligence before trusting it. Never commit your army to a single source.");
+  if(st.baitHits)lines.push("Your bait drew the enemy onto your prepared defences. Deception turned against the deceiver.");
+  if((st.commits||0)>=1)lines.push("You held a reserve and threw it in at the decisive moment.");
+  if((st.raids||0)>=1)lines.push("You struck at the enemy's supplies and weapons, not only his soldiers.");
+  if(st.perfect>=2)lines.push(`${word(st.perfect)} nights without a scratch on any sector.`);
+  if(!e.win&&st.counters<2)lines.push("Next time, listen for the weapon and answer it: oil for rams and ladders, fire arrows for towers and boats, a counter-mine for sappers.");
+  const msg={relief:"Horns! From the south road, the relief army rides into view, banners high. The enemy lines dissolve before it. Ilesanmi stands.",withdraw:"The drums fall silent. Across the plain the enemy camp is striking its tents. The Northern Confederacy is withdrawing, broken, before the relief army has even arrived. Ilesanmi stands.",sortie:"Your whole garrison pours out at the shaken enemy, and the Confederacy breaks and runs. You won the war with your own spears. Ilesanmi stands.",fall:"The wall is gone, and the enemy pours into Ilesanmi. The citadel has fallen.",starve:"The granaries are empty and the soldiers can no longer lift their spears. The council opens the gates. Ilesanmi surrenders.",mutiny:"The garrison will not fight on. Soldiers lay down their spears and open the gates. Ilesanmi is lost."}[e.kind];
+  AU.stopDrone();AU.stopHeart();e.win?AU.win():AU.lose();setSky(!e.win);showTypes(null);
+  main.innerHTML=`<h2 id="vh" tabindex="-1">${e.win?"Ilesanmi stands":"Ilesanmi has fallen"}</h2>
+  <p>${msg}</p><div class="card"><b>Rank: ${e.rank}.</b> Renown ${e.score}.<br>Soldiers left: ${e.troops}. Sectors held: ${e.held}. Breaches: ${e.breached}. Days: ${Math.min(e.day,S.R)}. ${S.hints?"Hints used: "+S.hints+". ":""}${best?"Your best rank: "+best+", best renown "+bs+".":""}</div>
+  <div class="card"><b>What you practised.</b><br>${lines.join("<br>")}</div>
+  <button class="btn primary" id="again">Defend Ilesanmi again (P)</button><button class="btn ghost" id="menu">Back to the main menu (Alt+M)</button>`;
+  $("#again").onclick=()=>{newRun();go("brief")};$("#menu").onclick=()=>{try{parent.postMessage({dt:"menu"},"*")}catch(x){}};
+  try{parent.postMessage({dt:"done",game:"siege",result:e.rank},"*")}catch(x){}
+  sayq([{t:(e.win?"Ilesanmi stands. ":"Ilesanmi has fallen. ")+msg+` Your rank: ${e.rank}, with ${e.score} renown. You have ${e.troops} soldiers left. `+lines.join(" ")+" Press P to defend Ilesanmi again, or Alt and M for the main menu.",v:0}]);
+};
+
+/* ===================== STATUS, INTEL, HINT, KEYS ===================== */
+function statusText(){return `Day ${S.day}. ${S.ap} of ${S.apMax} orders left. Soldiers: West ${S.troops.W}, North ${S.troops.N}, River ${S.troops.R}, reserve ${S.troops.res}. Walls out of ten: West ${Math.round(S.wall.W)}, North ${Math.round(S.wall.N)}, River ${Math.round(S.wall.R)}. Works: West ${worksText("W")}, North ${worksText("N")}, River ${worksText("R")}. ${openBreach().length?"Open breach at "+openBreach().map(nm).join(" and ")+". ":""}Food for ${fmt(S.food)} days, rations ${S.ration}. Timber ${Math.floor(S.timber)}. Oil ${S.oil}. Morale ${moraleWord(S.morale)}, ${Math.round(S.morale)} out of ten. The enemy looks like ${enemyWords()}. ${engineWords()} ${reliefWords()} Renown ${S.score}.`}
+function intelText(){const l=reportList().map(r=>`${WHO[r.src].n.split(",")[0]} says ${nm(r.claim)}${r.type?", with "+TYP[r.type].name:""}${r.src==="defectors"?"":", record "+recWords(r.src)}.`);return "Intelligence. "+(l.length?l.join(" "):"No reports yet.")+" "+assessWords()+" "+(Object.keys(S.scouted||{}).length?"Scouts: "+Object.keys(S.scouted).map(s=>nm(s)+" is "+S.scouted[s].role+", with "+TYP[S.scouted[s].type].name).join("; ")+". ":"")+engineWords()}
+addEventListener("keydown",e=>{
+  if(e.altKey||e.ctrlKey||e.metaKey)return;const k=e.key,lk=k.toLowerCase(),t=e.target,tag=t&&t.tagName;
+  if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA")return;
+  if(cur==="title")return;
+  if(k==="Escape"&&backFn){e.preventDefault();backFn();return}
+  if((k==="Enter"||k===" ")&&skipFn&&tag!=="BUTTON"){e.preventDefault();skipFn();return}
+  if(cur==="decide"){if(/^[0-9]$/.test(k)){e.preventDefault();const n=+k;if(n===0)ctx.fin(null);else if(ctx.opts[n-1])ctx.fin(ctx.opts[n-1])}return}
+  if(lk==="t"){e.preventDefault();const on=!(Sfx.assist&&Sfx.assist());Sfx.setAssist&&Sfx.setAssist(on);sayq([{t:on?"Assist on. Timed decisions now give you twelve seconds.":"Assist off. Timed decisions give you seven seconds.",v:0}]);return}
+  if(!S)return;
+  if(lk==="s"){e.preventDefault();SEQ++;sayq([{t:statusText(),v:4}]);return}
+  if(lk==="i"){e.preventDefault();SEQ++;sayq([{t:intelText(),v:0}]);return}
+  if(lk==="r"){e.preventDefault();if(LAST.length){SEQ++;sayq(LAST)}return}
+  if(lk==="h"&&(cur==="orders"||cur==="battle"||cur==="choose")){e.preventDefault();S.hints++;S.hintsUsed++;sayq([{t:"Hint. "+SG.hint(S),v:0}]);return}
+  if(lk==="m"&&cur==="orders"){e.preventDefault();sayq([{t:menuSpeech(),v:0}]);return}
+  if(lk==="m"&&cur==="battle"){e.preventDefault();sayq([{t:battleMenuSpeech(),v:0}]);return}
+  if(lk==="l"&&cur==="night"){e.preventDefault();$("#again").click();return}
+  if(lk==="l"&&cur==="battle"){e.preventDefault();$('[data-k="6"]').click();return}
+  if(lk==="p"&&cur==="end"){e.preventDefault();$("#again").click();return}
+  if(k==="Enter"&&tag!=="BUTTON"){const b=$("#go")||$("#done");if(b&&!b.disabled){e.preventDefault();b.click()}return}
+  if(/^[0-9]$/.test(k)){const b=$(`[data-k="${k}"]`);if(b){e.preventDefault();b.click()}}
+});
+addEventListener("pointerdown",()=>AU.init(),{once:true});
+
+/* ===================== ACCESSIBILITY + ATMOSPHERE (shared layers) ===================== */
+Access.register({
+ name:"siege",
+ speak:t=>sayq([{t,v:0}]),
+ busy:()=>!S||cur==="title"||cur==="assault"||cur==="decide"||cur==="end"||cur==="brief",
+ compass(){
+  if(!S)return null;const night=["night","battle","assault","decide"].includes(cur),h=S.heard;
+  const nz=s=>night&&h&&h[s]?(h[s].lvl>.7?", enemy noise loud":h[s].lvl>.4?", enemy noise steady":", enemy noise faint")+(h[s].type?", sounds like "+TYP[h[s].type].name:""):"";
+  return{items:SECT.map(s=>({pan:PAN[s],label:cap1(nm(s))})),say:"On your left, "+nm("W")+": "+S.troops.W+" soldiers, wall "+Math.round(S.wall.W)+", "+worksText("W")+nz("W")+". Straight ahead, "+nm("N")+": "+S.troops.N+" soldiers, wall "+Math.round(S.wall.N)+", "+worksText("N")+nz("N")+". On your right, "+nm("R")+": "+S.troops.R+" soldiers, wall "+Math.round(S.wall.R)+", "+worksText("R")+nz("R")+". Behind you, the reserve: "+S.troops.res+" soldiers."}},
+ summary(){
+  if(!S||cur==="title")return "Siege of Ilesanmi. Press the Begin button to start.";
+  return "Day "+S.day+". "+(cur==="orders"?S.ap+" of "+S.apMax+" orders left. ":"")+SG.total(S)+" soldiers. Food for "+fmt(S.food)+" days. Timber "+Math.floor(S.timber)+", oil "+S.oil+". Morale "+moraleWord(S.morale)+". "+(["night","battle","assault","decide"].includes(cur)?"It is night.":"It is daytime.")+" The enemy looks like "+enemyWords()+"."},
+ goal(){
+  if(!S||cur==="title")return "Press the Begin button, then place your soldiers.";
+  return "Goal: hold Ilesanmi until the relief army arrives, "+(S.relief?"at dawn on day "+S.R:"expected between day nine and day eleven")+", or break the enemy's will, or launch the grand sortie when he is shaken. "+(cur==="orders"?"You have "+S.ap+" orders left today. Build the works the enemy's weapons demand, and find the spy.":"Answer each weapon with its counter, and keep a reserve.")},
+ evidence(){
+  if(!S||!S.reports)return null;
+  const rows=reportList().map(r=>({h:WHO[r.src].n,t:"Says the main attack is at "+nm(r.claim)+(r.type?", with "+TYP[r.type].name:"")+". "+(r.src==="defectors"?"No record.":"Record: "+recWords(r.src)+"."),tag:"today"}));
+  rows.push({h:"The spy",t:assessWords(),tag:"spy"});
+  rows.push({h:"Enemy weapons",t:engineWords(),tag:"enemy"});
+  if(S.scouted&&Object.keys(S.scouted).length)rows.push({h:"Scouts",t:Object.keys(S.scouted).map(s=>nm(s)+" is "+S.scouted[s].role+", with "+TYP[S.scouted[s].type].name).join("; "),tag:"today"});
+  return{title:"Intelligence board",rows,say:intelText()+" Press Escape to close."}}
+});
+
+go("title");
+</script>
+</body>
+</html>

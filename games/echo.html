@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Echo Detective – Case 1: The Missing Ledger</title>
+<style>
+:root{--ink:#0d2430;--lagoon:#16424f;--lagoon2:#1d5463;--brass:#d9a441;--paper:#efe3c8;--paperink:#2a2116;--coral:#ff7a4d;--line:#2f6b7b;--text:#f3ecdc;--mut:#b9cdd2}
+*{box-sizing:border-box;min-width:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(120% 80% at 50% -10%,#1b5566 0%,var(--ink) 60%);color:var(--text);font:1.05rem/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.skip{position:absolute;left:.5rem;top:-4rem;background:var(--brass);color:#000;padding:.6rem 1rem;border-radius:.4rem;z-index:9}
+.skip:focus{top:.5rem}
+header{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid var(--line)}
+.brand{font:700 1.05rem/1.2 Georgia,"Iowan Old Style",Palatino,serif;letter-spacing:.02em;margin:0;color:var(--brass)}
+#hud{color:var(--mut);font-size:.95rem}
+main{max-width:46rem;margin:0 auto;padding:1.2rem 1rem 8rem}
+h2{font:700 clamp(1.7rem,6.5vw,2.6rem)/1.15 Georgia,"Iowan Old Style",Palatino,serif;margin:.2rem 0 .6rem;outline:none}
+h2:focus-visible{outline:3px solid var(--brass);outline-offset:6px}
+.sub{font:italic 1.15rem/1.4 Georgia,serif;color:var(--brass);margin:0 0 1rem}
+p{margin:.5rem 0 .9rem;max-width:62ch}
+.role{color:var(--mut);margin-top:0}
+.hint{color:var(--mut);font-size:.95rem}
+.paper{background:var(--paper);color:var(--paperink);border-radius:.3rem;padding:1rem 1.1rem;box-shadow:0 .25rem 0 rgba(0,0,0,.25);margin:1rem 0}
+.paper h3{font:700 1.05rem Georgia,serif;margin:.1rem 0 .4rem}
+.paper ul{margin:.3rem 0 0;padding-left:1.2rem}
+.btn{display:block;width:100%;text-align:left;font:inherit;font-weight:600;color:var(--text);background:var(--lagoon);border:2px solid var(--line);border-radius:.55rem;padding:.8rem 1rem;margin:.5rem 0;min-height:3rem;cursor:pointer}
+.btn:hover{background:var(--lagoon2)}
+.btn.primary{background:var(--brass);color:#1d1405;border-color:var(--brass);text-align:center;font-size:1.1rem}
+.btn.primary:hover{background:#e8b653}
+.btn.ghost{background:transparent}
+.btn.done{opacity:.72}
+:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr));gap:.5rem}
+.scene{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:.7rem;margin:1rem 0}
+.spot{position:relative;font:inherit;color:var(--text);background:var(--lagoon);border:2px solid var(--line);border-radius:.8rem;padding:.8rem .8rem 1rem;text-align:left;cursor:pointer;display:grid;gap:.2rem;min-height:7rem}
+.spot .ic{font-size:1.8rem;line-height:1}
+.spot .lb{font-weight:600}
+.spot .dir{color:var(--mut);font-size:.9rem}
+.spot .ck{position:absolute;right:.7rem;top:.5rem;color:var(--brass);font-weight:700}
+.spot .pan{position:absolute;left:.8rem;right:.8rem;bottom:.5rem;height:.25rem;background:rgba(255,255,255,.14);border-radius:1rem}
+.spot .pan i{position:absolute;top:-.2rem;width:.65rem;height:.65rem;margin-left:-.32rem;border-radius:50%;background:var(--brass)}
+.spot.sel{border-color:var(--coral);background:var(--lagoon2);box-shadow:0 0 0 3px rgba(255,122,77,.35)}
+.spot.sel::after{content:"";position:absolute;inset:-6px;border-radius:1rem;border:2px solid var(--coral);opacity:0;animation:ring 1.1s ease-out 1}
+@keyframes ring{from{opacity:.9;transform:scale(.97)}to{opacity:0;transform:scale(1.06)}}
+.log{background:rgba(0,0,0,.25);border-left:4px solid var(--brass);padding:.4rem 1rem;margin:1rem 0;border-radius:.3rem}
+.log p{margin:.6rem 0}
+.ans{color:var(--paper)}
+.check{display:flex;gap:.7rem;align-items:flex-start;margin:.4rem 0;color:var(--paperink)}
+.check input{width:1.4rem;height:1.4rem;margin-top:.2rem;accent-color:#7a4b00;flex:none}
+fieldset{border:0;padding:0;margin:0}
+legend{font:700 1.05rem Georgia,serif;margin-bottom:.4rem}
+label.f{display:grid;gap:.25rem;margin:.8rem 0;color:var(--mut)}
+select,input[type=range]{width:100%;max-width:100%;font:inherit;padding:.6rem;border-radius:.4rem;border:2px solid var(--line);background:var(--ink);color:var(--text)}
+input[type=range]{padding:0;height:2rem;accent-color:var(--brass)}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:.25rem .8rem;margin:.4rem 0}
+kbd{font:600 .9rem ui-monospace,Menlo,Consolas,monospace;background:var(--ink);border:1px solid var(--line);border-bottom-width:3px;border-radius:.3rem;padding:.05rem .45rem;justify-self:start}
+#cap{position:fixed;left:0;right:0;bottom:0;pointer-events:none;background:rgba(7,22,29,.96);border-top:2px solid var(--brass);padding:.5rem 1rem calc(.5rem + env(safe-area-inset-bottom));font-size:.95rem;line-height:1.4;color:var(--paper);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+#cap:empty{display:none}
+.rank{font:700 clamp(1.6rem,6vw,2.2rem) Georgia,serif;color:var(--brass);margin:.4rem 0}
+.ctl{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.5rem 0}.ctl .btn{text-align:center;margin:0}.ctl .primary{grid-column:1/-1}
+@media (prefers-reduced-motion:reduce){.spot.sel::after,.port.tell::after{animation:none}}
+.emb .brand{display:none}.emb header{justify-content:flex-end;padding:.4rem 1rem}
+.strip{display:flex;justify-content:space-around;align-items:flex-end;margin:.6rem 0 0;min-height:130px}.strip .pp{width:64px;height:122px;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}.strip .pp.hot{transform:scale(1.18)}
+.port{display:flex;justify-content:center;margin:.2rem 0 .4rem;position:relative}.port.tell::after{content:"";position:absolute;top:8%;bottom:8%;left:50%;width:130px;margin-left:-65px;border-radius:50%;border:3px solid var(--coral);box-shadow:0 0 22px var(--coral);animation:tring .55s ease-out infinite;pointer-events:none}@keyframes tring{from{opacity:1;transform:scale(.85)}to{opacity:0;transform:scale(1.3)}}#pips{font-weight:700;color:var(--brass);letter-spacing:.06em;margin:.1rem 0 .3rem}.port .pp{width:92px;height:175px}.epi{position:relative}
+.lmap{margin:.4rem 0 .8rem}.lmap svg{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border-radius:12px}
+.heat{display:inline-block;padding:.1rem .5rem;border-radius:1rem;background:#3a1c14;color:#ffb08a;font-weight:700}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header>
+  <p class="brand">Awesome-Planet · Echo Detective</p>
+  <span id="hud"></span>
+</header>
+<main id="main" tabindex="-1"></main>
+<div id="cap" aria-hidden="true"></div>
+<div id="live" class="sr" aria-live="off" role="status"></div>
+
+<script src="../js/sfx.js"></script>
+<script src="../js/traffic.js"></script>
+<script src="../js/people.js"></script>
+<script src="../js/lagos.js"></script>
+<script src="../js/atmos.js"></script>
+<script src="../js/access.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   CASE DATA – a new case only needs a new object like this one
+   ============================================================ */
+const CASE={
+ id:"ledger",
+ title:"The Missing Ledger of Lagos Island Market",
+ briefA:"Lagos Island, Thursday morning. Baba Tunde Adewale, the oldest trader in the market, has a problem. Last night, someone took his ledger, the book that records every debt owed to him, from the locked drawer in his office. Nothing else was touched. Baba Tunde has asked you, the best listener in Lagos, to find the thief.",
+ briefClock:" He will go to the police at six this evening, when the last boat leaves the jetty, and by then the thief could be gone. Every question and every search costs time.",
+ briefB:" Listen closely. Every sound is a clue, and everyone is hiding something. Something about this case feels wrong. Someone in this market is watching you. Put on your headphones. When you are ready, continue.",
+ lostText:"Kunle owed one hundred and fifty thousand naira, due on Friday. At midnight, while Sani stood at the gate, Kunle let himself into the office with his spare key and took the ledger. He ran to the jetty in his squeaking new sandals, lost a brass buckle on the planks, and crossed the water with Pa Musa. With no one to stop him, he slipped away on the evening boat with the ledger. Baba Tunde never saw it again.",
+ locations:{
+  market:{name:"Market Square",amb:"crowd",
+   desc:"Stalls are opening and a crowd murmurs all around you. A fish seller shouts her prices on your far left. A fabric seller stands just left of centre, and a wealthy trader just right of centre. On your far right hangs the old gate bell.",
+   desc2:"An eager errand boy is hopping about in the middle of the square, waving and calling your name.",
+   spots:[
+    {id:"mamaput",type:"person",ref:"mamaput",icon:"🐟",label:"Mama Put, the fish seller",pan:-.8,hum:220},
+    {id:"ngozi",type:"person",ref:"ngozi",icon:"🧵",label:"Madam Ngozi, the fabric seller",pan:-.25,hum:330},
+    {id:"chief",type:"person",ref:"chief",icon:"🎩",label:"Chief Bello, a wealthy trader",pan:.3,hum:150},
+    {id:"bola",type:"person",act2:true,ref:"bola",icon:"🧒🏾",label:"Bola, an eager errand boy",pan:.08,hum:430},
+    {id:"gatebell",type:"object",icon:"🔔",label:"The old gate bell",pan:.9,snd:"bell",
+     text:"You pull the bell rope. The bell rings out across the whole market. The rope hangs from the gate post, so only a person standing at the gate can ring it.",clues:["gatebell"]},
+    {id:"trunk",type:"object",act2:true,icon:"🧳",label:"Madam Ngozi's trunk",pan:-.5,snd:"rustle",text:"You open the trunk the note pointed to. Lace, thread, and a small tin of coins. Madam Ngozi really is poor. Whoever sent that note wanted you to waste time suspecting her.",clues:["trunk"]}]},
+  jetty:{name:"The Jetty",amb:"water",
+   desc:"Water laps against old boards and ropes creak. A boatman mends his net on your left. A driver waits by his car, just left of centre. A ticket clerk hums a slow tune at his booth, just right of centre. Something small is clinking against the planks on your right, and a loose paper flaps on the steps far to your right.",
+   spots:[
+    {id:"musa",type:"person",ref:"musa",icon:"⛵",label:"Pa Musa, the boatman",pan:-.7,hum:190},
+    {id:"emeka",type:"person",ref:"emeka",icon:"🚗",label:"Emeka, a driver, beside a big car",pan:-.1,hum:260,sig:"horn"},
+    {id:"tobi",type:"person",ref:"tobi",icon:"🎫",label:"Tobi, the ticket clerk, humming a tune",pan:.2,hum:392,sig:"tune"},
+    {id:"buckle",type:"object",icon:"✨",label:"Something clinking on the planks",pan:.5,snd:"clink",
+     text:"You kneel and find a small brass buckle, bright and new, torn from a strap. A scrap of leather is still attached. It looks like it came from a sandal.",clues:["buckle"]},
+    {id:"page",type:"object",icon:"📄",label:"A loose paper on the steps",pan:.95,snd:"page",
+     text:"A wet scrap of paper, torn from the corner of a big book. Neat columns of names and amounts. Next to Madam Ngozi: four hundred thousand naira. Next to Kunle: one hundred and fifty thousand naira, due Friday.",clues:["ledgerpage"]}]},
+  office:{name:"Baba Tunde's Office",amb:"clock",
+   desc:"A wall clock ticks slowly. The room smells of old paper and lamp oil. The watchman stands on your far left, the desk is just ahead, the visitors' book lies by the door on your right, and the apprentice waits on your far right.",
+   spots:[
+    {id:"sani",type:"person",ref:"sani",icon:"🔦",label:"Sani, the night watchman",pan:-.8,hum:140},
+    {id:"drawer",type:"object",icon:"🗄️",label:"The desk drawer",pan:-.1,snd:"lock",
+     text:"The desk drawer is shut tight. You run your fingers over the lock. No scratches and no dents. The thief opened it with a key. The office door was also locked this morning, with no damage.",clues:["nokey"]},
+    {id:"book",type:"object",icon:"📖",label:"The visitors' book",pan:.3,snd:"page",
+     text:"The visitors' book. The last entry says: Chief Bello, signed out at six oh five in the evening. Nobody signed in after him.",clues:["chiefAlibi"]},
+    {id:"kunle",type:"person",ref:"kunle",icon:"🧑🏾‍💼",label:"Kunle, Baba Tunde's apprentice",pan:.7,hum:300}]},
+  shore:{name:"The Far Shore",amb:"water",act2:true,
+   desc:"The far shore is quiet. Water laps in the dark reeds and a palm leans over the mud. Kunle stands on your far left, ashamed. A hollow under the fallen palm is just ahead, and something pale lies in the mud on your right.",
+   spots:[
+    {id:"kunleS",type:"person",ref:"kunleShore",icon:"🧑🏾",label:"Kunle, ashamed",pan:-.8,hum:300},
+    {id:"hideout",type:"object",icon:"📚",label:"The hollow under the palm",pan:-.1,snd:"page",text:"Kunle points. You reach into the hollow and pull out a bundle wrapped in cloth: the ledger. Pages are torn, but one is intact. Chief Bello: two million naira, due Friday. Beside it, in Baba Tunde's handwriting: will not extend.",clues:["ledgerFound"]},
+    {id:"band",type:"object",icon:"💵",label:"Something pale in the mud",pan:.6,snd:"page",text:"A torn paper band, the kind that wraps new banknotes, stamped Bello Holdings. Beside it in the mud, the wide tracks of a big car.",clues:["bankband"]}]}
+ },
+ people:{
+  mamaput:{name:"Mama Put",role:"Fish seller. Sleeps beside her stall.",v:1,
+   intro:"Ah, detective! You want fish or you want gossip? Both are fresh.",
+   topics:[
+    {q:"What did you hear last night?",a:"I sleep beside my stall, but my ears never sleep. At midnight the gate bell rang, and Sani shouted, Goodnight, Mama Put, like every night. Just after that, I heard somebody hurrying toward the jetty. Squeak, squeak, squeak. The left shoe was squeaking, loud like a rat!",clues:["saniGate","steps"],snd:"steps"},
+    {q:"What do you think of Baba Tunde?",a:"A fair man. He counts every kobo, but he forgives when you are sincere. Whoever took that book did not know him well."}]},
+  ngozi:{name:"Madam Ngozi",role:"Fabric seller.",v:2,
+   intro:"Detective. I sell the finest lace in Lagos. If this is about the ledger, I was not there.",intro2:"Still asking? I told you, I was asleep. Are you saying I am a thief?",
+   topics:[
+    {q:"Where were you last night?",a:"At home in Surulere, in bed by ten. My neighbour will tell you. I was nowhere near this market.",tell:"rustle"},
+    {q:"Is it true you owe Baba Tunde money?",a:"Four hundred thousand naira. Everybody knows it. But I pay slowly and he is patient. Why would I steal a book that already forgives me?",clues:["ngoziDebt"],tell:"rustle"},
+    {q:"What do you notice about the others here?",a:"Me, I notice shoes. That boy Kunle bought new sandals last week, with shiny brass buckles. They squeak with every step. You can hear him coming from three stalls away. And he was proud of them, even though Baba Tunde had just lent him money.",clues:["sandals"]}]},
+  chief:{name:"Chief Bello",role:"Wealthy trader. Wanted Baba Tunde's stall.",v:3,
+   intro:"Chief Bello, at your service. I do not usually stand in markets, but this is a serious matter.",
+   topics:[
+    {q:"Where were you last night?",a:"I left the market at six o'clock sharp. My driver took me home. I was in bed with my newspaper by seven.",tell:"tap"},
+    {q:"You wanted to buy Baba Tunde's stall, didn't you?",a:"I offered him double its worth. He refused. Yes, I was annoyed. But a man does not steal what he can buy.",clues:["chiefOffer"],tell:"tap"},
+    {q:"Do you owe Baba Tunde anything?",a:"Nothing. Not one kobo. I do not borrow money, detective.",clues:["chiefDenial"],tell:"tap"}],
+   bluff:"That proves nothing, detective. Try again with something better.",
+   confront:{
+    ledgerFound:{need:["emekaConfession"],a:"Chief Bello is silent for a long time. Then he laughs, a short cold laugh. Two million naira, due Friday. That old fool would not extend it. That book would have ruined me. I only meant it to disappear. Nobody was meant to be hurt.",clues:["chiefConfession"],tell:"tap",fail:"A page from a book I have never seen? Anyone can write a number. Show me something that puts me at that shore."},
+    emekaConfession:{need:["ledgerFound"],a:"Chief Bello is silent for a long time. Then he laughs, a short cold laugh. So the driver talks. Two million naira, due Friday. That book would have ruined me. I only meant it to disappear. Nobody was meant to be hurt.",clues:["chiefConfession"],tell:"tap",fail:"My driver says many things. What does that prove without the book?"},
+    horn:{fail:"Half of Lagos has a two-note horn, detective."},
+    bankband:{fail:"Bello Holdings prints thousands of these bands. Anyone could have dropped it."}}},
+  musa:{name:"Pa Musa",role:"Boatman. Works the night crossing.",v:4,
+   intro:"Mm. Careful on the boards, detective. They talk.",
+   topics:[
+    {q:"Did you take anyone across last night?",a:"Twenty minutes past midnight, one passenger. A young man with his cap pulled low. He paid me in crisp new notes and said not one word. He kept clearing his throat. And his shoes! Squeak, squeak on my planks. I told him, step soft, my friend. He hurried away on the far side.",clues:["passenger"],snd:"cough"},
+    {q:"Did you see Chief Bello?",a:"The big Chief? Not last night, not this week. Chiefs do not take my boat. They have cars."}]},
+  emeka:{name:"Emeka",role:"Chief Bello's driver.",v:5,
+   intro:"I only drive, detective. I see nothing and I hear nothing. Mostly.",
+   topics:[
+    {q:"Where did you take Chief Bello last night?",a:"Home, sir. Six o'clock, straight to his gate. I waited until his light went off, then I went to my own bed. He did not come out again.",clues:["chiefAlibi"]},
+    {q:"Whose car is that?",a:"The Chief's car, sir. I drive it. Everybody knows its horn. Two notes, low, then lower, like a cow with a cold.",tell:"horn"},
+    {q:"Did you notice anything unusual at the jetty?",a:"Only the boatman complaining. Oh, and something shiny near the posts on the right. I did not touch it. Not my business."}],
+   bluff:"I do not know what you mean. I drove the Chief home at six and slept.",
+   confront:{
+    horn:{a:"Emeka goes quiet. His hands shake. All right. All right! The Chief called me at midnight. I drove him to the far shore, half past twelve. He told me to say I took him home at six, or I would lose my job. I did not know what it was for. I swear it.",clues:["emekaConfession"],debunk:["chiefAlibi"],tell:"gulp"},
+    bankband:{a:"Emeka stares at the paper band. Where did you find that? ... Fine. The Chief paid someone on the far shore. I drove him there at half past twelve, and I was told to lie about it. I am sorry.",clues:["emekaConfession"],debunk:["chiefAlibi"],tell:"gulp"}}},
+  sani:{name:"Sani",role:"Night watchman for eleven years.",v:6,
+   intro:"Good morning. I have guarded this market for eleven years. Nothing like this ever happened.",
+   topics:[
+    {q:"Where were you last night?",a:"At the gate, all night, as always. I rang the bell at midnight and greeted Mama Put. I never left my post. Ask her."},
+    {q:"Who has keys to the office?",a:"Three keys only. Baba Tunde's own. My master key, which never leaves my belt. And a spare for Kunle, the apprentice, so he can open in the morning.",clues:["keyholders"],tell:"keys"},
+    {q:"What about Kunle?",a:"A good boy, quiet. Lately he has seemed worried about money, that is all."}]},
+  kunle:{name:"Kunle",role:"Baba Tunde's apprentice.",v:7,
+   intro:"Oga detective. I... I am Kunle. Baba Tunde's apprentice. This whole thing is terrible.",intro2:"Detective... you again. I have told you everything. Why do you keep looking at me like that?",
+   topics:[
+    {q:"Where were you last night?",a:"At home, in bed. I had a bad cough, so I did not go out. My landlady was away, so nobody can say. But I swear.",tell:"gulp"},
+    {q:"Did you owe Baba Tunde money?",a:"A little. An advance of one hundred and fifty thousand naira, due on Friday. But he was kind about it. It is not a reason to do anything bad.",clues:["kunleDebt"],tell:"gulp"},
+    {q:"Those are new sandals, aren't they?",a:"Eh... yes. I bought them last week. Why? ... Why does everyone look at my shoes?",clues:["sandals"],snd:"steps"}]}
+  ,kunleShore:{name:"Kunle",role:"Confessed apprentice.",v:7,
+   intro:"I will tell you everything now. Please. I only want to make it right.",
+   topics:[
+    {q:"Who paid you?",a:"I never saw his face. A deep voice in the dark, here on this shore. He gave me new notes and said, Tunde's book must disappear. When he drove away, his car sounded a horn. Two notes. Low, then lower.",clues:["horn"],snd:"horn"},
+    {q:"Why did you do it?",a:"He promised my debt would vanish. I was so afraid. Baba Tunde was always kind to me, and I repaid him like this."}]}
+  ,tobi:{name:"Tobi",role:"Ticket clerk at the jetty. Hums when he is nervous.",v:6,
+   intro:"Oh! Detective. Forgive me, I was humming again. It is a habit. Especially today.",
+   topics:[
+    {q:"That tune you are humming. What is it?",a:"An old highlife my mother used to sing while she sold tickets here. I hum when I am nervous. And I have been very nervous since you walked past my booth this morning, detective.",tell:"tune",love:1},
+    {q:"Did you see anything last night?",a:"I lock the booth at midnight, but I keep the passenger book. One young man, twenty past twelve, paid in new notes. He would not look at me. I wrote the time down, because someone told me you like facts.",clues:["passenger"]},
+    {q:"Would you walk by the water with me when this is over?",a:"I would like that more than I can say. Catch your thief, detective. I will be at the end of the jetty, humming loudly so you can find me.",tell:"tune",love:1}]}
+  ,bola:{name:"Bola",role:"Errand boy. Very eager to help.",v:2,
+   intro:"Detective! Detective! Over here! I have important news. Very important.",
+   topics:[
+    {q:"What do you want to tell me?",a:"I run errands all night around this market, so I see everything. Last night at midnight I looked at the gate and it was empty. No Sani, no lamp, nothing. Sani had slipped away to the jetty. It is him, detective, I swear on my mother!",clues:["bolaClaim"],tell:"gulp"},
+    {q:"Why come to me now?",a:"Because an honest boy must speak up. And because, well, a good citizen should be rewarded, no? Never mind that part. Sani did it.",tell:"gulp"}],
+   bluff:"I told you what I saw. Why do you not believe me? Show me who says different.",
+   confront:{
+    saniGate:{a:"Bola's grin slides off his face. All right, all right! A man's driver stopped me at the gate yesterday evening and pushed crisp new notes into my hand. He said, tell the detective Sani left his post. I did not know it would hurt Sani. Please, do not tell Sani.",clues:["bolaConfession"],debunk:["bolaClaim"],debunkMsg:"Bola's claim about Sani is now proved false.",tell:"gulp"},
+    gatebell:{fail:"The bell? A bell rope hangs there all day, detective. Anyone could have pulled it earlier. Who says it rang at midnight?"}}}
+ },
+ clues:{
+  nokey:["No forced entry","The drawer lock is undamaged. The thief used a key."],
+  keyholders:["Three keys","Only three keys exist: Baba Tunde's, Sani's master key, and Kunle's spare."],
+  gatebell:["The gate bell","The bell can only be rung from the gate post."],
+  saniGate:["Sani at the gate","Mama Put heard Sani ring the bell and greet her at midnight. He was at the gate."],
+  steps:["Squeaky footsteps","Just after midnight, Mama Put heard someone with a squeaky left shoe hurry toward the jetty."],
+  passenger:["The night passenger","At twenty past midnight, a young man with squeaky shoes and new banknotes crossed with Pa Musa."],
+  buckle:["Brass buckle","A new brass sandal buckle was found on the jetty planks."],
+  sandals:["Kunle's new sandals","Kunle bought new sandals with brass buckles last week. They squeak."],
+  ledgerpage:["Torn ledger page","A wet scrap shows Ngozi owing four hundred thousand naira and Kunle owing one hundred and fifty thousand, due Friday."],
+  ngoziDebt:["Ngozi's debt","Madam Ngozi owes Baba Tunde four hundred thousand naira, but says he is patient."],
+  chiefOffer:["Chief Bello's offer","Chief Bello wanted to buy the stall and was refused."],
+  chiefAlibi:["Chief Bello left at six","The visitors' book and his driver show that Chief Bello went home at six."],
+  kunleDebt:["Kunle's advance","Kunle owes one hundred and fifty thousand naira, due on Friday."],
+  threat:["Threatening note","Someone slipped you a note: Stop asking questions. Some books are better lost."],
+  chiefDenial:["Chief Bello's denial","Chief Bello swore he owes Baba Tunde nothing."],
+  ledgerFound:["The recovered ledger","The hidden ledger shows Chief Bello owes two million naira, due Friday. Baba Tunde wrote: will not extend."],
+  bankband:["Bank band and tyre tracks","A paper band from new notes, stamped Bello Holdings, and wide tyre tracks, on the far shore."],
+  horn:["The two-note horn","The man who paid Kunle drove away sounding a low-then-lower two-note horn, the same as the car Emeka drives for Chief Bello."],
+  emekaConfession:["Emeka's confession","Emeka admits he drove Chief Bello to the far shore at half past midnight and was told to lie about it."],
+  chiefConfession:["Chief Bello's confession","Confronted with the proof, Chief Bello admits he paid Kunle to make the ledger disappear."],
+  trunk:["Ngozi's trunk","Only lace and a tin of coins. The tip was a trick to make you suspect her."],
+  tip:["Anonymous tip","A boy delivered a note: look in Madam Ngozi's trunk. Someone wanted you to suspect her."]
+ },
+ culprit:"kunle",
+ suspects:[["ngozi","Madam Ngozi"],["chief","Chief Bello"],["sani","Sani the watchman"],["kunle","Kunle the apprentice"]],
+ rebuttal:{
+  ngozi:"Madam Ngozi has no key, and the lock was not forced. Your case falls apart.",
+  chief:"Chief Bello went home at six and has no key. Your case falls apart.",
+  sani:"Sani was at the gate ringing the bell at midnight, at the very time the thief ran to the jetty. Your case falls apart."},
+ proof:["nokey","keyholders","saniGate","steps","passenger","sandals","buckle"],
+ misleading:["ngoziDebt","chiefOffer"],
+ twist:"Kunle drops to his knees. Yes, he took the ledger. But he did not plan it. Three days ago, a voice in the dark found him and promised his debt would vanish if Baba Tunde's ledger vanished. The man paid him in crisp new notes and told him where to hide the book, on the far shore. Kunle never saw his face. He shows you the place. Sani whispers that the police will arrive in three hours to take over. The thief was only the hands. Somewhere in this market is the head, and they have been smiling at you all morning. Who really wanted that ledger gone? And who has been lying to you?",
+ act2:{culprit:"chief",
+  suspects:[["ngozi","Madam Ngozi"],["chief","Chief Bello"],["sani","Sani the watchman"],["emeka","Emeka the driver"]],
+  proof:["ledgerFound","chiefDenial","horn","bankband","emekaConfession","chiefConfession","bolaConfession"],
+  misleading:["ngoziDebt","trunk","tip","chiefAlibi","bolaClaim"],
+  rebuttal:{
+   ngozi:"Madam Ngozi is poor and could never pay Kunle in crisp new notes. The note that sent you to her trunk was a trick. Your case falls apart.",
+   sani:"Sani guarded the gate all night. Mama Put heard him ring the midnight bell, and the boy who said otherwise was paid to lie. Nothing connects Sani to the far shore. Your case falls apart.",
+   emeka:"Emeka drove the car, but he owes nobody two million naira. He was only following orders. Look higher. Your case falls apart."}},
+ solution:"Chief Bello owed Baba Tunde two million naira, due on Friday, and the ledger was the proof. Baba Tunde would not extend the debt, and the Chief could not buy the stall. So he found Kunle, who was afraid of his own debt, and promised it would vanish. Kunle stole the ledger at midnight and hid it on the far shore. At half past midnight, Emeka drove the Chief there. The Chief paid Kunle in new notes, dropped a bank band, and planned to collect the book at dawn and burn it. He made Emeka lie about the alibi, and he sent the note about Ngozi to send you in the wrong direction. You reached the book first. Baba Tunde forgave Kunle's debt when he heard the truth, and the Chief's two million naira is now due in court.",
+ lostText:"Kunle owed one hundred and fifty thousand naira, due on Friday. At midnight, while Sani stood at the gate, Kunle let himself into the office with his spare key and took the ledger. He ran to the jetty in his squeaking new sandals, lost a brass buckle on the planks, and crossed the water with Pa Musa. The evening boat left before anyone stopped him. Baba Tunde never saw his ledger again.",
+ lostText2:"Chief Bello walked away smiling. Kunle took the blame alone, and the man who planned it all stayed rich and free. His driver kept the lie, and the ledger burned at dawn.",
+ lesson:"Detective's lesson: the person who does the deed is not always the person behind it. A strong case clears the innocent, points to the guilty, and asks who gains, and who is lying to protect them."
+};
+
+/* ============================================================
+   STRATEGY LAYER: NERVE, TELLS AND CRACKS
+   After a nervous answer a short window opens. Press P (or Space) to call the tell.
+   Each catch costs 1 Nerve and wears down the person's composure. At zero they crack: a slip
+   you could not get any other way, a score bonus and 1 Nerve back. Strong proof clues refill
+   Nerve. Nervous is not the same as guilty, so choose who you press.
+   ============================================================ */
+const NERVOUS=["gulp","tap","rustle","keys"];
+CASE.clues.ngoziClear=["Ngozi's secret","Under pressure Madam Ngozi admits she hides coins in her trunk because she is ashamed of being poor. Nervous, but not a thief."];
+CASE.clues.chiefPressure=["Chief Bello is desperate","Under pressure Chief Bello admits he is short of money, and insists he left at six. A man with a motive is not always a man with a key."];
+CASE.clues.chiefSlip=["Chief Bello's slip","Chief Bello let slip that a big car was waiting on the far shore in the night."];
+CASE.clues.kunleSlip=["Kunle's slip","Kunle flinched at the sound of his own squeaky sandals and begged you to stop asking about them."];
+CASE.clues.bolaClaim=["Bola says the gate was empty","Bola, an errand boy, says Sani's post was empty at midnight and that Sani slipped away to the jetty."];
+CASE.clues.bolaConfession=["Bola was paid to lie","Bola admits a driver paid him in crisp new notes to blame Sani. Mama Put heard Sani ring the bell and say goodnight at midnight, so the story was false, and somebody rich wanted Sani blamed."];
+CASE.people.bola.crack={2:{comp:2,clue:"bolaConfession",a:"Stop, stop! All right. A man's driver gave me crisp new notes yesterday evening to say Sani left his post. It was a lie. I swear I do not know the big man's name. Please, do not tell Sani."}};
+CASE.clues.saniLeft=["Sani left his post","Sani admits he left the gate for five minutes around eleven, but he was back and rang the midnight bell."];
+(function(){
+ const ng={comp:2,clue:"ngoziClear",a:"All right, all right! I keep coins in that trunk, hidden from my landlord, because I am ashamed of how little I have. I owe Baba Tunde, yes, but I would never steal from the man who is patient with me. If you want a thief, listen for someone who walks loudly, not someone who counts coins."};
+ const sa={comp:1,clue:"saniLeft",a:"Fine. I left the gate once, for five minutes, around eleven. Nature calls, detective. I was back long before midnight and I rang the bell. I hid it because I was afraid of losing my job."};
+ CASE.people.ngozi.crack={1:ng,2:ng};CASE.people.sani.crack={1:sa,2:sa};
+ CASE.people.kunle.crack={1:{comp:2,clue:"kunleSlip",a:"Please, stop! Those sandals... I can hear them in my sleep, squeak, squeak, squeak. I cannot say more. Please, no more questions about my shoes."}};
+ CASE.people.chief.crack={
+  1:{comp:2,clue:"chiefPressure",a:"Very well. I am under pressure, detective. Money pressure. Is that what you wanted to hear? But I left this market at six o'clock and the visitors' book will say so. A man with a deep pocket and a driver does not creep through windows."},
+  2:{comp:2,clue:"chiefSlip",a:"You think you are clever. Ask yourself why a man who was home in bed at seven knows what that far shore looks like at night. Ah. Forget I said that. A big car, a dark night, a boy who needed money. That is all anybody knows."}};
+})();
+
+/* ============================================================
+   SETTINGS + STATE
+   ============================================================ */
+const $=s=>document.querySelector(s);
+const main=$("#main");
+let S={mode:"game",vol:.8,rate:1,pressure:"on",voice:""};
+try{Object.assign(S,JSON.parse(localStorage.getItem("ed_settings")||"{}"))}catch(e){}
+function saveS(){try{localStorage.setItem("ed_settings",JSON.stringify(S))}catch(e){}}
+let G=null,cur="title",ctx={},backFn=null,selLock=false;
+function newGame(){G={act:1,clues:{},order:[],asked:{},seen:{},hints:0,wrong:0,loc:null,sel:-1,last:"",time:540,deadline:1080,watch:{},note:0,flick:0,tip:0,forced:0,forcedGo:0,judging:0,debunk:{},act1:null,love:0,nerve:4,bonus:0,comp:{},cracked:{},tw:null,twT:0,tellHints:0,at:"office",heat:0,hClock:0,cond:null,radio:0,rumour:[],trips:0,cpWins:0,stallNote:0,rIdx:0}}
+const A=()=>G.act===2?CASE.act2:CASE;
+function clockStr(){const h=Math.floor(G.time/60),m=G.time%60;return((h+11)%12+1)+":"+String(m).padStart(2,"0")+(h<12?" am":" pm")}
+function hud(){$("#hud").textContent=G?((S.pressure==="on"?clockStr()+" · ":"")+(G.act===2?"Act 2 · ":"")+"Clues: "+G.order.length+(G.love?" · ❤ "+G.love:"")+" · Nerve "+G.nerve+" · Heat "+G.heat):""}
+const rnd=(a,b)=>a+Math.random()*(b-a);
+
+/* ============================================================
+   AUDIO – synthesised with human-like vowels, wood, metal and noise
+   ============================================================ */
+let AC=null,master,sfx,ambG,noiseBuf,ambSrc=null,ambTimer=null,duckTimer=null,droneG,dFilt,dTri,ambBabble=null;
+function initAudio(){
+ if(AC){if(AC.state==="suspended")AC.resume();return}
+ const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+ AC=new C();master=AC.createGain();master.gain.value=S.vol;master.connect(AC.destination);
+ sfx=AC.createGain();sfx.connect(master);
+ ambG=AC.createGain();ambG.gain.value=.22;ambG.connect(master);
+ noiseBuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);
+ const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+}
+function pn(p,dest){const n=AC.createStereoPanner?AC.createStereoPanner():AC.createGain();if(n.pan)n.pan.value=Math.max(-1,Math.min(1,p));n.connect(dest||sfx);return n}
+function tone(f,dur,o={}){if(!AC)return;const t=AC.currentTime+(o.at||0),os=AC.createOscillator(),g=AC.createGain();os.type=o.type||"sine";os.frequency.setValueAtTime(f,t);if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime((o.vol||.3)*vm,t+(o.a||.01));g.gain.exponentialRampToValueAtTime(.0001,t+dur);let n=os;if(o.lp){const l=AC.createBiquadFilter();l.type="lowpass";l.frequency.value=o.lp;os.connect(l);n=l}n.connect(g);g.connect(pn(o.pan||0,o.dest));os.start(t);os.stop(t+dur+.05)}
+function nz(dur,o={}){if(!AC)return;const t=AC.currentTime+(o.at||0),s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noiseBuf;f.type=o.type||"bandpass";f.frequency.value=o.f||1000;f.Q.value=o.q||1;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime((o.vol||.3)*vm,t+(o.a||.01));g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(pn(o.pan||0,o.dest));s.start(t,Math.random());s.stop(t+dur+.05)}
+const VOW={a:[800,1150,2900],o:[450,800,2830],u:[325,700,2700],e:[400,2000,2800],i:[270,2300,3000]};
+function vocal(f0,v,dur,o={}){
+ if(!AC)return;const t=AC.currentTime+(o.at||0),vol=(o.vol||.25)*3*vm,pan=o.pan||0;
+ const src=AC.createOscillator();src.type="sawtooth";src.frequency.setValueAtTime(f0,t);src.frequency.linearRampToValueAtTime(f0*(o.glide||.94),t+dur);
+ const vib=AC.createOscillator(),vg=AC.createGain();vib.frequency.value=5.3;vg.gain.value=f0*.014;vib.connect(vg);vg.connect(src.frequency);vib.start(t);vib.stop(t+dur+.1);
+ const env=AC.createGain();env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(vol,t+Math.min(.09,dur/3));env.gain.exponentialRampToValueAtTime(.0001,t+dur);
+ env.connect(pn(pan,o.dest));
+ VOW[v].forEach((f,i)=>{const b=AC.createBiquadFilter();b.type="bandpass";b.frequency.value=f*(o.shift||1);b.Q.value=[7,9,11][i];const g=AC.createGain();g.gain.value=[1,.55,.25][i];src.connect(b);b.connect(g);g.connect(env)});
+ src.start(t);src.stop(t+dur+.1);
+ if(o.breath!==0)nz(dur,{type:"bandpass",f:2600,q:.6,vol:(o.vol||.25)*.3,pan,at:o.at||0,dest:o.dest});
+}
+function startDrone(){if(!AC||droneG)return;droneG=AC.createGain();droneG.gain.value=.0001;droneG.connect(ambG);dFilt=AC.createBiquadFilter();dFilt.type="lowpass";dFilt.frequency.value=160;dFilt.connect(droneG);[55,55.9,82.4].forEach((f,i)=>{const o=AC.createOscillator();o.type=i<2?"sawtooth":"triangle";o.frequency.value=f;o.connect(dFilt);o.start()});const t=AC.createOscillator();t.type="sine";t.frequency.value=77.8;dTri=AC.createGain();dTri.gain.value=0;t.connect(dTri);dTri.connect(droneG);t.start();const lf=AC.createOscillator(),lg=AC.createGain();lf.frequency.value=.13;lg.gain.value=.04;lf.connect(lg);lg.connect(droneG.gain);lf.start();const ff=AC.createOscillator(),fg=AC.createGain();ff.frequency.value=.07;fg.gain.value=60;ff.connect(fg);fg.connect(dFilt.frequency);ff.start();setTension()}
+function setTension(){if(!droneG||!AC)return;const T=G?Math.min(1,G.order.length/16+(G.forced?.3:0)+(G.act===2?.2:0)):0,n=AC.currentTime;droneG.gain.setTargetAtTime(.3+.8*T,n,1.2);dFilt.frequency.setTargetAtTime(150+650*T,n,1.2);dTri.gain.setTargetAtTime(T>.35?(T-.35)*.9:0,n,1.2)}
+function stopDrone(){if(droneG)droneG.gain.setTargetAtTime(.0001,AC.currentTime,.6)}
+const estMs=t=>t.length*70/(PROF[0].r*S.rate);
+let tk=0,vm=1;
+const GAIN={page:2.6,water:2.6,tick:3.2,hum:2,cough:2,thunder:5,steps:2.2,stepsFaint:2.2,creak:3,gulp:2,keys:2.2,lock:1.5,rustle:.5,clink:1.3,buzz:2,slide:1.5,tap:1.8,horn:1.5,sting:1.4,thud:1.2,drum:.9,bell:.9};
+const SND={
+ bell(p){[[1,.34,2.6],[2,.2,2],[2.76,.2,1.6],[5.4,.09,1],[8.93,.04,.7]].forEach(([r,v,d])=>tone(430*r,d,{vol:v,pan:p,a:.003}));nz(.06,{f:3200,q:1,vol:.4,pan:p})},
+ clink(p){[[1,.2],[2.76,.14],[5.4,.09]].forEach(([r,v])=>tone(1500*r,.4,{vol:v,pan:p,a:.001}));[[1,.14],[2.76,.1]].forEach(([r,v])=>tone(1700*r,.3,{vol:v,pan:p,a:.001,at:.34}))},
+ page(p){for(let i=0;i<7;i++)nz(rnd(.03,.08),{type:"highpass",f:rnd(2000,5000),vol:rnd(.08,.2),pan:p,at:i*.06+rnd(0,.04)})},
+ lock(p){nz(.02,{f:3500,q:4,vol:.5,pan:p});tone(1250,.12,{vol:.1,pan:p,a:.001});nz(.06,{f:700,q:2,vol:.5,pan:p,at:.16});tone(95,.2,{to:60,vol:.3,pan:p,at:.16})},
+ steps(p,n=5,v=1){for(let i=0;i<n;i++){const t0=i*(.3+rnd(0,.07)),pp=p+rnd(-.05,.05);nz(.14,{f:rnd(420,620),q:.7,vol:.5*v,pan:pp,at:t0});nz(.05,{type:"highpass",f:3000,vol:.12*v,pan:pp,at:t0+.02});if(i%2===0){tone(rnd(1400,1700),.14,{to:rnd(2200,2600),vol:.11*v,pan:pp,at:t0+.03,a:.03});tone(rnd(2900,3300),.1,{vol:.04*v,pan:pp,at:t0+.05})}}},
+ stepsFaint(p){SND.steps(p,4,.28)},
+ cough(p){vocal(150,"a",.13,{vol:.3,glide:.75,pan:p});nz(.1,{f:1100,q:1.2,vol:.3,pan:p});vocal(140,"a",.15,{vol:.3,glide:.7,pan:p,at:.22});vocal(130,"a",.1,{vol:.22,glide:.7,pan:p,at:.55})},
+ hum(p,f=220){vocal(f,"u",.42,{pan:p,vol:.28});vocal(f*1.12,"o",.46,{pan:p,vol:.28,at:.55,glide:.9})},
+ water(p){for(let i=0;i<3;i++)nz(.9,{type:"lowpass",f:520,vol:.25,pan:p,at:i*.7,a:.35});for(let i=0;i<5;i++)tone(rnd(500,1100),.12,{to:rnd(180,300),vol:.08,pan:p,at:rnd(0,2),a:.005})},
+ tick(p){tk^=1;nz(.018,{f:tk?1900:1500,q:7,vol:.28,pan:p,a:.002});tone(tk?820:640,.05,{vol:.07,pan:p,a:.002})},
+ edge(p){nz(.12,{type:"lowpass",f:260,vol:.3,pan:p})},
+ ding(){tone(1047,1.3,{vol:.17});tone(1568,1.1,{vol:.12,at:.1});tone(2093,.9,{vol:.07,at:.2});tone(1047*2.76,.5,{vol:.03,at:.01})},
+ low(){tone(220,.7,{to:150,vol:.22,type:"triangle",lp:700});tone(165,1.1,{to:98,vol:.22,type:"triangle",lp:700,at:.5})},
+ heart(p,n=4){for(let i=0;i<n;i++){const t=i*.82;nz(.14,{type:"lowpass",f:110,vol:.9,at:t});tone(62,.2,{to:38,vol:.6,at:t});nz(.12,{type:"lowpass",f:100,vol:.65,at:t+.2});tone(52,.18,{to:34,vol:.45,at:t+.2})}},
+ sting(){tone(110,1.5,{to:72,vol:.22,type:"sawtooth",lp:420,a:.02});tone(116.5,1.5,{to:76,vol:.2,type:"sawtooth",lp:420,a:.02});tone(164.8,1.4,{to:110,vol:.12,type:"triangle",a:.03});nz(.45,{type:"lowpass",f:220,vol:.5})},
+ gulp(p){vocal(190,"o",.13,{vol:.22,glide:.5,pan:p,breath:0});nz(.1,{type:"lowpass",f:320,vol:.28,pan:p,at:.04})},
+ keys(p){for(let i=0;i<8;i++){const r=rnd(2800,4300);tone(r,.22,{vol:.06,pan:-.5,at:i*.06+rnd(0,.04),a:.001});tone(r*2.76,.12,{vol:.03,pan:-.5,at:i*.06,a:.001})}},
+ tap(p){for(let i=0;i<5;i++){tone(210,.09,{to:130,vol:.3,pan:.4,at:i*.21,a:.002});nz(.03,{f:1300,q:2,vol:.25,pan:.4,at:i*.21})}},
+ rustle(p){nz(.5,{f:1500,q:.5,vol:.18,pan:-.3,a:.15});for(let i=0;i<4;i++)nz(.05,{type:"highpass",f:rnd(2500,4500),vol:.1,pan:-.3,at:i*.1+.1})},
+ buzz(){tone(100,1,{vol:.16,type:"sawtooth",lp:320,a:.02});for(let i=0;i<5;i++)nz(.05,{f:3000,q:2,vol:.22,at:i*.17})},
+ thud(p){nz(.35,{type:"lowpass",f:120,vol:.9,pan:p});tone(55,.3,{to:40,vol:.5,pan:p})},
+ creak(p){tone(130,1,{to:280,vol:.1,type:"sawtooth",lp:500,pan:p,a:.15});nz(.8,{f:700,q:4,vol:.06,pan:p,a:.2})},
+ slide(p){nz(.5,{type:"highpass",f:1500,vol:.2,a:.08,pan:p});nz(.3,{f:900,q:.6,vol:.1,pan:p,a:.1})},
+ tune(p){[392,440,494,587,494,440,392,330].forEach((f,i)=>tone(f,.4,{type:"triangle",vol:.18,pan:p,at:i*.3,a:.02,lp:1800}))},
+ drum(){for(let i=0;i<14;i++){const t=i*(.22-i*.01);tone(88,.18,{to:50,vol:.45,at:t});nz(.1,{type:"lowpass",f:200,vol:.4,at:t})}},
+ thunder(){nz(3.4,{type:"lowpass",f:130,vol:.7,a:.8});nz(2.6,{type:"lowpass",f:70,vol:.6,a:.4,at:.3})},
+ horn(p){[[330,0],[262,.5]].forEach(([f,t])=>{tone(f,.42,{type:"square",lp:760,vol:.16,pan:p,at:t,a:.02});tone(f*1.26,.42,{type:"square",lp:760,vol:.1,pan:p,at:t,a:.02})})},
+ win(){[523,659,784,1047].forEach((f,i)=>{tone(f,1,{vol:.2,at:i*.16});tone(f*2.76,.4,{vol:.02,at:i*.16})});tone(1319,1.8,{vol:.16,at:.7})}
+};
+function play(name,p=0,x){if(AC&&SND[name]){vm=GAIN[name]||1;try{SND[name](p,x)}finally{vm=1}}}
+function gain(list){const ids=(list||[]).filter(x=>!G.clues[x]);return{ids,nt:ids.map(addClue)}}
+function clueSfx(ids,d){if(!ids.length)return;setTimeout(()=>{if(ids.some(x=>A().proof.includes(x)||x==="threat"))play("sting");play("ding")},d)}
+function stopAmb(){if(ambSrc){try{ambSrc.stop()}catch(e){}ambSrc=null}clearInterval(ambTimer);ambTimer=null}
+const VK=["a","o","u","e","i"];
+function startAmb(kind){
+ if(!AC)return;stopAmb();
+ if(kind==="clock"){ambTimer=setInterval(()=>SND.tick(-.4),1000);return}
+ const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();
+ s.buffer=noiseBuf;s.loop=true;
+ if(kind==="crowd"){f.type="bandpass";f.frequency.value=420;f.Q.value=.5;g.gain.value=.35;l.frequency.value=.3;lg.gain.value=.12;
+  ambTimer=setInterval(()=>{if(Math.random()<.75){const hi=Math.random()<.25;vocal(hi?rnd(180,260):rnd(95,170),VK[Math.floor(Math.random()*5)],hi?rnd(.35,.7):rnd(.15,.32),{vol:hi?.07:.05,pan:rnd(-1,1),dest:ambG,breath:0,glide:rnd(.8,1.1)})}},380)}
+ else{f.type="lowpass";f.frequency.value=380;g.gain.value=.5;l.frequency.value=.18;lg.gain.value=.35;
+  ambTimer=setInterval(()=>{if(Math.random()<.6)tone(rnd(500,1000),.1,{to:rnd(180,320),vol:.05,pan:rnd(-1,1),dest:ambG,a:.004});if(Math.random()<.1)tone(rnd(110,150),.9,{to:rnd(200,260),vol:.04,type:"sawtooth",lp:420,pan:rnd(-1,1),dest:ambG,a:.2})},500)}
+ l.connect(lg);lg.connect(g.gain);s.connect(f);f.connect(g);g.connect(ambG);s.start();l.start();ambSrc=s;
+}
+function duck(ms){if(!AC)return;ambG.gain.setTargetAtTime(.05,AC.currentTime,.08);clearTimeout(duckTimer);duckTimer=setTimeout(()=>ambG.gain.setTargetAtTime(.22,AC.currentTime,.4),ms)}
+
+/* ============================================================
+   SPEECH – picks the most natural voices the device has
+   ============================================================ */
+const SYN=window.speechSynthesis||null;let voices=[],pool=[];
+function scoreV(v){let s=0;if(/natural|neural|online/i.test(v.name))s+=4;if(/en-NG/i.test(v.lang))s+=3;else if(/en-(GB|ZA|KE|GH|IE|AU)/i.test(v.lang))s+=1;if(/google|siri|samantha|daniel|karen|moira|serena|aria|jenny|guy|sonia|ryan|libby|abeo|ezinne/i.test(v.name))s+=1;if(/espeak|compact|robot|zira desktop|david desktop/i.test(v.name))s-=3;return s}
+function loadV(){voices=SYN?SYN.getVoices().filter(v=>/^en/i.test(v.lang)):[];pool=[...voices].sort((a,b)=>scoreV(b)-scoreV(a));fillVoiceSel()}
+if(SYN){loadV();SYN.onvoiceschanged=loadV}
+function fillVoiceSel(){const el=$("#vsel");if(!el)return;el.innerHTML='<option value="">Automatic (most natural first)</option>'+voices.map(v=>`<option value="${v.name.replace(/"/g,"")}">${v.name.replace(/</g,"")}</option>`).join("");el.value=S.voice||""}
+function voiceFor(v){if(!pool.length)return null;const narr=(S.voice&&voices.find(x=>x.name===S.voice))||pool[0];if(v===0)return narr;const o=pool.filter(x=>x!==narr),arr=o.length?o:pool;return arr[(v-1)%arr.length]}
+const PROF={0:{p:.95,r:.95},1:{p:1.1,r:1.02},2:{p:1.2,r:.98},3:{p:.8,r:.9},4:{p:.85,r:.88},5:{p:1,r:1.05},6:{p:.9,r:.95},7:{p:1.15,r:1.08}};
+function sayq(segs){
+ try{Access.note(segs.map(s=>s.t).join(" "))}catch(x){}
+ const txt=segs.map(s=>s.t).join(" ");if(G)G.last=segs;
+ $("#cap").textContent=txt;
+ const live=$("#live");live.setAttribute("aria-live",S.mode==="sr"?"polite":"off");
+ if(S.mode==="sr"||!SYN){live.textContent="";setTimeout(()=>live.textContent=txt,40);const e=estMs(txt);mouth(e);return e}
+ SYN.cancel();let est=0;
+ segs.forEach(s=>{const pr=PROF[s.v||0],vo=voiceFor(s.v||0);(s.t.match(/[^.!?]+[.!?]*/g)||[s.t]).forEach(part=>{
+  const u=new SpeechSynthesisUtterance(part.trim());if(!u.text)return;
+  u.pitch=pr.p;u.rate=pr.r*S.rate;u.volume=1;if(vo)u.voice=vo;
+  est+=part.length*70/(pr.r*S.rate);SYN.speak(u)})});
+ duck(est+500);mouth(est);return est;
+}
+const say=(t,v=0)=>sayq([{t,v}]);
+
+/* ============================================================
+   GAME LOGIC
+   ============================================================ */
+function addClue(id){if(G.clues[id])return null;G.clues[id]=1;G.order.push(id);if(A().proof.includes(id)&&G.nerve<5)G.nerve++;hud();setTension();return CASE.clues[id][0]}
+const TXT={1:["It is getting late. The last boat leaves in two and a half hours, and the thief may be on it.","One hour left before the last boat. Somewhere nearby, someone's heart is beating very fast.","Six o'clock. The last boat is boarding. You must accuse now, with what you have."],
+ 2:["Time is slipping. The police arrive in an hour and a half, and whoever planned this will walk free.","Forty-five minutes. You feel eyes on you from the crowd.","The police have arrived. You must name the mastermind now, with what you have."]};
+const OFF={1:[150,60],2:[90,45]};
+function spend(m,segs){
+ if(S.pressure!=="on")return;
+ if(G.heat>=4&&m>=10){m+=5;if(!G.stallNote){G.stallNote=1;segs.push({t:"Doors are closing. People stall and mumble because the Chief's network is watching you. It costs five extra minutes.",v:0})}}
+ G.hClock=(G.hClock||0)+m;let cooled=0;while(G.hClock>=60){G.hClock-=60;if(G.heat>0){G.heat--;cooled=1}}
+ if(cooled)segs.push({t:"Time passes and the city forgets a little. Heat cools to "+G.heat+" of 5.",v:0});
+ const b=G.time;G.time+=m;hud();const d=G.deadline,o=OFF[G.act],x=t=>b<t&&G.time>=t;
+ if(x(d-o[0]))segs.push({t:TXT[G.act][0],v:0});
+ if(x(d-o[1]))segs.push({t:TXT[G.act][1],v:0});
+ if(x(d)){G.forced=1;setTension();segs.push({t:TXT[G.act][2],v:0})}
+}
+function chk(est){if(G.forced&&!G.forcedGo){G.forcedGo=1;setTimeout(()=>{if(cur==="accuse"||cur==="end"||G.judging||document.getElementById("dt-traffic"))return;go("accuse",{step:1})},Math.min(est+1200,15000))}}
+function toast(t){return t.length?{t:(t.length>1?"New clues: ":"New clue: ")+t.join(", and ")+". Added to your notebook.",v:0}:null}
+function dirWord(p){return p<-.6?"far left":p<-.15?"left":p<=.15?"ahead":p<=.6?"right":"far right"}
+function hintText(){
+ if(G.forced)return"No more hints. Time is up.";
+ const h=k=>!G.clues[k];
+ if(G.act===2){
+  if(!G.seen.visit_shore)return"Kunle gave you a place. Visit the Far Shore.";
+  if(h("ledgerFound"))return"Search the hollow under the palm on the far shore.";
+  if(h("horn"))return"Ask Kunle who paid him. Listen to the sound the man's car made.";
+  if(h("bankband"))return"Listen to the right of the far shore. Something was dropped by whoever paid Kunle.";
+  if(G.clues.bolaClaim&&h("bolaConfession"))return"Someone is blaming Sani. Compare that claim with what a witness heard at midnight, then confront the boy with it. Or watch him for a nervous sound and press the tell.";
+  if(h("emekaConfession"))return"A driver's alibi can be broken. Confront Emeka with something he cannot explain.";
+  if(h("chiefConfession"))return"You have the proof. Confront Chief Bello with it.";
+  return"You have enough. Make your accusation.";
+ }
+ if(h("nokey"))return"Start in the office. How did the thief get into the drawer?";
+ if(h("saniGate"))return"Someone heard the midnight bell. Ask around the market.";
+ if(h("passenger"))return"A crossing in the night. Who works at the jetty?";
+ if(h("sandals"))return"Who in this case makes a noise when they walk? Ask people what they notice about the others.";
+ if(h("buckle"))return"Listen carefully at the jetty. Something small is clinking on the planks.";
+ if(h("keyholders"))return"Who has keys? Ask the watchman.";
+ return"You have enough. Time to make your accusation.";
+}
+const APP=["hub","loc","talk","accuse","travel","ride","checkpoint"];
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+const V={};
+function go(v,a){cur=v;ctx=a||{};backFn=null;if(G&&G.tw)closeTell();if(v!=="loc")stopAmb();
+ if(APP.includes(v)){main.setAttribute("role","application");main.setAttribute("aria-label","Echo Detective. Arrow keys, Tab and number keys are passed to the game.")}else{main.setAttribute("role","main");main.removeAttribute("aria-label")}
+ V[v](ctx);const h=$("#vh");if(h)h.focus({preventScroll:true});window.scrollTo(0,0);hud()}
+V.title=()=>{
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Echo Detective</h2>
+ <p class="sub">Case 1: ${CASE.title}</p>
+ <p>A listening mystery for blind, low-vision and sighted players. Explore places by sound, question people, catch the liars, and name the culprit. Please wear headphones. The clock moves only when you act, never in real time.</p>
+ <div class="paper"><h3>Controls</h3><div class="keys">
+ <kbd>← →</kbd><span>Listen around a place (or comma and period, or Tab, or the on-screen buttons)</span>
+ <kbd>Enter</kbd><span>Investigate or talk to what you are listening to</span>
+ <kbd>1 to 9</kbd><span>Choose a numbered option</span>
+ <kbd>N</kbd><span>Notebook</span>
+ <kbd>H</kbd><span>Hint (costs score and time)</span>
+ <kbd>A</kbd><span>Make an accusation</span>
+ <kbd>P</kbd><span>While questioning: call a tell. When someone sounds nervous, press P as the sound fades. Costs one Nerve. Catch the right person twice and they crack. Strong clues refill your Nerve. Nervous is not always guilty.</span>
+ <kbd>T</kbd><span>Assisted mode on or off (longer tell windows)</span>
+ <kbd>B</kbd><span>Radio: tune in, or hear the next bulletin. Shift and B turns it off. The traffic report is always true, so listen before you travel.</span>
+ <kbd>Q</kbd> <kbd>W</kbd> <kbd>G</kbd> <kbd>Y</kbd> <kbd>E</kbd><span>Audio compass, where am I, goal, recap, evidence board. <kbd>K</kbd> high contrast, <kbd>F</kbd> partner mode, <kbd>?</kbd> help.</span>
+ <kbd>R</kbd><span>Repeat the last thing said</span>
+ <kbd>Esc</kbd><span>Go back</span></div>
+ <p class="hint">Screen reader users: if the arrow keys do nothing, press NVDA+Space (or Insert+Z in JAWS) to switch to focus mode. In the game itself this happens automatically. Choose “My screen reader reads everything” below so you do not hear everything twice. Touch players can use the large buttons or swipe left and right.</p></div>
+ <label class="f">Voice<select id="sm"><option value="game">Game voices (each character sounds different)</option><option value="sr">My screen reader reads everything</option></select></label>
+ <label class="f">Narrator voice<select id="vsel"></select></label>
+ <button class="btn ghost" id="vtest">Test the voices</button>
+ <p class="hint">For the most human voices, use Microsoft Edge and pick a voice marked Natural or Online.</p>
+ <label class="f">Speech speed<select id="sr"><option value="0.85">Slower</option><option value="1">Normal</option><option value="1.2">Faster</option></select></label>
+ <label class="f">Time pressure<select id="sp"><option value="on">On: a deadline you can feel</option><option value="off">Relaxed: no clock</option></select></label>
+ <label class="f">Sound volume<input type="range" id="sv" min="0.2" max="1" step="0.05" aria-label="Sound volume"></label>
+ <button class="btn primary" id="start">Start the case</button>`;
+ $("#sm").value=S.mode;$("#sr").value=String(S.rate);$("#sv").value=S.vol;$("#sp").value=S.pressure;fillVoiceSel();
+ $("#sm").onchange=e=>{S.mode=e.target.value;saveS()};
+ $("#vsel").onchange=e=>{S.voice=e.target.value;saveS()};
+ $("#sr").onchange=e=>{S.rate=+e.target.value;saveS()};
+ $("#sp").onchange=e=>{S.pressure=e.target.value;saveS()};
+ $("#sv").oninput=e=>{S.vol=+e.target.value;saveS();if(master)master.gain.value=S.vol};
+ $("#vtest").onclick=()=>{initAudio();sayq([{t:"Good evening, detective. I am your narrator.",v:0},{t:"I am Mama Put. Fish or gossip?",v:1},{t:"Chief Bello, at your service.",v:3}])};
+ Sfx.intro();
+ $("#start").onclick=()=>{Sfx.stopIntro(800);Sfx.stop("sad",300);initAudio();newGame();go("brief")};
+};
+V.brief=()=>{
+ const bt=CASE.briefA+(S.pressure==="on"?CASE.briefClock:"")+CASE.briefB;startDrone();setTension();if(AC)play("thunder");
+ main.innerHTML=`<h2 id="vh" tabindex="-1">The briefing</h2><p class="sub">${CASE.title}</p><div class="paper"><p>${bt}</p></div><button class="btn primary" id="go">Begin investigating</button>`;
+ $("#go").onclick=()=>go("hub");
+ say(CASE.title+". "+bt);
+};
+const dsc=L=>L.desc+(G.act===2&&L.desc2?" "+L.desc2:"");
+const visLocs=()=>Object.keys(CASE.locations).filter(k=>!CASE.locations[k].act2||G.act===2);
+V.hub=()=>{
+ G.loc=null;const L=CASE.locations,keys=visLocs();
+ const tail=S.pressure==="on"?(" It is "+clockStr()+(G.act===2?". The police arrive at "+(()=>{const h=Math.floor(G.deadline/60),m=G.deadline%60;return((h+11)%12+1)+":"+String(m).padStart(2,"0")+(h<12?" am":" pm")})()+".":". The last boat leaves at six.")):"";
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Case board</h2>
+ <p>Choose where to investigate. You are at ${nm(G.at)}. You have found ${G.order.length} clues.${tail} <span class="heat">Heat ${G.heat} of 5</span></p>
+ <div class="lmap" aria-hidden="true">${Lagos.mapSVG({keys,names:nmAll(),here:G.at})}</div>
+ ${keys.map((k,i)=>`<button class="btn opt" data-l="${k}">${i+1}. ${L[k].name}${G.seen["visit_"+k]?" (visited)":""}</button>`).join("")}
+ <div class="row"><button class="btn ghost" id="bn">Notebook (N)</button><button class="btn ghost" id="bh">Chief's hint (H)</button><button class="btn ghost" id="ba">Accuse (A)</button><button class="btn ghost" id="br">Radio (B)</button></div>`;
+ main.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>goPlace(b.dataset.l));$("#br").onclick=()=>radio(false);
+ $("#bn").onclick=openNote;$("#bh").onclick=giveHint;$("#ba").onclick=()=>go("accuse",{step:1});
+ const intro="Case board. Choose where to investigate: "+keys.map((k,i)=>(i+1)+", "+L[k].name).join(". ")+". You have found "+G.order.length+" clues."+tail+" You are at "+nm(G.at)+". Other places take time to reach. Heat is "+G.heat+" of 5."+(G.heat>=3?" "+Lagos.heatTip(G.heat):"")+" Press N for your notebook, H for a hint, B for the radio, or A to accuse.";
+ const segs=[{t:intro,v:0}];
+ if(G.act===1&&G.order.length>=6&&!G.note&&!G.forced){G.note=1;addClue("threat");segs.unshift({t:"As you step away, something brushes your hand. A folded note, slipped into your pocket. Rough handwriting: Stop asking questions. Some books are better lost. Your heart pounds. Nobody is close enough to have done it.",v:0});setTimeout(()=>{play("slide",.5);setTimeout(()=>{play("sting");play("heart",0,5)},700)},300);hud()}
+ if(G.act===2&&!G.tip&&G.seen.visit_shore){G.tip=1;addClue("tip");segs.unshift({t:"A boy runs up and presses a note into your hand. It says: Look in Madam Ngozi's trunk. He is gone before you can ask who sent him.",v:0});setTimeout(()=>{play("slide",.6);setTimeout(()=>play("sting"),600)},300);hud()}
+ if(G.act===2&&G.love>0&&!G.d2){G.d2=1;G.love++;hud();segs.unshift({t:"Tobi catches up with you, a little out of breath, and presses a warm paper cup of ginger tea into your hands. Be careful out there, he says. I would like to hear your voice again tomorrow. He hums three bars of his tune before he goes, and you realise you are smiling.",v:6});setTimeout(()=>play("tune",.4),300)}
+ sayq(segs);
+};
+
+/* ===================== THE CITY: map, travel, radio, Heat, checkpoints ===================== */
+const nm=k=>CASE.locations[k].name;
+const nmAll=()=>{const o={};Object.keys(CASE.locations).forEach(k=>o[k]=CASE.locations[k].name);return o};
+function heatSay(n,segs,why){const r=Lagos.addHeat(G,n,why);hud();if(r.msg)segs.push({t:r.msg,v:0});return r}
+function goPlace(k){initAudio();if(k===G.at){go("loc",{id:k});return}if(!G.cond)Lagos.roll(G);go("travel",{to:k})}
+const condWords=c=>(c.slow?"a heavy go-slow":"roads moving freely")+", "+(c.rain?"rain":"clear skies")+", "+(c.block?"police roadblocks":"no roadblocks");
+function modeLine(m,i){return (i+1)+". "+m.name+": "+(G.radio?m.mins:"about "+m.nom)+" minutes. "+m.note}
+V.travel=({to})=>{
+ const from=G.at,modes=Lagos.modes(from,to,G.cond,G.heat);
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Travel to ${nm(to)}</h2>
+ <div class="lmap" aria-hidden="true">${Lagos.mapSVG({keys:visLocs(),names:nmAll(),here:from,to})}</div>
+ <p id="tn">From ${nm(from)}. <span class="heat">Heat ${G.heat} of 5</span> ${G.radio?"The radio has told you the roads are: "+condWords(G.cond)+".":"You do not know what the roads are like today. The radio would."}</p>
+ ${modes.map((m,i)=>`<button class="btn opt" data-m="${m.id}">${modeLine(m,i)}</button>`).join("")}
+ <div class="row"><button class="btn ghost" id="br">Radio (B)</button><button class="btn ghost" id="bk">Back (Esc)</button></div>`;
+ main.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>doTravel(to,b.dataset.m));
+ $("#br").onclick=()=>radio(false);$("#bk").onclick=()=>go("hub");backFn=()=>go("hub");
+ say("Travel from "+nm(from)+" to "+nm(to)+". "+(G.radio?"The radio says: "+condWords(G.cond)+". ":"You do not know what the roads are like today. Press B and the radio will tell you. ")+modes.map(modeLine).join(" ")+" Escape goes back.");
+};
+function doTravel(to,mid){
+ initAudio();const from=G.at,pl=Lagos.plan(G,from,to,mid),c=G.cond||{};G.trips++;
+ const segs=[{t:Lagos.rideText(mid,nm(from),nm(to),c),v:0}];
+ if(pl.crash)segs.push({t:"The okada skids and you tumble onto the verge. You are bruised, and ten minutes are lost.",v:0});
+ if(pl.cool){const r=Lagos.addHeat(G,-1);if(r.msg)segs.push({t:r.msg,v:0})}
+ spend(pl.mins,segs);
+ segs.push({t:(S.pressure==="on"?"The trip takes "+pl.mins+" minutes. ":"")+(pl.cp?"Ahead, a whistle blows. Police.":"You arrive at "+nm(to)+"."),v:0});
+ go("ride",{to,mid,pl,segs});
+}
+V.ride=({to,mid,pl,segs})=>{
+ const ms=Math.max(5000,Math.min(9000,pl.mins*350));
+ main.innerHTML=`<h2 id="vh" tabindex="-1">On the road</h2>
+ <div class="lmap" aria-hidden="true">${Lagos.mapSVG({keys:visLocs(),names:nmAll(),here:G.at,to,anim:ms,mode:mid})}</div>
+ <p>${segs.map(s=>s.t).join(" ")}</p><button class="btn primary" id="rc">${pl.cp?"Continue":"Arrive"} (Enter)</button>`;
+ Lagos.sfx.bed(mid,ms+1500,{rain:G.cond&&G.cond.rain});
+ if(pl.crash)setTimeout(()=>Lagos.sfx.crash(),ms*.55);
+ if(pl.cp)setTimeout(()=>{Lagos.sfx.siren(1400);setTimeout(()=>Lagos.sfx.whistle(),700)},ms*.85);
+ $("#rc").onclick=()=>{Lagos.sfx.stop();if(pl.cp)go("checkpoint",{to,mid});else arrive(to)};
+ chk(sayq(segs));
+};
+function arrive(to){G.at=to;Lagos.roll(G);go("loc",{id:to})}
+V.checkpoint=({to,mid})=>{
+ const sc=Lagos.checkpoint(G);ctx.sc=sc;
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Police checkpoint</h2>
+ <p>${sc.off}</p><p><b>${sc.q}</b></p>
+ ${sc.o.map((t,i)=>`<button class="btn opt" data-c="${i}">${i+1}. ${t}</button>`).join("")}
+ <button class="btn opt" data-c="settle">4. Settle am: slip him some money</button>`;
+ main.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>cpAns(to,sc,b.dataset.c));
+ setTimeout(()=>{Lagos.sfx.whistle()},200);
+ say("Police checkpoint. "+sc.off+" "+sc.q+" "+sc.o.map((t,i)=>(i+1)+", "+t+".").join(" ")+" Or 4, settle am: slip him some money, which costs you reputation."+Access.coopSay());
+};
+function cpAns(to,sc,c){
+ const segs=[];let ok=0;
+ if(c==="settle"){Lagos.sfx.pay();G.bonus-=10;G.rumour.push("bribe");segs.push({t:"You press a folded note into his palm. He tucks it away and waves you on without a word. It is quick, but it costs you ten points of reputation, and people talk.",v:0})}
+ else if(+c===sc.a){ok=1;Lagos.sfx.ok();G.cpWins++;const r=Lagos.addHeat(G,-1);segs.push({t:"Correct. The officer blinks, then steps aside. Oga knows his rights. Pass. "+sc.why+(r.msg?" "+r.msg:""),v:0})}
+ else{Lagos.sfx.bad();segs.push({t:"Wrong. The officer laughs and keeps you waiting. "+sc.why+" You lose twenty minutes.",v:0});heatSay(1,segs);spend(20,segs)}
+ hud();
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Police checkpoint</h2><p class="hint">${sc.off}</p><p>${segs.map(s=>s.t).join(" ")}</p><button class="btn primary" id="cc">Continue to ${nm(to)} (Enter)</button>`;
+ $("#cc").onclick=()=>arrive(to);chk(sayq(segs));
+}
+function radioCtx(){return{game:"echo",clock:S.pressure==="on"?clockStr():null,act:G.act,clues:G.order.length}}
+function radio(off){
+ if(!G)return;
+ if(off){if(G.radio){G.radio=0;Lagos.sfx.stat(.2);say("Radio off.");if(cur==="travel")refreshTravel(false)}else say("The radio is already off.");return}
+ const first=!G.radio;G.radio=1;
+ const b=Lagos.radio.bulletin(G,radioCtx(),cur==="travel"&&first?"traffic":undefined);
+ Lagos.sfx.jingle();if(b.fx==="gen"){Lagos.sfx.bed("generator",2600)}
+ const segs=[{t:(first?Lagos.radio.intro:"")+b.text,v:5}];
+ if(cur==="travel"){refreshTravel(true);segs.push({t:"Now, how will you go? "+Lagos.modes(G.at,ctx.to,G.cond,G.heat).map(modeLine).join(" "),v:0})}
+ hud();sayq(segs);
+}
+function refreshTravel(){if(cur!=="travel")return;const modes=Lagos.modes(G.at,ctx.to,G.cond,G.heat);main.querySelectorAll("[data-m]").forEach((b,i)=>b.textContent=modeLine(modes[i],i));const t=$("#tn");if(t)t.innerHTML=`From ${nm(G.at)}. <span class="heat">Heat ${G.heat} of 5</span> ${G.radio?"The radio has told you the roads are: "+condWords(G.cond)+".":"You do not know what the roads are like today. The radio would."}`}
+V.loc=({id})=>{
+ const L=CASE.locations[id];G.loc=id;G.sel=-1;G.seen["visit_"+id]=1;
+ const spots=L.spots.filter(s=>!s.act2||G.act===2).sort((a,b)=>a.pan-b.pan);ctx.spots=spots;
+ main.innerHTML=`<h2 id="vh" tabindex="-1">${L.name}</h2><p>${dsc(L)}</p>
+ <p class="hint">Left and right arrows (or comma and period, or Tab) to listen around. Enter to investigate. Escape to leave.</p>
+ <div class="strip" aria-hidden="true">${spots.filter(s=>s.type==="person").map(s=>`<span data-r="${s.id}">${People.html(cp(s.ref))}</span>`).join("")}</div>
+ <div class="scene" role="group" aria-label="What you can hear">${spots.map((s,i)=>`<button class="spot" data-i="${i}"><span class="ic" aria-hidden="true">${s.icon}</span><span class="lb">${s.label}</span><span class="dir">${dirWord(s.pan)}</span><span class="ck" aria-hidden="true">${G.seen[s.id]?"✓":""}</span><span class="pan" aria-hidden="true"><i style="left:${(s.pan+1)*50}%"></i></span></button>`).join("")}</div>
+ <div class="ctl" role="group" aria-label="Listening controls"><button class="btn" id="cl">◀ Listen left</button><button class="btn" id="cr">Listen right ▶</button><button class="btn primary" id="ci">Investigate this</button></div>
+ <button class="btn ghost" id="leave">Leave (Esc)</button>`;
+ main.querySelectorAll(".spot").forEach(b=>{const i=+b.dataset.i;b.onfocus=()=>{if(!selLock&&G.sel!==i){initAudio();select(i)}};b.onclick=()=>{initAudio();if(G.sel!==i)select(i,true);investigate(i)}});
+ $("#cl").onclick=()=>{initAudio();move(-1)};$("#cr").onclick=()=>{initAudio();move(1)};
+ $("#ci").onclick=()=>{initAudio();if(G.sel<0){say("Listen first. Use the left and right buttons.");return}investigate(G.sel)};
+ $("#leave").onclick=()=>go("hub");backFn=()=>go("hub");
+ startAmb(L.amb);
+ const intro=L.name+". "+dsc(L)+" Use the left and right arrow keys to listen around, and Enter to investigate.";
+ const segs=[{t:intro,v:0}];let acc=estMs(intro);
+ if(G.order.length>=3&&!G.watch[id]){G.watch[id]=1;const w="Wait. You stop. Somewhere behind you, faint squeaking footsteps stop a moment after yours. You turn. Nobody is there.";segs.push({t:w,v:0});setTimeout(()=>play("stepsFaint",.9),acc+300);acc+=estMs(w)}
+ if(id==="office"&&G.order.length>=7&&!G.flick){G.flick=1;const f="The lamp flickers and dies. In the sudden dark, a floorboard creaks by the door. Then the light returns. Nobody is there, but the visitors' book has moved.";segs.push({t:f,v:0});setTimeout(()=>{play("buzz");setTimeout(()=>play("thud",-.5),1000);setTimeout(()=>play("creak",.8),1700)},acc+300)}
+ sayq(segs);
+};
+function select(i,quiet){
+ G.sel=i;const s=ctx.spots[i],bs=main.querySelectorAll(".spot");
+ bs.forEach((b,k)=>b.classList.toggle("sel",k===i));
+ main.querySelectorAll(".strip .pp").forEach(p=>p.classList.remove("hot","wave"));const sp=main.querySelector('.strip [data-r="'+s.id+'"] .pp');if(sp)sp.classList.add("hot","wave");
+ if(S.mode==="sr"&&document.activeElement!==bs[i]){selLock=true;bs[i].focus({preventScroll:true});selLock=false}
+ play(s.sig||(s.type==="person"?"hum":s.snd),s.pan,s.hum);
+ if(!quiet)say(dirWord(s.pan)+". "+s.label+(G.seen[s.id]?". Already checked.":"."));
+}
+function move(d){
+ if(!ctx.spots)return;initAudio();
+ const n=G.sel===-1?(d>0?0:ctx.spots.length-1):G.sel+d;
+ if(n<0||n>=ctx.spots.length){play("edge",d>0?.8:-.8);say(d>0?"That is the far right of the scene.":"That is the far left of the scene.");return}
+ select(n);
+}
+function investigate(i){
+ const s=ctx.spots[i];if(!s)return;
+ if(s.type==="person"){go("talk",{pid:s.ref,from:G.loc});return}
+ play(s.snd,s.pan);
+ if(s.id==="trunk")setTimeout(()=>Sfx.play('emotional'),800);
+ const g=gain(s.clues),nt=g.nt;G.seen[s.id]=1;
+ const b=main.querySelectorAll(".spot")[i];if(b)b.querySelector(".ck").textContent="✓";
+ clueSfx(g.ids,900);
+ const segs=[{t:s.text,v:0}];const tt=toast(nt);if(tt)segs.push(tt);spend(15,segs);chk(sayq(segs));
+}
+function topicBtns(P,pid){return P.topics.map((t,i)=>`<button class="btn opt" data-t="${i}">${i+1}. ${t.q}<span class="sr"> ${G.asked[pid+i]?"(already asked)":""}</span></button>`).join("")+(P.confront&&G.act===2?`<button class="btn opt" id="conf">${P.topics.length+1}. Confront with a clue</button>`:"")}
+function bindTalk(pid){const P=CASE.people[pid];
+ main.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>ask(pid,+b.dataset.t));
+ const c=$("#conf");if(c)c.onclick=()=>confMenu(pid)}
+V.talk=({pid})=>{
+ const P=CASE.people[pid];G.talk=pid;
+ const twice=P.intro2&&(G.order.length>=8||(pid==="kunle"&&G.clues.sandals));const intro=twice?P.intro2:P.intro;
+ main.innerHTML=`<h2 id="vh" tabindex="-1">${P.name}</h2><p class="role">${P.role}</p><p id="pips" aria-hidden="true"></p><div class="port" id="port" aria-hidden="true">${People.html(cp(pid))}</div>
+ <div class="log" id="log"><p class="ans"><b>${P.name}:</b> ${intro}</p></div>
+ <div id="opts">${topicBtns(P,pid)}</div>
+ <button class="btn ghost" id="press"></button>
+ <button class="btn ghost" id="back">Back to ${CASE.locations[ctx.from].name} (Esc)</button>`;
+ bindTalk(pid);$("#press").onclick=pressTell;refreshPress();
+ $("#back").onclick=()=>go("loc",{id:ctx.from});backFn=()=>go("loc",{id:ctx.from});
+ const sp=CASE.locations[ctx.from].spots.find(x=>x.ref===pid);play("hum",0,sp?sp.hum:200);
+ if(twice)setTimeout(()=>play("heart",0,4),1500);
+ say(P.name+". "+P.role+" "+intro+" Your questions: "+P.topics.map((t,i)=>(i+1)+", "+t.q).join(" ")+(P.confront&&G.act===2?" "+(P.topics.length+1)+", Confront with a clue.":""),P.v);
+};
+function ask(pid,i){
+ const P=CASE.people[pid],t=P.topics[i];initAudio();G.asked[pid+i]=1;
+ if(t.love&&!G.asked["l"+pid+i]){G.asked["l"+pid+i]=1;G.love=(G.love||0)+t.love;hud();const pp=$("#port .pp");if(pp){pp.classList.add("blush");setTimeout(()=>pp.classList.remove("blush"),4000)}People.hearts($("#port"),7)}
+ const log=$("#log");log.insertAdjacentHTML("beforeend",`<p><b>You:</b> ${t.q}</p><p class="ans"><b>${P.name}:</b> ${t.a}</p>`);
+ const g=gain(t.clues),nt=g.nt;
+ if(t.snd)setTimeout(()=>play(t.snd,0),400);
+ if(t.tell)setTimeout(()=>play(t.tell,0),estMs(t.a)+300);
+ if(t.tell&&NERVOUS.includes(t.tell))setTimeout(()=>openTell(pid),estMs(t.a)+900);
+ if(pid==="kunle"&&G.order.length>=6)setTimeout(()=>play("heart",0,4),estMs(t.a)+900);
+ if(nt.length){log.insertAdjacentHTML("beforeend",`<p><b>Notebook:</b> ${nt.join(", ")}</p>`);clueSfx(g.ids,estMs(t.a)+1200)}
+ const segs=[{t:t.a,v:P.v}];const tt=toast(nt);if(tt)segs.push(tt);spend(15,segs);chk(sayq(segs));
+ main.querySelectorAll("[data-t]")[i].classList.add("done");
+}
+function crackOf(pid){const c=CASE.people[pid]&&CASE.people[pid].crack;return c?c[G.act]||null:null}
+function refreshPress(){
+ const pid=G.talk,c=crackOf(pid),b=$("#press"),el=$("#pips");
+ if(b)b.textContent="Call the tell (P)  ·  Nerve "+G.nerve+" of 5";
+ if(el){if(!c)el.textContent="";else{const k=G.comp[pid]==null?c.comp:G.comp[pid];el.textContent=G.cracked[pid+G.act]?"Cracked":"Composure "+"●".repeat(k)+"○".repeat(c.comp-k)}}}
+function openTell(pid){
+ const c=crackOf(pid);if(!c||G.cracked[pid+G.act]||cur!=="talk"||G.talk!==pid)return;
+ const ms=(Sfx.assist()?6000:3000)*Access.timeScale();G.tw={pid};clearTimeout(G.twT);G.twT=setTimeout(closeTell,ms);
+ const pt=$("#port");if(pt)pt.classList.add("tell");
+ say("A tell. Press P now.",0)}
+function closeTell(){if(G){G.tw=null;clearTimeout(G.twT)}const pt=$("#port");if(pt)pt.classList.remove("tell")}
+function pressTell(){
+ if(cur!=="talk")return;initAudio();const pid=G.talk,P=CASE.people[pid],c=crackOf(pid),log=$("#log");
+ if(!c){say(P.name+" is steady. There is nothing to press here.",0);return}
+ if(G.cracked[pid+G.act]){say(P.name+" has told you everything they are going to.",P.v);return}
+ if(G.nerve<=0){play("low");say("You have no nerve left. A strong clue will steady you.",0);return}
+ if(!G.tw||G.tw.pid!==pid){
+  if(Sfx.assist()){say("No tell right now. Ask a question, then listen for a nervous sound after the answer, and press P as it fades.",0);return}
+  G.nerve--;hud();play("low");Sfx.play("emotional");refreshPress();
+  const segs=[{t:"You pressed too soon. "+P.name+" smirks and relaxes. You lose a point of nerve and ten minutes.",v:0}];heatSay(1,segs);spend(10,segs);chk(sayq(segs));return}
+ closeTell();G.nerve--;hud();
+ const left=(G.comp[pid]==null?c.comp:G.comp[pid])-1;G.comp[pid]=left;
+ const pp=$("#port .pp");
+ if(left>0){
+  play("sting");if(pp){pp.classList.add("sad");setTimeout(()=>pp.classList.remove("sad"),1800)}
+  log.insertAdjacentHTML("beforeend",`<p><b>You:</b> I saw that. You flinched.</p><p class="ans"><i>${P.name} swallows and looks away. One more good catch and they will break.</i></p>`);
+  const segs=[{t:"You catch it. "+P.name+" flinches and sweats. One more good catch and they will break.",v:0}];spend(10,segs);chk(sayq(segs));refreshPress();return}
+ G.cracked[pid+G.act]=1;G.bonus+=10;G.nerve=Math.min(5,G.nerve+1);hud();
+ const g=gain([c.clue]),nt=g.nt;
+ const cls=pid==="chief"?"angry":"sad";if(pp){pp.classList.add(cls);setTimeout(()=>pp.classList.remove(cls),3200)}
+ play("sting");Sfx.play("clap",{maxMs:2200,fade:400,vol:.7});
+ log.insertAdjacentHTML("beforeend",`<p><b>You:</b> I saw that. You flinched.</p><p class="ans"><b>${P.name}:</b> ${c.a}</p><p><b>Notebook:</b> ${nt.join(", ")}. Pressure bonus: ten points. One nerve returned.</p>`);
+ clueSfx(g.ids,estMs(c.a)+1200);
+ const segs=[{t:c.a,v:P.v}];const tt=toast(nt);if(tt)segs.push(tt);segs.push({t:"They cracked. Ten bonus points, and one nerve returned.",v:0});heatSay(1,segs,"crack");
+ spend(10,segs);chk(sayq(segs));refreshPress()}
+function confMenu(pid){
+ const P=CASE.people[pid];
+ if(!G.order.length){say("You have no clues to show yet.");return}
+ $("#opts").innerHTML=G.order.map((id,i)=>`<button class="btn opt" data-c="${id}">${i+1}. ${CASE.clues[id][0]}</button>`).join("")+`<button class="btn ghost" id="cc">Cancel (Esc)</button>`;
+ $("#opts").querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>confront(pid,b.dataset.c));
+ const back=()=>{$("#opts").innerHTML=topicBtns(P,pid);bindTalk(pid);backFn=()=>go("loc",{id:ctx.from});say("Back to the questions.")};
+ $("#cc").onclick=back;backFn=back;
+ say("Which clue do you show "+P.name+"? "+G.order.map((id,i)=>(i+1)+", "+CASE.clues[id][0]).join(". "),0);
+}
+function confront(pid,cid){
+ const P=CASE.people[pid],e=(P.confront||{})[cid],log=$("#log");initAudio();
+ const ok=e&&e.a&&(!e.need||e.need.every(x=>G.clues[x]));
+ const txt=ok?e.a:((e&&e.fail)||P.bluff||"That proves nothing.");
+ {const pp=$("#port .pp"),c=ok?"sad":(pid==="chief"?"angry":"");if(pp&&c){pp.classList.add(c);setTimeout(()=>pp.classList.remove(c),3000)}}
+ log.insertAdjacentHTML("beforeend",`<p><b>You show:</b> ${CASE.clues[cid][0]}</p><p class="ans"><b>${P.name}:</b> ${txt}</p>`);
+ const segs=[{t:txt,v:P.v}];
+ if(ok){const g=gain(e.clues),nt=g.nt;(e.debunk||[]).forEach(x=>G.debunk[x]=1);
+  setTimeout(()=>play("sting"),estMs(txt)*.6);Sfx.play('clap',{maxMs:2200,fade:400,vol:.7});if(e.tell)setTimeout(()=>play(e.tell,0),estMs(txt)+300);
+  if(nt.length){log.insertAdjacentHTML("beforeend",`<p><b>Notebook:</b> ${nt.join(", ")}</p>`);clueSfx(g.ids,estMs(txt)+1200);const tt=toast(nt);if(tt)segs.push(tt)}
+  if(e.debunk&&e.debunk.length)segs.push({t:e.debunkMsg||"Chief Bello's alibi is now a lie.",v:0});
+ }else{setTimeout(()=>{play("low");if(pid==="chief")Sfx.play('emotional')},estMs(txt)+200)}
+ if(!ok&&(pid==="chief"||pid==="emeka"))heatSay(1,segs,"bluff");
+ spend(15,segs);chk(sayq(segs));
+ $("#opts").innerHTML=topicBtns(P,pid);bindTalk(pid);backFn=()=>go("loc",{id:ctx.from});
+}
+function openNote(){const from=cur,fctx=ctx;go("note",{from,fctx})}
+V.note=({from,fctx})=>{
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Notebook</h2>
+ ${G.order.length?`<div class="paper"><ol>${G.order.map(id=>`<li><strong>${CASE.clues[id][0]}${G.debunk[id]?" (proved false)":""}.</strong> ${CASE.clues[id][1]}</li>`).join("")}</ol></div>`:`<p>Your notebook is empty. Visit a place and listen for clues.</p>`}
+ <button class="btn ghost" id="back">Close notebook (Esc)</button>`;
+ const back=()=>{from==="note"?go("hub"):go(from,fctx)};
+ $("#back").onclick=back;backFn=back;
+ say(G.order.length?"Notebook. You have "+G.order.length+" clues. "+G.order.map((id,i)=>(i+1)+". "+CASE.clues[id][0]+(G.debunk[id]?", proved false":"")+". "+CASE.clues[id][1]).join(" "):"Your notebook is empty. Visit a place and listen for clues.");
+};
+function giveHint(){if(G.forced)return;G.hints++;const segs=[{t:"The Chief whispers: "+hintText(),v:0}];spend(20,segs);chk(sayq(segs));hud()}
+V.accuse=({step,who})=>{
+ const a=A(),fo=G.forced;
+ if(step===1){
+  main.innerHTML=`<h2 id="vh" tabindex="-1">${fo?"Time is up":"Make your accusation"}</h2><p>${G.act===2?"Who is the mastermind behind the theft?":"Who took the ledger?"}</p>
+  ${a.suspects.map(([id,n],i)=>`<button class="btn opt" data-w="${id}">${i+1}. ${n}</button>`).join("")}
+  ${fo?"":`<button class="btn ghost" id="back">Not yet (Esc)</button>`}`;
+  main.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>go("accuse",{step:2,who:b.dataset.w}));
+  if(!fo){$("#back").onclick=()=>go("hub");backFn=()=>go("hub")}
+  say((fo?"Time is up. ":"Make your accusation. ")+(G.act===2?"Who is the mastermind? ":"Who took the ledger? ")+a.suspects.map(([id,n],i)=>(i+1)+", "+n).join(". ")+(fo?".":". Or press Escape if you are not ready."));
+ }else{
+  const nm=a.suspects.find(x=>x[0]===who)[1];
+  main.innerHTML=`<h2 id="vh" tabindex="-1">Present your evidence</h2><p>You accuse ${nm}. Tick each clue that proves your case. Wrong picks lower your score.</p>
+  <form id="ev" class="paper"><fieldset><legend>Your clues</legend>${G.order.length?G.order.map(id=>`<label class="check"><input type="checkbox" value="${id}"><span><strong>${CASE.clues[id][0]}${G.debunk[id]?" (proved false)":""}.</strong> ${CASE.clues[id][1]}</span></label>`).join(""):"<p>You have no clues yet.</p>"}</fieldset></form>
+  <button class="btn primary" id="fin">Accuse ${nm}</button>
+  <button class="btn ghost" id="back">Choose someone else (Esc)</button>`;
+  $("#fin").onclick=()=>judge(who);
+  $("#back").onclick=()=>go("accuse",{step:1});backFn=()=>go("accuse",{step:1});
+  say("You accuse "+nm+". Tick each clue that proves your case. Move through the list with Tab, and press Space to tick. Then choose the Accuse button.");
+ }
+};
+function judge(who){
+ if(G.judging)return;G.judging=1;initAudio();
+ const a=A(),picks=[...document.querySelectorAll("#ev input:checked")].map(i=>i.value);
+ const p=picks.filter(x=>a.proof.includes(x)).length,m=picks.filter(x=>a.misleading.includes(x)).length;
+ play("drum");say("The room goes silent. Everyone is staring at you.");
+ setTimeout(()=>{G.judging=0;verdict(who,p,m)},2900);
+}
+function verdict(who,p,m){
+ if(who==="chief"){
+  Sfx.slapFx("Chief Bello");
+  say("Chief Bello slaps you across the face. How dare you accuse me!",3);
+  setTimeout(()=>verdict2(who,p,m,true),1900);return}
+ verdict2(who,p,m,false);
+}
+function verdict2(who,p,m,sl){
+ const a=A(),pre=sl?"Chief Bello slaps you across the face and growls, How dare you accuse me! ":"";
+ if(who!==a.culprit){
+  Sfx.play("sad",{maxMs:9000,fade:1500});
+  if(G.forced){go("end",{lost:true,why:pre+a.rebuttal[who]});return}
+  G.wrong++;go("hub");
+  setTimeout(()=>{const segs=[{t:pre+(sl?"You lose thirty minutes. ":"")+a.rebuttal[who]+" Keep investigating.",v:0}];if(sl)spend(30,segs);heatSay(2,segs,"wrong");chk(sayq(segs))},250);return}
+ if(p<(G.forced?1:2)){
+  if(G.forced){go("end",{lost:true,why:"You named the right person, but you had almost no proof, and no one would listen."});return}
+  play("low");go("hub");setTimeout(()=>say(pre+"That is the right person, but your evidence is too thin to convince anyone. Gather more proof, then try again."),250);return}
+ const score=Math.max(0,p*15-m*10-G.hints*5-G.wrong*10+G.bonus);
+ const rank=(p>=5&&m===0&&!G.forced)?"Chief Inspector":(p>=4&&m<=1&&!G.forced)?"Inspector":"Detective";
+ if(G.act===1){
+  Sfx.play("clap",{maxMs:3500,fade:600});
+  G.act1={rank,score};G.act=2;G.bonus=0;G.nerve=4;G.comp={};G.hints=0;G.wrong=0;G.forced=0;G.forcedGo=0;G.deadline=G.time+180;G.stallNote=0;go("twist");return}
+ // Act 2: the Chief is the mastermind. He slaps you, then runs for his car and the chase begins.
+ stopDrone();
+ say("Chief Bello snarls, shoves past the guards and runs for his car. Everyone is shouting. After him!");
+ setTimeout(()=>Traffic.start({target:"Chief Bello",plate:"CHIEF 1",speak:t=>sayq([{t,v:0}]),onDone:()=>go("end",{rank,score,p,m})}),3800);
+}
+V.twist=()=>{
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Wait. It is not over.</h2><div class="paper"><p>${CASE.twist}</p></div><button class="btn primary" id="go">Follow the new lead</button>`;
+ $("#go").onclick=()=>go("hub");
+ play("sting");setTimeout(()=>play("heart",0,5),900);setTension();
+ say(CASE.twist);
+};
+V.end=({rank,score,p,m,lost,why})=>{
+ stopDrone();
+ if(lost){main.innerHTML=`<h2 id="vh" tabindex="-1">Case unsolved</h2><p>${why}</p><div class="paper"><h3>What really happened</h3><p>${G.act===2?CASE.lostText2:CASE.lostText}</p><p><em>${CASE.lesson}</em></p></div><button class="btn primary" id="again">Try the case again</button>`;
+  $("#again").onclick=()=>{newGame();go("brief")};play("low");Sfx.play("sad",{maxMs:9000,fade:1500});setTimeout(()=>say("Case unsolved. "+why+" "+(G.act===2?CASE.lostText2:CASE.lostText)+" "+CASE.lesson),900);return}
+ const a1=G.act1||{rank:"-",score:0},total=a1.score+score;
+ let best="";try{const o=["Detective","Inspector","Chief Inspector"],k="ed_best_"+CASE.id,old=localStorage.getItem(k);if(!old||o.indexOf(rank)>o.indexOf(old))localStorage.setItem(k,rank);best=localStorage.getItem(k)}catch(e){}
+ main.innerHTML=`<h2 id="vh" tabindex="-1">Case closed</h2><p class="rank">${rank}</p>
+ <p>Total score: ${total}. Act 1, the thief: ${a1.rank}, ${a1.score} points. Act 2, the mastermind: ${rank}, ${score} points. Strong proofs in Act 2: ${p} of ${A().proof.length}. Misleading picks: ${m}.${best?" Your best rank: "+best+".":""}</p>
+ <div class="paper"><h3>What really happened</h3><p>${CASE.solution}</p><p><em>${CASE.lesson}</em></p></div>
+ ${epiHtml()}<button class="btn primary" id="again">Play this case again</button>`;
+ $("#again").onclick=()=>{newGame();go("brief")};
+ Sfx.play('clap');Sfx.done('echo',{rank:rank});if(G.love){const e=$("#epi");if(e){People.hearts(e,10);setTimeout(()=>play("tune",0),1200)}}
+ setTimeout(()=>say("Case closed. You are a "+rank+". Your total score is "+total+". "+CASE.solution+" "+CASE.lesson+" "+epiText(G.love||0)),1400);
+};
+
+/* ============================================================
+   KEYBOARD, TOUCH
+   ============================================================ */
+addEventListener("keydown",e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const k=e.key,t=e.target,tag=t.tagName;
+ if(k==="Escape"&&backFn){e.preventDefault();backFn();return}
+ if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA")return;
+ if(cur==="loc"){
+  if(k==="ArrowRight"||k==="."||k==="]"||k==="PageDown"){e.preventDefault();move(1);return}
+  if(k==="ArrowLeft"||k===","||k==="["||k==="PageUp"){e.preventDefault();move(-1);return}
+  if(k==="Enter"||k===" "){
+   if(tag==="BUTTON"&&!t.classList.contains("spot"))return;
+   const i=G.sel>=0?G.sel:(t.classList&&t.classList.contains("spot")?+t.dataset.i:-1);
+   if(i>=0){e.preventDefault();investigate(i)}return}
+ }
+ if(k==="Enter"&&(cur==="title"||cur==="brief"||cur==="twist"||cur==="ride"||cur==="checkpoint")&&tag!=="BUTTON"){const b=main.querySelector(".primary");if(b){e.preventDefault();b.click()}return}
+ if(!G||cur==="title")return;
+ if(/^[1-9]$/.test(k)){const o=main.querySelectorAll(".opt")[+k-1];if(o){e.preventDefault();o.click()}return}
+ const lk=k.toLowerCase();
+ if(cur==="talk"&&(lk==="p"||(k===" "&&G.tw))){e.preventDefault();pressTell();return}
+ if(lk==="b"){e.preventDefault();radio(e.shiftKey);return}
+ if(lk==="t"){e.preventDefault();Sfx.setAssist(!Sfx.assist());say("Assisted mode "+(Sfx.assist()?"on. Tell windows last six seconds.":"off. Tell windows last three seconds."));return}
+ if(lk==="r"){if(G.last)sayq(G.last);return}
+ if(cur==="brief"||cur==="twist")return;
+ if(lk==="n"&&cur!=="note"&&cur!=="end"){e.preventDefault();openNote()}
+ else if(lk==="h"&&cur!=="end"&&!G.forced){e.preventDefault();giveHint()}
+ else if(lk==="a"&&cur!=="accuse"&&cur!=="end"){e.preventDefault();go("accuse",{step:1})}
+});
+let tx=null;
+main.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+main.addEventListener("touchend",e=>{if(tx===null||cur!=="loc")return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>60)move(dx<0?1:-1)},{passive:true});
+addEventListener("pointerdown",()=>initAudio(),{once:true});
+
+function mouth(ms){const p=document.querySelector("#port .pp");if(!p)return;p.classList.add("talk");clearTimeout(mouth.t);mouth.t=setTimeout(()=>p.classList.remove("talk"),Math.min(ms,20000))}
+const cp=id=>People.cast[id==="musa"?"baba":id]||{};
+function epiText(L){return L<1?"At sunset, as the last boat leaves, a slow highlife tune drifts along the jetty. You never stopped to ask who was humming. Maybe next time you will.":L<3?"At sunset the clerk from the jetty is waiting with two paper cups of ginger tea and a ticket for a boat that goes nowhere in particular. Walk with me? says Tobi. You, the best listener in Lagos, find you have nothing to say, and that it is the best conversation of the week.":"At sunset the jetty lanterns come on. Tobi hums his mother's highlife, offers his hand, and asks, May I? You have spent all week listening for lies. Now you listen to one steady heartbeat, and you dance on the old boards while the water keeps time. For once, there is nothing to solve."}
+function epiHtml(){const L=G.love||0;if(L<1)return `<div class="paper"><h3>Epilogue</h3><p>${epiText(0)}</p></div>`;
+return `<div class="paper epi" id="epi"><h3>Epilogue</h3><div class="cpl">${People.html(Object.assign({},People.cast.you,{cls:L>=3?"dance":"blush"}))}${People.html(Object.assign({},People.cast.tobi,{cls:L>=3?"dance rev":"wave"}))}</div><p>${epiText(L)}</p></div>`}
+
+/* ===================== ACCESSIBILITY + ATMOSPHERE (shared layers) ===================== */
+(function(){
+ const dangerNow=()=>{if(!G||cur==="title"||cur==="end")return 0;const left=Math.max(0,Math.min(1,(G.deadline-G.time)/(G.act===2?180:540)));return Math.min(1,(G.heat||0)/5*.65+(S.pressure==="on"?(1-left)*.35:0))};
+ const _go=go;go=function(v,a){try{Atmos.cut(240)}catch(x){}const r=_go(v,a);try{Atmos.danger(dangerNow())}catch(x){}return r};
+ const _hud=hud;hud=function(){_hud();try{Atmos.danger(dangerNow())}catch(x){}};
+ const _judge=judge;judge=function(w){try{Atmos.letterbox(true,5200);Atmos.flash("#ffd28a",.25)}catch(x){}return _judge(w)};
+ const _gain=gain;gain=function(list){const r=_gain(list);try{G.srcOf=G.srcOf||{};const who=(cur==="talk"&&CASE.people[ctx.pid])?CASE.people[ctx.pid].name:(cur==="loc"&&CASE.locations[ctx.id]?CASE.locations[ctx.id].name:"the case");r.ids.forEach(id=>{G.srcOf[id]=G.srcOf[id]||who})}catch(x){}return r};
+ const pal=p=>p<-.7?"far left":p<-.25?"left":p<.25?"centre":p<.7?"right":"far right";
+ const head=()=>{const h=$("#vh");return h?h.textContent:""};
+ const clue=id=>CASE.clues[id]||(CASE.act2&&CASE.act2.clues&&CASE.act2.clues[id])||[id,""];
+ Access.register({
+  name:"echo",
+  speak:t=>sayq([{t,v:0}]),
+  busy:()=>!G||cur==="title"||cur==="ride"||cur==="end"||cur==="brief",
+  compass(){
+   if(!G)return null;
+   if(cur==="loc"&&ctx.spots){const items=ctx.spots.map(s=>({pan:s.pan||0,label:s.label||s.id}));return{items,say:"You are at "+nm(G.at)+". From left to right: "+items.slice().sort((a,b)=>a.pan-b.pan).map(i=>pal(i.pan)+", "+i.label).join(". ")+"."}}
+   if(cur==="hub"||cur==="travel"){const pos={office:-.85,market:-.2,jetty:.4,shore:.9},items=visLocs().map(k=>({pan:pos[k]||0,label:nm(k)+(k===G.at?" (you are here)":"")}));return{items,say:"The map, from left to right: "+items.slice().sort((a,b)=>a.pan-b.pan).map(i=>i.label).join(". ")+"."}}
+   if(cur==="talk"&&CASE.people[ctx.pid]){return{items:[{pan:0,label:CASE.people[ctx.pid].name}],say:CASE.people[ctx.pid].name+" is standing in front of you, in the centre."}}
+   return null},
+  summary(){
+   if(!G)return head()||"Echo Detective.";
+   if(cur==="loc"){const L=CASE.locations[ctx.id];if(L)return L.name+". "+dsc(L)+" "+(ctx.spots?ctx.spots.length+" things to investigate.":"")}
+   if(cur==="talk"){const P=CASE.people[ctx.pid];if(P)return "Talking with "+P.name+", "+P.role+". "+(S.pressure==="on"?clockStr()+".":"")}
+   if(cur==="hub"||cur==="travel")return "Case board. You are at "+nm(G.at)+". "+(S.pressure==="on"?clockStr()+". ":"")+G.order.length+" clues. Heat "+G.heat+" of 5. Nerve "+G.nerve+". Radio "+(G.radio?"on":"off")+".";
+   return head()||"Echo Detective."},
+  goal(){
+   if(!G||cur==="title")return "Press the Begin button to start the case.";
+   const t=S.pressure==="on"?" It is "+clockStr()+".":"";
+   return (G.act===2?"Goal: expose the mastermind behind the theft. You need solid proof, not just suspicion. Beware of tips that fit only part of the story, and remember that a nervous person is not always a guilty one."
+     :"Goal: find out who took the ledger, and be ready to accuse with at least two solid proofs. Test what people tell you against what you find, and remember that a nervous person is not always a guilty one.")+t+" You have "+G.order.length+" clues. Heat is "+G.heat+" of 5. Press H for a hint."},
+  evidence(){
+   if(!G)return null;
+   const rows=G.order.map(id=>{const c=clue(id),bad=G.debunk&&G.debunk[id];return{h:c[0],t:c[1]+(bad?" This claim has been proved false.":""),tag:bad?"proved false":(G.srcOf&&G.srcOf[id]?"from "+G.srcOf[id]:"")}});
+   if(!rows.length)rows.push({h:"Nothing yet",t:"Question people and search places. Every clue you find will appear here."});
+   return{title:"Evidence board: "+G.order.length+" clue"+(G.order.length===1?"":"s"),rows,say:G.order.length?"Evidence board. "+G.order.length+" clues. "+G.order.map(id=>clue(id)[0]).join(". ")+". Use Tab to read them one by one. A claim can be proved false by a better clue. Press Escape to close.":"Evidence board. You have no clues yet. Question people and search places."}},
+  recap(){if(cur==="talk"&&CASE.people[ctx.pid]){const n=Object.keys(G.asked||{}).filter(k=>String(k).indexOf(ctx.pid)===0).length;return "You are talking with "+CASE.people[ctx.pid].name+" and have asked "+n+" question"+(n===1?"":"s")+"."}return ""}
+ });
+})();
+
+go("title");
+</script>
+</body>
+</html>
