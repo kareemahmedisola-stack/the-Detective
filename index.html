@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>The Detective - Awesome-Planet</title>
+<meta name="description" content="Three detective games you play by ear. Install it on your phone or computer and play offline.">
+<meta name="theme-color" content="#120e28">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="The Detective">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 :root{--night:#120e28;--lamp:#f2a93b;--tape:#ffd400;--dye:#3b4cc0;--red:#ff2d4d;--ink:#f6efe2;--mut:#bdb3d6}
 *{box-sizing:border-box}
@@ -41,10 +50,34 @@ kbd{background:#0c0918;border:1px solid #55477f;border-bottom-width:3px;border-r
 #next{animation:pu 1s infinite alternate;background:var(--tape);color:#111;border-color:var(--tape);font-weight:800}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 #inter h1{font-size:clamp(1.4rem,4.4vw,2.3rem)}#inter{text-align:center}
+/* ---- phones: keep clear of notches and the home bar ---- */
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#bar{padding-top:max(.3rem,env(safe-area-inset-top))}
+.screen{padding-top:max(1.2rem,env(safe-area-inset-top));padding-bottom:max(1.2rem,env(safe-area-inset-bottom))}
+@media(max-width:560px){.tape{font-size:.7rem}.btn{padding:.75rem .9rem}.btn span{font-size:.86rem}}
+/* ---- motion upgrade ---- */
+.logo{animation:logoFloat 5s ease-in-out infinite;filter:drop-shadow(0 0 22px rgba(255,212,0,.35))}
+@keyframes logoFloat{50%{transform:translateY(-8px) rotate(-3deg)}}
+h1{background:linear-gradient(100deg,var(--tape) 35%,#fff7c2 50%,var(--tape) 65%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:glint 6s ease-in-out infinite;text-shadow:none;filter:drop-shadow(0 0 26px rgba(255,212,0,.3))}
+h1 small{-webkit-text-fill-color:var(--lamp)}
+@keyframes glint{0%,55%{background-position:130% 0}100%{background-position:-30% 0}}
+#beams{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+#beams i{position:absolute;top:-10vh;width:22vw;min-width:150px;height:130vh;transform-origin:50% 0;background:linear-gradient(rgba(255,244,200,.20),rgba(255,244,200,0) 80%);clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);animation:beam 9s ease-in-out infinite alternate}
+#beams i:nth-child(1){left:12vw;animation-duration:9s}
+#beams i:nth-child(2){right:12vw;animation-duration:11s;animation-delay:-4s;background:linear-gradient(rgba(190,210,255,.16),rgba(190,210,255,0) 80%)}
+@keyframes beam{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+.btn{position:relative;overflow:hidden;flex-shrink:0}
+.btn:not(.big)::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-120%);transition:transform .6s}
+.btn:hover::after,.btn:focus-visible::after{transform:translateX(120%)}
+#install,#offl{margin-top:.5rem}
+#offl{font-size:.9rem;color:#7be0a6}
+#iosHint{max-width:34rem;margin:.6rem auto 0;padding:.7rem .9rem;border:2px dashed var(--lamp);border-radius:12px;background:rgba(10,8,24,.8);text-align:left;font-size:.95rem}
+@media(prefers-reduced-motion:reduce){.logo,h1,#beams i{animation:none!important}}
 </style>
 </head>
 <body>
 <div id="siren" aria-hidden="true"></div>
+<div id="beams" aria-hidden="true"><i></i><i></i></div>
 <div class="tape t1" aria-hidden="true">CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE</div>
 <div class="tape t2" aria-hidden="true">DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS · CRIME SCENE · DO NOT CROSS</div>
 
@@ -67,7 +100,10 @@ kbd{background:#0c0918;border:1px solid #55477f;border-bottom-width:3px;border-r
   <p id="rec" class="mut" aria-live="polite"></p>
   <div class="row">
     <button id="mute" class="sm" type="button" aria-pressed="false">🔊 Sound: on (M)</button>
+    <button id="install" class="sm" type="button" hidden>⬇ Install the app</button>
   </div>
+  <p id="offl" aria-live="polite" hidden>✓ Saved on this device. It plays offline.</p>
+  <div id="iosHint" hidden><b>Install on iPhone or iPad:</b> tap the Share button in Safari, then <b>Add to Home Screen</b>.</div>
   <details>
     <summary>What's new in this edition</summary>
     <ul>
@@ -108,6 +144,9 @@ kbd{background:#0c0918;border:1px solid #55477f;border-bottom-width:3px;border-r
 
 <script src="js/sfx.js"></script>
 <script src="js/atmos.js"></script>
+<script src="js/suspense.js"></script>
+<script src="js/polish.js"></script>
+<script src="js/ui.js"></script>
 <script src="js/access.js"></script>
 <script>
 (function () {
@@ -141,6 +180,7 @@ kbd{background:#0c0918;border:1px solid #55477f;border-bottom-width:3px;border-r
 
   function showOnly(id) {
     ['splash', 'menu', 'inter', 'stage'].forEach(function (n) { $('#' + n).hidden = n !== id; });
+    try { if (id !== 'stage') Polish.enter($('#' + id)); } catch (e) {}
   }
   function paintMute() {
     var m = Sfx.isMuted();
@@ -240,6 +280,37 @@ kbd{background:#0c0918;border:1px solid #55477f;border-bottom-width:3px;border-r
     },
     goal: function () { return 'Choose a mission. For the whole story in order, choose 5, the full campaign. For a gentle start, choose 2.'; }
   });
+  /* ---- deep links: index.html?g=balogun|echo|siege|both|full (also the app-icon shortcuts) ---- */
+  var wantGame = null;
+  try { wantGame = new URLSearchParams(location.search).get('g'); } catch (e) {}
+  if (wantGame && !(GAMES[wantGame] || SEQS[wantGame])) wantGame = null;
+  var enterBtn = $('#enter');
+  if (wantGame) enterBtn.textContent = 'Tap to start: ' + (GAMES[wantGame] ? GAMES[wantGame].title : wantGame === 'both' ? 'both cases' : 'the full campaign');
+  var _enter = enterBtn.onclick;
+  enterBtn.onclick = function () {
+    _enter();
+    if (wantGame) { var g = wantGame; wantGame = null; if (GAMES[g]) launch(g, false); else chain(g); }
+  };
+
+  /* ---- install as an app (phone and computer) ---- */
+  var deferred = null, ib = $('#install');
+  function standalone() { try { return matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches || navigator.standalone === true; } catch (e) { return false; } }
+  addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; if (!standalone()) ib.hidden = false; });
+  ib.onclick = function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; ib.hidden = true; }).catch(function () {});
+  };
+  addEventListener('appinstalled', function () { ib.hidden = true; deferred = null; });
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios && !standalone()) $('#iosHint').hidden = false;
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    navigator.serviceWorker.register('sw.js').then(function () { return navigator.serviceWorker.ready; }).then(function () {
+      return caches.keys();
+    }).then(function (keys) { if (keys.some(function (k) { return k.indexOf('detective-') === 0; })) $('#offl').hidden = false; }).catch(function () {});
+  }
+
   paintMute();
   showOnly('splash');
   $('#enter').focus();

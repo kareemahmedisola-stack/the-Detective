@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120e28">
 <title>Siege of Ilesanmi - a war strategy game you can play by ear</title>
 <style>
 :root{--ink:#120c14;--ash:#241a22;--ember:#ff8a3d;--gold:#f2c14e;--blood:#c43c2e;--text:#f6ecdf;--mut:#c5b4b0;--line:#5b3d3a;--steel:#7f98a8;--ok:#7dd18b}
@@ -52,6 +53,10 @@ kbd{background:#0c0710;border:1px solid #6a4540;border-bottom-width:3px;border-r
 <script src="../js/people.js"></script>
 <script src="../js/siegecore.js"></script>
 <script src="../js/atmos.js"></script>
+<script src="../js/suspense.js"></script>
+<script src="../js/polish.js"></script>
+<script src="../js/ui.js"></script>
+<script>try{Tense.layers({heart:false,dread:false})}catch(e){}</script>
 <script src="../js/access.js"></script>
 <script>
 'use strict';
@@ -458,7 +463,7 @@ function hearSound(type,p,lvl){
   switch(type){case "ram":AU.ram(p);setTimeout(()=>AU.ram(p),650);setTimeout(()=>AU.ram(p),1300);break;case "tower":AU.creak(p);break;case "sappers":AU.scrape(p);break;case "boats":AU.oars(p);break;case "ladders":AU.clatter(p);break;default:AU.wind(1500)}
   AU.march(p,1800,.03+lvl*.12,520-lvl*140);AU.drum(p,60+lvl*30,.1+lvl*.35);
 }
-async function listenNight(my){
+async function listenNight(my){try{Tense.listen()}catch(e){}
   const h=S.heard;enemyGlow(Object.fromEntries(SECT.map(s=>[s,h[s].lvl])));showTypes(h);
   await say2([{t:"Night falls. You climb the tower and listen. The sounds are placed where the enemy is.",v:0}]);if(my!==SEQ)return;
   for(const s of SECT){hearSound(h[s].type,PAN[s],h[s].lvl);await wait(1700);if(my!==SEQ)return;
@@ -522,7 +527,7 @@ function outText(s,x){
   if(o==="barely")return `${n}: the line bends, and bends again, and only just holds. ${loss} fell.`;
   return `${n}: the wall is breached! Attackers pour through the gap. ${loss} fell.`}
 async function runAssault(){
-  const my=++SEQ;try{Atmos.letterbox(true,90000)}catch(x){}cur="assault";backFn=null;ctx={};
+  const my=++SEQ;try{Atmos.letterbox(true,90000);Tense.riser(2600)}catch(x){}cur="assault";backFn=null;ctx={};
   main.innerHTML=`<h2 id="vh" tabindex="-1">The assault</h2><p>Listen.</p>`;$("#vh").focus();main.setAttribute("role","application");
   const st=SG.assault(S);setSky(true);paintScene();
   if(st.truce){

@@ -235,6 +235,7 @@
     sani: { hair: 'cap', hc: '#2e4a2e', top: '#3d5a3d', bot: '#2e3a2e', acc: 'badge', skin: '#4a2f20' }, kunle: { hc: '#120c0c', top: '#c0562f', bot: '#2c3e50' },
     kunleShore: { hc: '#120c0c', top: '#c0562f', bot: '#2c3e50', cls: 'sad' }, tobi: { hc: '#0e0a0a', top: '#7b2d4e', acc: 'glasses', skin: '#6b4028' },
     bola: { hair: 'short', hc: '#1a0f0f', top: '#e67e22', bot: '#2c3e50', skin: '#7b4a2e' },
+    sisi: { hair: 'gele', hc: '#d35400', top: '#16a085', dress: 1, skin: '#8d5a3b' },
     you: { hair: 'fedora', hc: '#3a2d1a', top: '#6b5a3a', bot: '#2a2a2a', acc: 'tie' }
   };
   w.People = { svg: svg, html: html, el: el, hearts: hearts, cast: cast, walk: walk, run: run, talk: talk, react: react };

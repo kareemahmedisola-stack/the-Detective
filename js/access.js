@@ -144,7 +144,8 @@
         { label: function () { return 'High contrast: ' + (A.hc ? 'on' : 'off'); }, fn: function () { A.setHC(!A.hc, true); } },
         { label: function () { return 'Partner mode: ' + (A.coop ? 'on' : 'off'); }, fn: function () { A.setCoop(!A.coop, true); } },
         { label: function () { return 'Idle reminders: ' + (A.idle ? 'on' : 'off'); }, fn: function () { A.setIdle(!A.idle, true); } },
-        { label: function () { return 'Visual effects: ' + (A.fx ? 'on' : 'off'); }, fn: function () { A.setFx(!A.fx, true); } }
+        { label: function () { return 'Visual effects: ' + (A.fx ? 'on' : 'off'); }, fn: function () { A.setFx(!A.fx, true); } },
+        { label: function () { return 'Text size: ' + (w.UI ? UI.textSize() : 100) + ' percent'; }, fn: function () { if (w.UI) UI.cycleText(); } }
       ],
       say: 'Accessibility help. The keys are Q for the audio compass, W for where am I, G for your goal, Y for a recap, E for the evidence board, K for high contrast, F for partner mode. Switches follow. Press Escape to close.'
     });
