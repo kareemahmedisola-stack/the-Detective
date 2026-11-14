@@ -1,11 +1,19 @@
 /* The Detective - service worker
    Caches the whole game on first visit, so it installs as an app and then plays with no network.
    Bump VERSION whenever a file changes, so players get the new files. */
+<<<<<<< HEAD
 const VERSION = 'detective-v5';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './games/balogun.html', './games/echo.html', './games/siege.html',
   './js/access.js', './js/atmos.js', './js/lagos.js', './js/people.js', './js/polish.js', './js/ui.js', './js/sfx.js',
+=======
+const VERSION = 'detective-v3';
+const ASSETS = [
+  './', './index.html', './manifest.webmanifest',
+  './games/balogun.html', './games/echo.html', './games/siege.html',
+  './js/access.js', './js/atmos.js', './js/lagos.js', './js/people.js', './js/polish.js', './js/sfx.js',
+>>>>>>> 453f0b6e540dea0bc8557363cb63e7f511692591
   './js/siegecore.js', './js/suspense.js', './js/traffic.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-64.png',
   './sounds/cars-on-the-highway.mp3', './sounds/clap.mp3', './sounds/emotional-damage.mp3', './sounds/intro.mp3',
