@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120e28">
 <title>Echo Detective – Case 1: The Missing Ledger</title>
 <style>
 :root{--ink:#0d2430;--lagoon:#16424f;--lagoon2:#1d5463;--brass:#d9a441;--paper:#efe3c8;--paperink:#2a2116;--coral:#ff7a4d;--line:#2f6b7b;--text:#f3ecdc;--mut:#b9cdd2}
@@ -83,6 +84,8 @@ kbd{font:600 .9rem ui-monospace,Menlo,Consolas,monospace;background:var(--ink);b
 <script src="../js/people.js"></script>
 <script src="../js/lagos.js"></script>
 <script src="../js/atmos.js"></script>
+<script src="../js/suspense.js"></script>
+<script src="../js/polish.js"></script>
 <script src="../js/access.js"></script>
 <script>
 "use strict";
@@ -98,13 +101,14 @@ const CASE={
  lostText:"Kunle owed one hundred and fifty thousand naira, due on Friday. At midnight, while Sani stood at the gate, Kunle let himself into the office with his spare key and took the ledger. He ran to the jetty in his squeaking new sandals, lost a brass buckle on the planks, and crossed the water with Pa Musa. With no one to stop him, he slipped away on the evening boat with the ledger. Baba Tunde never saw it again.",
  locations:{
   market:{name:"Market Square",amb:"crowd",
-   desc:"Stalls are opening and a crowd murmurs all around you. A fish seller shouts her prices on your far left. A fabric seller stands just left of centre, and a wealthy trader just right of centre. On your far right hangs the old gate bell.",
+   desc:"Stalls are opening and a crowd murmurs all around you. A fish seller shouts her prices on your far left. A fabric seller stands just left of centre, and a wealthy trader just right of centre. On your far right hangs the old gate bell. A pure-water seller chatters nonstop just right of the bell.",
    desc2:"An eager errand boy is hopping about in the middle of the square, waving and calling your name.",
    spots:[
     {id:"mamaput",type:"person",ref:"mamaput",icon:"🐟",label:"Mama Put, the fish seller",pan:-.8,hum:220},
     {id:"ngozi",type:"person",ref:"ngozi",icon:"🧵",label:"Madam Ngozi, the fabric seller",pan:-.25,hum:330},
     {id:"chief",type:"person",ref:"chief",icon:"🎩",label:"Chief Bello, a wealthy trader",pan:.3,hum:150},
     {id:"bola",type:"person",act2:true,ref:"bola",icon:"🧒🏾",label:"Bola, an eager errand boy",pan:.08,hum:430},
+    {id:"sisi",type:"person",ref:"sisi",icon:"💧",label:"Sisi, a chatty pure-water seller",pan:.62,hum:500},
     {id:"gatebell",type:"object",icon:"🔔",label:"The old gate bell",pan:.9,snd:"bell",
      text:"You pull the bell rope. The bell rings out across the whole market. The rope hangs from the gate post, so only a person standing at the gate can ring it.",clues:["gatebell"]},
     {id:"trunk",type:"object",act2:true,icon:"🧳",label:"Madam Ngozi's trunk",pan:-.5,snd:"rustle",text:"You open the trunk the note pointed to. Lace, thread, and a small tin of coins. Madam Ngozi really is poor. Whoever sent that note wanted you to waste time suspecting her.",clues:["trunk"]}]},
@@ -119,14 +123,16 @@ const CASE={
     {id:"page",type:"object",icon:"📄",label:"A loose paper on the steps",pan:.95,snd:"page",
      text:"A wet scrap of paper, torn from the corner of a big book. Neat columns of names and amounts. Next to Madam Ngozi: four hundred thousand naira. Next to Kunle: one hundred and fifty thousand naira, due Friday.",clues:["ledgerpage"]}]},
   office:{name:"Baba Tunde's Office",amb:"clock",
-   desc:"A wall clock ticks slowly. The room smells of old paper and lamp oil. The watchman stands on your far left, the desk is just ahead, the visitors' book lies by the door on your right, and the apprentice waits on your far right.",
+   desc:"A wall clock ticks slowly. The room smells of old paper and lamp oil. The watchman stands on your far left, the desk is just ahead, the visitors' book lies by the door on your right, and the apprentice waits on your far right. An umbrella drips by the door.",
    spots:[
     {id:"sani",type:"person",ref:"sani",icon:"🔦",label:"Sani, the night watchman",pan:-.8,hum:140},
     {id:"drawer",type:"object",icon:"🗄️",label:"The desk drawer",pan:-.1,snd:"lock",
      text:"The desk drawer is shut tight. You run your fingers over the lock. No scratches and no dents. The thief opened it with a key. The office door was also locked this morning, with no damage.",clues:["nokey"]},
     {id:"book",type:"object",icon:"📖",label:"The visitors' book",pan:.3,snd:"page",
      text:"The visitors' book. The last entry says: Chief Bello, signed out at six oh five in the evening. Nobody signed in after him.",clues:["chiefAlibi"]},
-    {id:"kunle",type:"person",ref:"kunle",icon:"🧑🏾‍💼",label:"Kunle, Baba Tunde's apprentice",pan:.7,hum:300}]},
+    {id:"kunle",type:"person",ref:"kunle",icon:"🧑🏾‍💼",label:"Kunle, Baba Tunde's apprentice",pan:.7,hum:300},
+    {id:"umbrella",type:"object",icon:"☂️",label:"A dripping umbrella by the door",pan:.95,snd:"rustle",
+     text:"A black umbrella leans by the door, dripping onto the boards. Initials on the handle: T.A. Tunde Adewale. It is Baba Tunde's own, and it rained on him last evening. It tells you nothing about the thief, but it was tempting to think otherwise.",clues:["umbrella"]}]},
   shore:{name:"The Far Shore",amb:"water",act2:true,
    desc:"The far shore is quiet. Water laps in the dark reeds and a palm leans over the mud. Kunle stands on your far left, ashamed. A hollow under the fallen palm is just ahead, and something pale lies in the mud on your right.",
    spots:[
@@ -228,6 +234,9 @@ const CASE={
   emekaConfession:["Emeka's confession","Emeka admits he drove Chief Bello to the far shore at half past midnight and was told to lie about it."],
   chiefConfession:["Chief Bello's confession","Confronted with the proof, Chief Bello admits he paid Kunle to make the ledger disappear."],
   trunk:["Ngozi's trunk","Only lace and a tin of coins. The tip was a trick to make you suspect her."],
+  umbrella:["A wet umbrella","An umbrella by the office door, marked T.A. It is Baba Tunde's own. It proves nothing."],
+  sisiRumour:["Sisi says Pa Musa's boat rode low","Sisi, a pure-water seller, says Pa Musa's boat sat low in the water at midnight, so he must have carried a heavy sack. She did not see it herself."],
+  sisiAdmit:["Sisi made it up","Sisi admits she invented the 'heavy sack' story. Pa Musa carried only one young man across, as he said."],
   tip:["Anonymous tip","A boy delivered a note: look in Madam Ngozi's trunk. Someone wanted you to suspect her."]
  },
  culprit:"kunle",
@@ -237,7 +246,7 @@ const CASE={
   chief:"Chief Bello went home at six and has no key. Your case falls apart.",
   sani:"Sani was at the gate ringing the bell at midnight, at the very time the thief ran to the jetty. Your case falls apart."},
  proof:["nokey","keyholders","saniGate","steps","passenger","sandals","buckle"],
- misleading:["ngoziDebt","chiefOffer"],
+ misleading:["ngoziDebt","chiefOffer","sisiRumour","umbrella"],
  twist:"Kunle drops to his knees. Yes, he took the ledger. But he did not plan it. Three days ago, a voice in the dark found him and promised his debt would vanish if Baba Tunde's ledger vanished. The man paid him in crisp new notes and told him where to hide the book, on the far shore. Kunle never saw his face. He shows you the place. Sani whispers that the police will arrive in three hours to take over. The thief was only the hands. Somewhere in this market is the head, and they have been smiling at you all morning. Who really wanted that ledger gone? And who has been lying to you?",
  act2:{culprit:"chief",
   suspects:[["ngozi","Madam Ngozi"],["chief","Chief Bello"],["sani","Sani the watchman"],["emeka","Emeka the driver"]],
@@ -267,6 +276,14 @@ CASE.clues.chiefSlip=["Chief Bello's slip","Chief Bello let slip that a big car 
 CASE.clues.kunleSlip=["Kunle's slip","Kunle flinched at the sound of his own squeaky sandals and begged you to stop asking about them."];
 CASE.clues.bolaClaim=["Bola says the gate was empty","Bola, an errand boy, says Sani's post was empty at midnight and that Sani slipped away to the jetty."];
 CASE.clues.bolaConfession=["Bola was paid to lie","Bola admits a driver paid him in crisp new notes to blame Sani. Mama Put heard Sani ring the bell and say goodnight at midnight, so the story was false, and somebody rich wanted Sani blamed."];
+CASE.people.sisi={name:"Sisi",role:"Pure-water seller. Knows everyone's business, or says she does.",v:2,
+ intro:"Detective! Cold pure water, ten naira! And I have news. Free news. Well, news for a small something.",
+ topics:[
+  {q:"What have you heard?",a:"I heard it from three people, so it must be true. At midnight Pa Musa's boat was riding low in the water. Low! A big heavy sack, I am telling you. A man does not ride that low for one passenger. Pa Musa has your ledger, detective.",clues:["sisiRumour"],tell:"tap"},
+  {q:"Did you see the boat yourself?",a:"Well. Not with my own two eyes. My cousin's friend sells groundnuts by the jetty, and she said, or maybe it was her sister. But it is the truth, as sure as this water is cold.",tell:"tap"}],
+ bluff:"But everybody is saying it! Show me who says different.",
+ confront:{passenger:{a:"Sisi's smile wobbles. One passenger? Only one young man? Eh. All right, all right. Nobody told me about any sack. I made up the low boat, because gossip about a boatman sells more water than the truth does. Please do not tell Pa Musa!",clues:["sisiAdmit"],debunk:["sisiRumour"],debunkMsg:"Sisi's rumour about Pa Musa is now proved false.",tell:"gulp"}}};
+CASE.people.sisi.crack={1:{comp:2,clue:"sisiAdmit",a:"Stop, stop! I never saw any boat. I heard a story and made it bigger, because a juicy story sells water. Pa Musa carried one passenger, that is all I know. Please, do not tell him."}};
 CASE.people.bola.crack={2:{comp:2,clue:"bolaConfession",a:"Stop, stop! All right. A man's driver gave me crisp new notes yesterday evening to say Sani left his post. It was a lie. I swear I do not know the big man's name. Please, do not tell Sani."}};
 CASE.clues.saniLeft=["Sani left his post","Sani admits he left the gate for five minutes around eleven, but he was back and rang the midnight bell."];
 (function(){
@@ -666,7 +683,7 @@ function openTell(pid){
  const c=crackOf(pid);if(!c||G.cracked[pid+G.act]||cur!=="talk"||G.talk!==pid)return;
  const ms=(Sfx.assist()?6000:3000)*Access.timeScale();G.tw={pid};clearTimeout(G.twT);G.twT=setTimeout(closeTell,ms);
  const pt=$("#port");if(pt)pt.classList.add("tell");
- say("A tell. Press P now.",0)}
+ try{Tense.tell()}catch(e){}say("A tell. Press P now.",0)}
 function closeTell(){if(G){G.tw=null;clearTimeout(G.twT)}const pt=$("#port");if(pt)pt.classList.remove("tell")}
 function pressTell(){
  if(cur!=="talk")return;initAudio();const pid=G.talk,P=CASE.people[pid],c=crackOf(pid),log=$("#log");

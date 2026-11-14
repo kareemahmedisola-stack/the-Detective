@@ -12,6 +12,19 @@ One package, one menu, three games, one campaign, built to be played by ear and 
 | 4 | Siege of Ilesanmi: a war strategy game with fog of war, a double agent and timed decisions |
 | 5 | **The full campaign**: Balogun, then the Ledger, then the Siege, with story between the missions and a saved record of your results |
 
+
+## Install it, and what is new (this update)
+
+**Install as an app (phone and computer).** Host the folder on any HTTPS site (GitHub Pages, Netlify, Cloudflare Pages, your own server) and open it. Chrome, Edge and Android show an **Install the app** button on the menu (or the install icon in the address bar). On iPhone and iPad use Share, then Add to Home Screen. Once opened online one time, the whole game (all sounds included) is saved and plays offline. Long-press the app icon for shortcuts straight into each game. A service worker needs HTTPS or localhost, so opening index.html from a file works as before but cannot install. Bump `VERSION` in `sw.js` whenever you change a file.
+
+**Anticipation sounds (`js/suspense.js`, now switched on in every game).** A heartbeat that quickens as danger rises, a ticking clock, a drum-roll before the verdict, a dread drone in the night assault. New cues: a held breath before each drum pattern and a bell when it is your turn, a thin whine when a nervous person slips (press P), footsteps and a creak when the tout or Madam Ify approaches, a sly out-of-tune sound when a swindler is about to bite, and a rising chime when you catch a lie. Phones buzz on big hits. Switch off with `Tense.enable(false)`.
+
+**Animation (`js/polish.js`).** A living night (twinkling stars, drifting haze, fireflies), a lit Lagos skyline that slides as you walk in Balogun, dust at your feet, screens that settle in, buttons that pop in one by one, a ripple under every tap, and a menu with sweeping searchlights and a glinting title. All of it respects the Visual effects switch and reduce-motion.
+
+**Hidden distractors (decoys).**
+- Balogun: two decoy stalls (Mallam's radio, the charm seller) hum with the real ones. A real stall hums a clean round note and a decoy buzzes; fall for one and you lose an hour. Fixer Segun sells you a name (Musa) that fits only two clues. A planted brass ring can be told apart by tapping it and listening. Naming the suspect now has a held-breath drum roll.
+- Echo: Sisi, a gossiping water seller, spreads a false story about Pa Musa (break it with the night-passenger clue, or catch her tell), and a dripping umbrella is a clue that proves nothing. Citing either in your final case counts against you.
+
 ## How this edition was assembled
 
 Three uploads were merged. `the_Detective_U` was the complete edition and `the_Detective_1` was the same package without the siege game, so nothing needed reconciling. `detective_accessibility_upgrade_pack` was a prototype whose page only showed placeholder alerts and whose own README said a full implementation needed the whole source tree. Its seven ideas are now real features inside all three games.
