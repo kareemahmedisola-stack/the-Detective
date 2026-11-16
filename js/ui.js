@@ -93,6 +93,7 @@
       ['Where am I', 'W', call('summary')], ['What is my goal', 'G', call('goal')], ['What just happened', 'Y', call('recap')],
       ['Audio compass', 'Q', call('compass')], ['Evidence board', 'E', call('evidence')], ['Help and settings', '?', call('help')],
       ['High contrast: ' + (hc ? 'on' : 'off'), 'K', function () { try { Access.setHC(!Access.hc); } catch (e) {} paintMenu(); }],
+      ['Volume: ' + (w.Loud ? Loud.name() : 'Normal'), 'Vol', function () { try { Loud.cycle(); } catch (e) {} paintMenu(); try { Access.say('Volume ' + Loud.name() + '.'); } catch (e) {} }],
       ['Text size: ' + U.textSize() + '%', 'Aa', function () { U.cycleText(); }]
     ];
   }

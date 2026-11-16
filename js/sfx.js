@@ -34,7 +34,7 @@
     emotional: 'emotional-damage.mp3',
     traffic: 'cars-on-the-highway.mp3'
   };
-  var VOL = { intro: 0.55, slap: 1, sad: 0.8, clap: 0.9, running: 1, emotional: 1, traffic: 0.5 };
+  var VOL = { intro: 0.85, slap: 1, sad: 1, clap: 1, running: 1, emotional: 1, traffic: 0.8 };
 
   var embedded = w.parent !== w;
   if (embedded) document.documentElement.classList.add('emb');          // running inside the menu shell?

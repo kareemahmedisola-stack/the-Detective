@@ -25,11 +25,12 @@ One package, one menu, three games, one campaign, built to be played by ear and 
 - Balogun: two decoy stalls (Mallam's radio, the charm seller) hum with the real ones. A real stall hums a clean round note and a decoy buzzes; fall for one and you lose an hour. Fixer Segun sells you a name (Musa) that fits only two clues. A planted brass ring can be told apart by tapping it and listening. Naming the suspect now has a held-breath drum roll.
 - Echo: Sisi, a gossiping water seller, spreads a false story about Pa Musa (break it with the night-passenger clue, or catch her tell), and a dripping umbrella is a clue that proves nothing. Citing either in your final case counts against you.
 
-<<<<<<< HEAD
 **Interface and accessibility pass (`js/ui.js`, plus Balogun layout fixes).** Balogun's top bar is now tidy (title, then stats, then the Voice and Language buttons in an even row on phones) and its action buttons share equal-width, centred, equal-height cells, with one column when the labels are long sentences. On Echo and Siege the caption bar no longer hides the buttons beneath it, and a tap folds it away. Every button is at least 44px tall for touch. Headings that take focus show a neat underline instead of a stray box, and the keyboard focus ring is the same everywhere. A round accessibility button (bottom right) gives touch players Where am I, Goal, Recap, Audio compass, Evidence board, Help, High contrast and Text size, which were keyboard-only before. Text size cycles 100, 115, 130 and 150 percent and is remembered.
 
-=======
->>>>>>> 453f0b6e540dea0bc8557363cb63e7f511692591
+**Louder, and a sassy female narrator.** `js/loud.js` lifts every synthesised sound through one limiter, so nothing clips. The default is Loud. Change it from the round accessibility button (Volume: Normal, Loud, Louder, Max). The recorded effects now play at full level. Browser speech voices cannot be boosted by the page, so raise your device volume too. The narrator now prefers a female voice in all three games (press V in Balogun to try others), speaks a little brisker, and has sassy lines for right and wrong answers, fear whispers, and the win.
+
+**The Velvet Room (Balogun).** Around the middle of the street a velvet doorway plays smoky jazz (walking bass, a soft chord and a breathy sax) that gets louder as you near it. It is not a clue. Femi invites the detective in: step inside and five hours vanish (the scene fades to black, the jazz swells, and later Inspector Danladi radios to ask why your car sat outside for five hours), flirt and walk on and one hour goes, or say not tonight and keep your hours and streak.
+
 ## How this edition was assembled
 
 Three uploads were merged. `the_Detective_U` was the complete edition and `the_Detective_1` was the same package without the siege game, so nothing needed reconciling. `detective_accessibility_upgrade_pack` was a prototype whose page only showed placeholder alerts and whose own README said a full implementation needed the whole source tree. Its seven ideas are now real features inside all three games.

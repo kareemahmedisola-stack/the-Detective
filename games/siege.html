@@ -49,16 +49,14 @@ kbd{background:#0c0710;border:1px solid #6a4540;border-bottom-width:3px;border-r
 <main id="main" tabindex="-1"></main>
 <div id="cap" aria-hidden="true"></div>
 <div id="live" class="sr" aria-live="off" role="status"></div>
+<script src="../js/loud.js"></script>
 <script src="../js/sfx.js"></script>
 <script src="../js/people.js"></script>
 <script src="../js/siegecore.js"></script>
 <script src="../js/atmos.js"></script>
 <script src="../js/suspense.js"></script>
 <script src="../js/polish.js"></script>
-<<<<<<< HEAD
 <script src="../js/ui.js"></script>
-=======
->>>>>>> 453f0b6e540dea0bc8557363cb63e7f511692591
 <script>try{Tense.layers({heart:false,dread:false})}catch(e){}</script>
 <script src="../js/access.js"></script>
 <script>
@@ -74,13 +72,13 @@ function saveST(){try{localStorage.setItem("sg_settings",JSON.stringify(ST))}cat
 
 /* ===================== SPEECH ===================== */
 const SYN=window.speechSynthesis||null;let voices=[],pool=[];
-function scoreV(v){let s=0;if(/natural|neural|online/i.test(v.name))s+=4;if(/en-NG/i.test(v.lang))s+=3;else if(/en-(GB|ZA|KE|GH|IE|AU)/i.test(v.lang))s+=1;if(/google|siri|samantha|daniel|karen|moira|serena|aria|jenny|guy|sonia|ryan|libby|abeo|ezinne/i.test(v.name))s+=1;if(/espeak|compact|robot|zira desktop|david desktop/i.test(v.name))s-=3;return s}
+function scoreV(v){let s=(/female|woman|zira|aria|jenny|samantha|karen|moira|tessa|fiona|serena|susan|hazel|libby|sonia|emma|natasha|clara|ava|allison|kate|amy|joanna|salli|kimberly|ivy|nicole|olivia|ezinne|zuri/i.test(v.name)&&!/\bmale\b/i.test(v.name.replace(/female/i,'')))?6:0;if(/natural|neural|online/i.test(v.name))s+=4;if(/en-NG/i.test(v.lang))s+=3;else if(/en-(GB|ZA|KE|GH|IE|AU)/i.test(v.lang))s+=1;if(/google|siri|samantha|daniel|karen|moira|serena|aria|jenny|guy|sonia|ryan|libby|abeo|ezinne/i.test(v.name))s+=1;if(/espeak|compact|robot|zira desktop|david desktop/i.test(v.name))s-=3;return s}
 function loadV(){voices=SYN?SYN.getVoices().filter(v=>/^en/i.test(v.lang)):[];pool=[...voices].sort((a,b)=>scoreV(b)-scoreV(a));const el=$("#vsel");if(el)fillVoiceSel()}
 if(SYN){loadV();SYN.onvoiceschanged=loadV}
 function fillVoiceSel(){const el=$("#vsel");el.innerHTML='<option value="">Automatic (most natural first)</option>'+voices.map(v=>`<option value="${v.name.replace(/"/g,"")}">${v.name.replace(/</g,"")}</option>`).join("");el.value=ST.voice||""}
 function voiceFor(v){if(!pool.length)return null;const narr=(ST.voice&&voices.find(x=>x.name===ST.voice))||pool[0];if(v===0)return narr;const o=pool.filter(x=>x!==narr),arr=o.length?o:pool;return arr[(v-1)%arr.length]}
 /* voice 0 narrator, 1 Adaora (scout), 2 Baba Sule (veteran), 3 Kolade (deserter), 4 Iya Tola (quartermaster), 5 the officer/enemy */
-const PROF={0:{p:.95,r:.95},1:{p:1.2,r:1.05},2:{p:.75,r:.88},3:{p:1.0,r:1.0},4:{p:1.1,r:.95},5:{p:.85,r:.92}};
+const PROF={0:{p:1.08,r:1.03},1:{p:1.2,r:1.05},2:{p:.75,r:.88},3:{p:1.0,r:1.0},4:{p:1.1,r:.95},5:{p:.85,r:.92}};
 let LAST=[],spoken=0;
 function estMs(t){return Math.max(600,t.length*68/ST.rate)}
 function sayq(segs){
