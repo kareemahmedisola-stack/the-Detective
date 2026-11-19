@@ -1,5 +1,20 @@
 # The Detective: the integrated edition
 
+## Story and strategy rewrite (latest)
+
+**One saga.** The Ajo Syndicate lends to traders, buys officials, steals the ledgers that prove its debts, and finally funds a warlord. Balogun exposes its fixer, Echo follows its money, the Siege faces what the money bought. The between-mission story changes with how you ended the previous game.
+
+**Tones, not drums.** Every drum is now a pure sine tone: high, middle and low pads in Balogun, a rising tone ladder at the accusation, tone pulses in the suspense riser, and war-tones in the Siege.
+
+**Play it like chess.** Three resources move with every choice: Trust, Leverage and Exposure.
+- Balogun: after each stall you choose Press (fast, but Exposure rises), Reassure (costs an hour, builds Trust, and the one pressured witness, different each run, confides) or Bargain (buys Leverage). At Exposure 3 the thief silences a witness overnight. The trial is decided by odds built from your clues, certainty, Trust, Leverage, Exposure and hours left, never 100 percent. A failed first trial lets you adjourn, offer a plea bargain (needs Leverage) or press on; a second failure ends in bail, not justice.
+- Echo: a correct accusation can still fail. The bench weighs proof, false leads cited, mistakes and nerve; each failed hearing makes new proof count more.
+- Siege: the enemy remembers. It will not hit a sector it has seen you strengthen twice running, so you must rotate your strength.
+
+**The intelligent pointer (J).** In every game, press J: it scores each open lead for value, distance and risk, names the phase (opening, middlegame, endgame) and the best next move, without naming the culprit or spy.
+
+**Reasons to replay.** Each game tracks its endings (6 in Balogun, 5 in Echo, 4 in Siege), and every ending names one story thread you never pulled.
+
 One package, one menu, three games, one campaign, built to be played by ear and to look as good as it sounds.
 
 **Open `index.html` in Chrome or Edge, press Enter, and choose.** Use headphones.

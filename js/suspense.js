@@ -4,12 +4,12 @@
    It hooks the shared Atmos layer, so every game gets it without further wiring:
 
      Atmos.danger(level)        a heartbeat that speeds up as danger rises, plus a ticking clock when it is high
-     Atmos.letterbox(true,ms)   short moment (the accusation): a rising drum roll that ends on a low boom
+     Atmos.letterbox(true,ms)   short moment (the accusation): a rising tone roll that ends on a low boom
                                 long moment (the night assault): a dread drone until the bars go away
      Atmos.cut()                a soft whoosh between scenes (rate limited)
 
    Direct cues (all safe to call at any time, they do nothing while muted or before the first tap):
-     Tense.riser(ms)        rising noise + drum roll, then a boom
+     Tense.riser(ms)        rising noise + tone roll, then a boom
      Tense.impact()         a low boom
      Tense.dread(on)        low unsettling drone
      Tense.alert()          two quick rising pings (something has just changed)
@@ -92,7 +92,7 @@
   }
   timer = setInterval(sched, 90);
 
-  /* ---- riser, boom, drum roll ---- */
+  /* ---- riser, boom, tone roll ---- */
   T.impact = function (at) {
     if (!live()) return; var t = at || ac.currentTime + .01;
     osc('sine', 95, 28, t, 1.1, .75); noise(t, .35, .35, 'lowpass', 1100, .7, 0, 120); if (!at) buzz([60, 40, 90]);
@@ -102,9 +102,9 @@
     noise(t, d, .24, 'bandpass', 220, 1.4, 0, 5200);
     osc('sawtooth', 70, 360, t, d, .09);
     osc('sine', 140, 700, t, d, .08);
-    // drum roll: the gaps shrink and the hits grow
+    // tone roll: the gaps shrink and the hits grow
     var x = 0, gap = .2, k = 0;
-    while (x < d - .12) { var vv = .035 + (x / d) * .16; noise(t + x, .07, vv, 'highpass', 1500, .8, (k % 2 ? .12 : -.12)); osc('sine', 130, 85, t + x, .09, vv * 2.2); gap = Math.max(.045, gap * .93); x += gap; k++; }
+    while (x < d - .12) { var vv = .035 + (x / d) * .16; var ff = 330 + (x / d) * 660; osc('sine', ff, ff, t + x, .08, vv * 1.8, (k % 2 ? .12 : -.12)); gap = Math.max(.045, gap * .93); x += gap; k++; }
     if (!noBoom) T.impact(t + d);
   };
 

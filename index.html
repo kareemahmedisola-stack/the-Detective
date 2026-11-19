@@ -92,7 +92,7 @@ h1 small{-webkit-text-fill-color:var(--lamp)}
 <!-- 2. Menu -->
 <main id="menu" class="screen" hidden>
   <h1 id="mh" tabindex="-1">The Detective<small>CHOOSE YOUR MISSION</small></h1>
-  <button class="btn" data-g="balogun" type="button"><b>1. The Balogun Case</b><span>Walk the market, echo the drums, defend Tunde with the Constitution.</span></button>
+  <button class="btn" data-g="balogun" type="button"><b>1. The Balogun Case</b><span>Walk the market, echo the tones, defend Tunde with the Constitution.</span></button>
   <button class="btn" data-g="echo" type="button"><b>2. Echo Detective: The Missing Ledger</b><span>A listening mystery on Lagos Island. Question, catch the liars, name the mastermind.</span></button>
   <button class="btn" data-g="both" type="button"><b>3. Play both cases</b><span>Solve Balogun first, then continue straight into the Ledger case.</span></button>
   <button class="btn" data-g="siege" type="button"><b>4. Siege of Ilesanmi</b><span>A war strategy game you play by ear. Listen for rams, towers and sappers, answer each one, hunt the spy in your council, and hold the citadel.</span></button>
@@ -160,9 +160,20 @@ h1 small{-webkit-text-fill-color:var(--lamp)}
   };
   var campaign = false, current = null, seq = null;
   var SEQS = { both: ['balogun', 'echo'], full: ['balogun', 'echo', 'siege'] };
+  function endOf(g) { try { return (JSON.parse(localStorage.getItem('det_story_v1')) || {}).lastEnd[g]; } catch (e) { return ''; } }
   var STORY = {
-    echo: 'Tunde walks free, and the drums of Balogun have gone quiet. But the market is whispering about a stolen ledger on Lagos Island, and a detective who listens this well is needed there.',
-    siege: 'Word of your gift for seeing through liars has travelled far beyond Lagos. A rider arrives from the ridge, half dead with dust: the citadel of Ilesanmi is surrounded, three sources are telling three different stories, and there is a spy in the council. They need a commander who can tell who is lying. Put on your headphones.'
+    echo: function () {
+      var e = endOf('balogun');
+      return e === 'costly' ? 'Tunde walks free, but the syndicate that bought Inspector Danladi now knows your face, and shopkeepers cross the road to avoid you. Yet a ledger has been stolen on Lagos Island with the same fingerprints. You cannot look away.'
+        : e === 'plea' ? 'Tunde walks free, and the quiet confession left you a name: the lender behind the market debts. A stolen ledger on Lagos Island may be the next link in his chain.'
+        : e === 'adjourned' ? 'Tunde is out on bail, but the real thief is still free and laughing. Then a ledger vanishes on Lagos Island, and the pattern is the same. This time you cannot afford a weak case.'
+        : 'Tunde walks free, and Balogun trusts you. A ledger has now been stolen on Lagos Island, and the people who ask for your help say the same thing: a stranger has been buying debts.';
+    },
+    siege: function () {
+      var e = endOf('echo');
+      return (e === 'scandal' || e === 'second' ? 'The Chief fell, but only just, and his money did not fall with him. ' : 'The Chief is in the dock, and the ledger gave up a name. ') +
+        'That name leads inland: the syndicate has lent gold to a warlord, and the citadel of Ilesanmi is surrounded. A rider arrives from the ridge, half dead with dust. Three informants tell three different stories and there is a spy in the council. They need a commander who can tell who is lying. Put on your headphones.';
+    }
   };
   function rec() { try { return JSON.parse(localStorage.getItem('dt_record') || '{}'); } catch (e) { return {}; } }
   function describe(game, res) {
@@ -215,7 +226,7 @@ h1 small{-webkit-text-fill-color:var(--lamp)}
   function nextMission() {
     var i = seq ? seq.indexOf(current) : -1, nxt = seq && seq[i + 1];
     $('#next').hidden = true;
-    if (nxt) showInter('Mission ' + (i + 2) + ' of ' + seq.length + ': ' + GAMES[nxt].title, STORY[nxt] || '', 'Begin the mission (Enter)', function () { launch(nxt, true); });
+    if (nxt) showInter('Mission ' + (i + 2) + ' of ' + seq.length + ': ' + GAMES[nxt].title, (typeof STORY[nxt] === 'function' ? STORY[nxt]() : STORY[nxt]) || '', 'Begin the mission (Enter)', function () { launch(nxt, true); });
     else showInter('Campaign complete', recText() + (seq && seq.indexOf('siege') >= 0 ? ' You cleared a boy\'s name, caught a ledger thief, and held a citadel. Lagos will remember.' : ' You cleared a boy\'s name and caught a ledger thief. Lagos will remember.'), 'Back to the main menu (Enter)', showMenu);
   }
 

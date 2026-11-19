@@ -107,6 +107,10 @@
       w[s] = 1 + Math.max(0, (60 - d) / 60) * 2.2 + rng() * (leak ? 0.35 : 0.8) + (S.breach[s] ? 1.2 : 0);
     });
     var order = SECT.slice().sort(function (a, b) { return w[b] - w[a]; });
+    S.mem = S.mem || { last: null, run: 0 };
+    if (S.mem.last === order[0]) S.mem.run++; else S.mem.run = 0;
+    if (S.mem.run >= 1 && defence(S, order[0], 0) > 55) { var sw = order[0]; order[0] = order[1]; order[1] = sw; S.mem.run = 0; }
+    S.mem.last = order[0];
     var plan = { main: order[0], feint: order[1], probe: order[2], type: {} };
     SECT.forEach(function (s) {
       var av = avail(S, s), t = 'ladders';

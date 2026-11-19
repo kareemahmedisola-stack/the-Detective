@@ -88,6 +88,7 @@ kbd{font:600 .9rem ui-monospace,Menlo,Consolas,monospace;background:var(--ink);b
 <script src="../js/suspense.js"></script>
 <script src="../js/polish.js"></script>
 <script src="../js/ui.js"></script>
+<script src="../js/story.js"></script>
 <script src="../js/access.js"></script>
 <script>
 "use strict";
@@ -99,7 +100,7 @@ const CASE={
  title:"The Missing Ledger of Lagos Island Market",
  briefA:"Lagos Island, Thursday morning. Baba Tunde Adewale, the oldest trader in the market, has a problem. Last night, someone took his ledger, the book that records every debt owed to him, from the locked drawer in his office. Nothing else was touched. Baba Tunde has asked you, the best listener in Lagos, to find the thief.",
  briefClock:" He will go to the police at six this evening, when the last boat leaves the jetty, and by then the thief could be gone. Every question and every search costs time.",
- briefB:" Listen closely. Every sound is a clue, and everyone is hiding something. Something about this case feels wrong. Someone in this market is watching you. Put on your headphones. When you are ready, continue.",
+ briefB:" Whoever wanted this ledger gone has done it before, in other markets, and has friends who read the same newspapers you do. Listen closely. Every sound is a clue, and everyone is hiding something. Something about this case feels wrong. Someone in this market is watching you. Put on your headphones. When you are ready, continue.",
  lostText:"Kunle owed one hundred and fifty thousand naira, due on Friday. At midnight, while Sani stood at the gate, Kunle let himself into the office with his spare key and took the ledger. He ran to the jetty in his squeaking new sandals, lost a brass buckle on the planks, and crossed the water with Pa Musa. With no one to stop him, he slipped away on the evening boat with the ledger. Baba Tunde never saw it again.",
  locations:{
   market:{name:"Market Square",amb:"crowd",
@@ -307,7 +308,7 @@ let S={mode:"game",vol:.8,rate:1,pressure:"on",voice:""};
 try{Object.assign(S,JSON.parse(localStorage.getItem("ed_settings")||"{}"))}catch(e){}
 function saveS(){try{localStorage.setItem("ed_settings",JSON.stringify(S))}catch(e){}}
 let G=null,cur="title",ctx={},backFn=null,selLock=false;
-function newGame(){G={act:1,clues:{},order:[],asked:{},seen:{},hints:0,wrong:0,loc:null,sel:-1,last:"",time:540,deadline:1080,watch:{},note:0,flick:0,tip:0,forced:0,forcedGo:0,judging:0,debunk:{},act1:null,love:0,nerve:4,bonus:0,comp:{},cracked:{},tw:null,twT:0,tellHints:0,at:"office",heat:0,hClock:0,cond:null,radio:0,rumour:[],trips:0,cpWins:0,stallNote:0,rIdx:0}}
+function newGame(){Story.begin("echo");Story.bind(thread);G={act:1,clues:{},order:[],asked:{},seen:{},hints:0,wrong:0,loc:null,sel:-1,last:"",time:540,deadline:1080,watch:{},note:0,flick:0,tip:0,forced:0,forcedGo:0,judging:0,debunk:{},act1:null,love:0,nerve:4,bonus:0,comp:{},cracked:{},tw:null,twT:0,tellHints:0,at:"office",heat:0,hClock:0,cond:null,radio:0,rumour:[],trips:0,cpWins:0,stallNote:0,rIdx:0}}
 const A=()=>G.act===2?CASE.act2:CASE;
 function clockStr(){const h=Math.floor(G.time/60),m=G.time%60;return((h+11)%12+1)+":"+String(m).padStart(2,"0")+(h<12?" am":" pm")}
 function hud(){$("#hud").textContent=G?((S.pressure==="on"?clockStr()+" · ":"")+(G.act===2?"Act 2 · ":"")+"Clues: "+G.order.length+(G.love?" · ❤ "+G.love:"")+" · Nerve "+G.nerve+" · Heat "+G.heat):""}
@@ -371,7 +372,7 @@ const SND={
  creak(p){tone(130,1,{to:280,vol:.1,type:"sawtooth",lp:500,pan:p,a:.15});nz(.8,{f:700,q:4,vol:.06,pan:p,a:.2})},
  slide(p){nz(.5,{type:"highpass",f:1500,vol:.2,a:.08,pan:p});nz(.3,{f:900,q:.6,vol:.1,pan:p,a:.1})},
  tune(p){[392,440,494,587,494,440,392,330].forEach((f,i)=>tone(f,.4,{type:"triangle",vol:.18,pan:p,at:i*.3,a:.02,lp:1800}))},
- drum(){for(let i=0;i<14;i++){const t=i*(.22-i*.01);tone(88,.18,{to:50,vol:.45,at:t});nz(.1,{type:"lowpass",f:200,vol:.4,at:t})}},
+ drum(){for(let i=0;i<10;i++){const t=i*.15;tone(262*Math.pow(1.12,i),.14,{vol:.3,at:t})}},
  thunder(){nz(3.4,{type:"lowpass",f:130,vol:.7,a:.8});nz(2.6,{type:"lowpass",f:70,vol:.6,a:.4,at:.3})},
  horn(p){[[330,0],[262,.5]].forEach(([f,t])=>{tone(f,.42,{type:"square",lp:760,vol:.16,pan:p,at:t,a:.02});tone(f*1.26,.42,{type:"square",lp:760,vol:.1,pan:p,at:t,a:.02})})},
  win(){[523,659,784,1047].forEach((f,i)=>{tone(f,1,{vol:.2,at:i*.16});tone(f*2.76,.4,{vol:.02,at:i*.16})});tone(1319,1.8,{vol:.16,at:.7})}
@@ -439,6 +440,9 @@ function spend(m,segs){
 function chk(est){if(G.forced&&!G.forcedGo){G.forcedGo=1;setTimeout(()=>{if(cur==="accuse"||cur==="end"||G.judging||document.getElementById("dt-traffic"))return;go("accuse",{step:1})},Math.min(est+1200,15000))}}
 function toast(t){return t.length?{t:(t.length>1?"New clues: ":"New clue: ")+t.join(", and ")+". Added to your notebook.",v:0}:null}
 function dirWord(p){return p<-.6?"far left":p<-.15?"left":p<=.15?"ahead":p<=.6?"right":"far right"}
+function thread(){if(!G)return"";const n=G.order.length,fr=Math.min(1,n/14),M=A();
+ const open=M.proof.filter(k=>!G.clues[k]).length;
+ return Story.phase(fr)+" You hold "+n+" clues, and "+(open>0?"some strong proof is still out there. Visit the place you have not searched, or press the person whose story changed.":"your proof is complete. Check that you cite no false lead, then accuse.")+" Nerve "+G.nerve+". "+(G.doubt?"The bench has doubted you "+G.doubt+" time"+(G.doubt>1?"s":"")+", so each new proof counts double.":"")}
 function hintText(){
  if(G.forced)return"No more hints. Time is up.";
  const h=k=>!G.clues[k];
@@ -790,6 +794,10 @@ function verdict2(who,p,m,sl){
  if(p<(G.forced?1:2)){
   if(G.forced){go("end",{lost:true,why:"You named the right person, but you had almost no proof, and no one would listen."});return}
   play("low");go("hub");setTimeout(()=>say(pre+"That is the right person, but your evidence is too thin to convince anyone. Gather more proof, then try again."),250);return}
+ if(!G.forced){const o=Story.roll(.36+.085*p-.1*m-.04*G.wrong+.02*G.nerve+.18*(G.doubt||0));
+  if(!o.ok){G.doubt=(G.doubt||0)+1;Story.flag("doubted");if(p<3)Story.flag("rush");play("low");go("hub");
+   setTimeout(()=>{const segs=[{t:pre+"The bench is not convinced yet. "+(m>0?"The other side tore into the false leads you cited.":p<4?"Your proof is sound but thin.":"A key witness wavered.")+" Your case stood at "+Math.round(o.p*100)+" percent. Thirty minutes pass while the clerk asks for corroboration. Each failed hearing shows you what the bench wants, so gather more and try again.",v:0}];spend(30,segs);chk(sayq(segs))},250);return}
+  G.sureWin=Math.round(o.p*100)}
  const score=Math.max(0,p*15-m*10-G.hints*5-G.wrong*10+G.bonus);
  const rank=(p>=5&&m===0&&!G.forced)?"Chief Inspector":(p>=4&&m<=1&&!G.forced)?"Inspector":"Detective";
  if(G.act===1){
@@ -817,7 +825,7 @@ V.end=({rank,score,p,m,lost,why})=>{
  <div class="paper"><h3>What really happened</h3><p>${CASE.solution}</p><p><em>${CASE.lesson}</em></p></div>
  ${epiHtml()}<button class="btn primary" id="again">Play this case again</button>`;
  $("#again").onclick=()=>{newGame();go("brief")};
- Sfx.play('clap');Sfx.done('echo',{rank:rank});if(G.love){const e=$("#epi");if(e){People.hearts(e,10);setTimeout(()=>play("tune",0),1200)}}
+ Sfx.play('clap');Sfx.done('echo',{rank:rank});try{const id=(G.doubt?'second':(G.sureWin&&G.sureWin<60?'scandal':'chiefs'));setTimeout(()=>say(Story.finish('echo',id)),4000)}catch(e){}if(G.love){const e=$("#epi");if(e){People.hearts(e,10);setTimeout(()=>play("tune",0),1200)}}
  setTimeout(()=>say("Case closed. You are a "+rank+". Your total score is "+total+". "+CASE.solution+" "+CASE.lesson+" "+epiText(G.love||0)),1400);
 };
 

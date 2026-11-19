@@ -204,7 +204,7 @@
       if (k === 'Enter' || k === ' ') return;       /* let buttons work */
       e.stopPropagation(); return;
     }
-    var map = { q: A.compass, w: A.summary, g: A.goal, y: A.recap, e: A.evidence, k: function () { A.setHC(!A.hc); }, f: function () { A.setCoop(!A.coop); }, '?': A.help, F1: A.help };
+    var map = { j: function () { if (w.Story) w.Story.speakThread(); }, q: A.compass, w: A.summary, g: A.goal, y: A.recap, e: A.evidence, k: function () { A.setHC(!A.hc); }, f: function () { A.setCoop(!A.coop); }, '?': A.help, F1: A.help };
     if (map[lk]) { e.preventDefault(); e.stopPropagation(); map[lk](); }
   }, true);
 
