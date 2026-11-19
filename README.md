@@ -1,6 +1,16 @@
 # The Detective: the integrated edition
 
-## Story and strategy rewrite (latest)
+## Armoury, contracts and random endings (newest)
+
+**Starting purse.** A new player starts with 5,000 funds, given once, enough for a machine gun, a war boat and more.
+
+**Funds and contracts.** Each game offers three random contracts (press J to hear them). Complete them to earn funds or a free weapon crate, for example "Scout three times", "Reassure two witnesses" or "Collect ten clues". Funds are saved and carry between all three games, and every ending pays out.
+
+**The Siege armoury and motor pool** (new order in the orders menu). Semi-automatic pistol and rifle, submachine gun, belt-fed machine gun, rocket launcher (RPG), sniper rifle, anti-air missile, plus an armoured car (+1 order a day), a power bike courier (relief arrives sooner), an armed war boat (guards the River Gate) and a fighter jet strike (cuts the enemy army and delays all their weapons). Machine guns counter ladders, RPGs counter rams and towers, boats counter boats. At nightfall each sector fires the guns it owns, panned left to right. All the gunfire, rocket, jet, engine and boat sounds are synthesized live.
+
+**Random endings.** Every ending now has three random epilogue lines, and about one game in three ends on a twist: a betrayal by someone you trusted, a windfall, an air-cover arrival or a mercenary betrayal. There are 8 endings in Balogun, 7 in Echo and 6 in the Siege.
+
+## Story and strategy rewrite
 
 **One saga.** The Ajo Syndicate lends to traders, buys officials, steals the ledgers that prove its debts, and finally funds a warlord. Balogun exposes its fixer, Echo follows its money, the Siege faces what the money bought. The between-mission story changes with how you ended the previous game.
 

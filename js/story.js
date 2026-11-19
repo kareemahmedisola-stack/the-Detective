@@ -13,9 +13,31 @@
   M.end = M.end || {}; M.seen = M.seen || {}; M.last = M.last || {}; M.runs = M.runs || {};
 
   var ENDINGS = {
-    balogun: { clean: 'The Market Stands With Tunde', costly: 'Justice With a Price', standard: 'Case Closed', plea: 'The Quiet Confession', adjourned: 'Bail, Not Justice', lost: 'The Clock Wins' },
-    echo: { chiefs: 'The Ledger Speaks', scandal: 'Won on a Knife Edge', second: 'The Court Needed Convincing', escaped: 'The Evening Boat', runout: 'Police Take Over' },
-    siege: { relief: 'The Relief Army Rides In', withdraw: 'The Enemy Breaks', sortie: 'The Grand Sortie', fall: 'Ilesanmi Falls' }
+    balogun: { clean: 'The Market Stands With Tunde', costly: 'Justice With a Price', standard: 'Case Closed', betrayal: 'The Trusted Friend', windfall: 'Reward Money', plea: 'The Quiet Confession', adjourned: 'Bail, Not Justice', lost: 'The Clock Wins' },
+    echo: { chiefs: 'The Ledger Speaks', scandal: 'Won on a Knife Edge', second: 'The Court Needed Convincing', escaped: 'The Evening Boat', runout: 'Police Take Over', betrayal: 'The Double Agent', windfall: 'The Grateful Island' },
+    siege: { relief: 'The Relief Army Rides In', withdraw: 'The Enemy Breaks', sortie: 'The Grand Sortie', fall: 'Ilesanmi Falls', airlift: 'Air Cover Arrives', mercenary: 'The Mercenary Betrays' }
+  };
+  /* randomised endings: the same play can end three different ways, and about one game in three ends on a twist */
+  var FL = {
+    balogun: { clean: ['The market sings your name at dusk.', 'Mama Ify closes her stall early and walks you home.', 'Children chalk your name on the pavement.'],
+      standard: ['Tunde cries, then laughs, then cries again.', 'The magistrate nods at you, once.', 'The street goes back to selling, as if nothing had happened.'],
+      costly: ['A stranger watches your door all night.', 'The note under your door is unsigned and unforgettable.', 'Your phone rings and nobody speaks.'],
+      lost: ['Somewhere in the market a thief is counting coins.', 'The stalls close and the thief wins by a day.', 'Tunde sits in the dark, still waiting.'] },
+    echo: { chiefs: ['The Chief stares at the floor and the courtroom exhales.', 'The ledger is read aloud, line by line.', 'Newspaper boys shout his name until midnight.'],
+      scandal: ['One more doubt and the case would have died.', 'You leave the court shaking.', 'It was closer than anyone will admit.'],
+      second: ['The bench thanks you for your patience, and means it.', 'Twice doubted, once proved.', 'The clerk quietly stamps the file.'] },
+    siege: { relief: ['Dust on the horizon becomes banners.', 'The relief horns reach the wall at dawn.', 'Children are lifted onto the battlements to see.'],
+      withdraw: ['The enemy camp is empty by morning.', 'Their fires die one by one.', 'A white cloth hangs from a single tent.'],
+      sortie: ['Your riders crash through the camp before they wake.', 'The enemy never saw the gate open.', 'It was over in one night.'],
+      fall: ['The garrison walks out with its heads high.', 'The banner is lowered with care.', 'Some of them will fight again.'] }
+  };
+  var TW = {
+    balogun: { win: [{ id: 'betrayal', text: 'But at the celebration a trusted market friend slips away with the recovered savings. The thief was not alone, and your victory has a quiet shadow.', funds: 150 }, { id: 'windfall', text: 'The grateful market takes up a collection for your office. It is more money than you have ever held.', funds: 700 }],
+      lose: [{ id: 'betrayal', text: 'Later you learn that someone you trusted at the stalls had been feeding the thief your every move.', funds: 0 }] },
+    echo: { win: [{ id: 'betrayal', text: 'The Chief is convicted, but the clerk who handled the ledger vanishes on the evening boat. He was working for the syndicate all along.', funds: 150 }, { id: 'windfall', text: 'The recovered ledger frees a hundred traders from false debts, and the Island pays you in gratitude.', funds: 700 }],
+      lose: [{ id: 'betrayal', text: 'You learn too late that your informant was paid by the Chief.', funds: 0 }] },
+    siege: { win: [{ id: 'airlift', text: 'As the enemy retreats, two fighter jets thunder overhead. The syndicate has changed sides now that it smells defeat, and a cargo of supplies drops into the citadel.', funds: 800 }],
+      lose: [{ id: 'mercenary', text: 'At the last hour, the mercenaries you trusted open the gate from inside for a higher bidder.', funds: 0 }] }
   };
   var THREADS = {
     balogun: {
@@ -88,6 +110,12 @@
       var out = (all[id] ? 'Ending: ' + all[id] + '. ' : '') + (fresh ? 'New ending. ' : 'You have reached this ending before. ') + found + ' of ' + total + ' endings found.';
       if (open.length) out += ' A thread you never pulled: ' + th[open[Math.floor(Math.random() * open.length)]];
       save(); return out;
+    },
+    flavour: function (game, id) { var a = (FL[game] || {})[id]; return a ? a[Math.floor(Math.random() * a.length)] : ''; },
+    twistEnd: function (game, id, win) {
+      var T = TW[game] && TW[game][win ? 'win' : 'lose'];
+      if (!T || Math.random() > .32) return { id: id, text: '', funds: 0 };
+      var t = T[Math.floor(Math.random() * T.length)]; return { id: t.id, text: t.text, funds: t.funds || 0 };
     },
     threads: THREADS, endings: ENDINGS
   };

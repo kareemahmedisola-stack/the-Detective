@@ -89,6 +89,7 @@ kbd{font:600 .9rem ui-monospace,Menlo,Consolas,monospace;background:var(--ink);b
 <script src="../js/polish.js"></script>
 <script src="../js/ui.js"></script>
 <script src="../js/story.js"></script>
+<script src="../js/arsenal.js"></script>
 <script src="../js/access.js"></script>
 <script>
 "use strict";
@@ -308,7 +309,7 @@ let S={mode:"game",vol:.8,rate:1,pressure:"on",voice:""};
 try{Object.assign(S,JSON.parse(localStorage.getItem("ed_settings")||"{}"))}catch(e){}
 function saveS(){try{localStorage.setItem("ed_settings",JSON.stringify(S))}catch(e){}}
 let G=null,cur="title",ctx={},backFn=null,selLock=false;
-function newGame(){Story.begin("echo");Story.bind(thread);G={act:1,clues:{},order:[],asked:{},seen:{},hints:0,wrong:0,loc:null,sel:-1,last:"",time:540,deadline:1080,watch:{},note:0,flick:0,tip:0,forced:0,forcedGo:0,judging:0,debunk:{},act1:null,love:0,nerve:4,bonus:0,comp:{},cracked:{},tw:null,twT:0,tellHints:0,at:"office",heat:0,hClock:0,cond:null,radio:0,rumour:[],trips:0,cpWins:0,stallNote:0,rIdx:0}}
+function newGame(){Story.begin("echo");Arsenal.begin("echo");Story.bind(thread);G={act:1,clues:{},order:[],asked:{},seen:{},hints:0,wrong:0,loc:null,sel:-1,last:"",time:540,deadline:1080,watch:{},note:0,flick:0,tip:0,forced:0,forcedGo:0,judging:0,debunk:{},act1:null,love:0,nerve:4,bonus:0,comp:{},cracked:{},tw:null,twT:0,tellHints:0,at:"office",heat:0,hClock:0,cond:null,radio:0,rumour:[],trips:0,cpWins:0,stallNote:0,rIdx:0}}
 const A=()=>G.act===2?CASE.act2:CASE;
 function clockStr(){const h=Math.floor(G.time/60),m=G.time%60;return((h+11)%12+1)+":"+String(m).padStart(2,"0")+(h<12?" am":" pm")}
 function hud(){$("#hud").textContent=G?((S.pressure==="on"?clockStr()+" · ":"")+(G.act===2?"Act 2 · ":"")+"Clues: "+G.order.length+(G.love?" · ❤ "+G.love:"")+" · Nerve "+G.nerve+" · Heat "+G.heat):""}
@@ -423,7 +424,7 @@ const say=(t,v=0)=>sayq([{t,v}]);
 /* ============================================================
    GAME LOGIC
    ============================================================ */
-function addClue(id){if(G.clues[id])return null;G.clues[id]=1;G.order.push(id);if(A().proof.includes(id)&&G.nerve<5)G.nerve++;hud();setTension();return CASE.clues[id][0]}
+function addClue(id){if(G.clues[id])return null;Arsenal.count('clue');G.clues[id]=1;G.order.push(id);if(A().proof.includes(id)&&G.nerve<5)G.nerve++;hud();setTension();return CASE.clues[id][0]}
 const TXT={1:["It is getting late. The last boat leaves in two and a half hours, and the thief may be on it.","One hour left before the last boat. Somewhere nearby, someone's heart is beating very fast.","Six o'clock. The last boat is boarding. You must accuse now, with what you have."],
  2:["Time is slipping. The police arrive in an hour and a half, and whoever planned this will walk free.","Forty-five minutes. You feel eyes on you from the crowd.","The police have arrived. You must name the mastermind now, with what you have."]};
 const OFF={1:[150,60],2:[90,45]};
@@ -825,7 +826,7 @@ V.end=({rank,score,p,m,lost,why})=>{
  <div class="paper"><h3>What really happened</h3><p>${CASE.solution}</p><p><em>${CASE.lesson}</em></p></div>
  ${epiHtml()}<button class="btn primary" id="again">Play this case again</button>`;
  $("#again").onclick=()=>{newGame();go("brief")};
- Sfx.play('clap');Sfx.done('echo',{rank:rank});try{const id=(G.doubt?'second':(G.sureWin&&G.sureWin<60?'scandal':'chiefs'));setTimeout(()=>say(Story.finish('echo',id)),4000)}catch(e){}if(G.love){const e=$("#epi");if(e){People.hearts(e,10);setTimeout(()=>play("tune",0),1200)}}
+ Sfx.play('clap');Sfx.done('echo',{rank:rank});try{let id=(G.doubt?'second':(G.sureWin&&G.sureWin<60?'scandal':'chiefs'));const f=Story.flavour('echo',id),t=Story.twistEnd('echo',id,true);if(t.text)id=t.id;Arsenal.award(({chiefs:600,scandal:450,second:500,betrayal:200,windfall:0})[id]+t.funds);setTimeout(()=>say(f+' '+t.text+' '+Story.finish('echo',id)+' You now hold '+Arsenal.funds()+' funds for the Siege armoury.'),4000)}catch(e){}if(G.love){const e=$("#epi");if(e){People.hearts(e,10);setTimeout(()=>play("tune",0),1200)}}
  setTimeout(()=>say("Case closed. You are a "+rank+". Your total score is "+total+". "+CASE.solution+" "+CASE.lesson+" "+epiText(G.love||0)),1400);
 };
 

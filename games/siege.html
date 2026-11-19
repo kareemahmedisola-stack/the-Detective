@@ -58,6 +58,7 @@ kbd{background:#0c0710;border:1px solid #6a4540;border-bottom-width:3px;border-r
 <script src="../js/polish.js"></script>
 <script src="../js/ui.js"></script>
 <script src="../js/story.js"></script>
+<script src="../js/arsenal.js"></script>
 <script>try{Tense.layers({heart:false,dread:false})}catch(e){}</script>
 <script src="../js/access.js"></script>
 <script>
@@ -293,7 +294,7 @@ V.title=()=>{
   try{Sfx.intro()}catch(e){}
   sayq([{t:"Siege of Ilesanmi, reforged. A war strategy game you play by ear. Use headphones. Choose how the game speaks and how hard the war is, then press the Begin button.",v:0}]);
 };
-function newRun(){Story.begin("siege");Story.bind(()=>S?Story.phase(Math.min(1,S.day/(S.R||10)))+" "+SG.hint(S):"");S=SG.newGame(undefined,{diff:ST.diff||"easy"});S.hintsUsed=0;S.firstDawn=true;S.hints=0}
+function newRun(){Story.begin("siege");Arsenal.begin("siege");Story.bind(()=>S?Story.phase(Math.min(1,S.day/(S.R||10)))+" "+SG.hint(S)+" "+Arsenal.brief()+" Funds "+Arsenal.funds()+".":"");S=SG.newGame(undefined,{diff:ST.diff||"easy"});S.hintsUsed=0;S.firstDawn=true;S.hints=0}
 V.brief=()=>{
   main.innerHTML=`<h2 id="vh" tabindex="-1">The night before</h2>
   <p>You stand on the North Wall as the last fires of the enemy camp flare to life. Three sectors to hold: the West Gate on your left, the North Wall ahead, the River Gate on your right. A hundred and twenty soldiers, ten days of food, and three informants you must learn to read.</p>
@@ -363,12 +364,15 @@ V.dawn=(c)=>{
 
 /* ===================== ORDERS ===================== */
 function openBreach(){return SECT.filter(s=>S.breach[s])}
+function arsSync(){if(!S)return;const t=S.stats;["scout:scouts","hold:held","counter:counters","raid:raids","bait:baits","perfect:perfect","sally:sallies"].forEach(x=>{const[a,b]=x.split(":");Arsenal.set(a,t[b]||0)})}
 function ordersList(){
+  arsSync();
   return [
    ["Defences: redeploy, fortify, build works, seal a breach"+(openBreach().length?" (there is a breach!)":""),0,()=>chooseDef()],
    ["Intelligence: scout, question, bait, arrest the spy",0,()=>chooseIntel()],
    ["Offence: raids, parley"+(SG.canSortie(S)?", the grand sortie":""),0,()=>chooseOff()],
    ["Supplies: forage, rally the troops, rations",0,()=>chooseSup()],
+   ["Armoury and motor pool: "+Arsenal.funds()+" funds. Buy guns, machine guns, rocket launchers, cars, bikes, boats and jets. Read your contracts",0,()=>chooseArms()],
    ["Send a rider to hurry the relief army"+(S.riders.ok>=2?" (done: two have got through)":""),1,()=>doAct(SG.rider(S),r=>{AU.steps(.5);setTimeout(()=>r.win?AU.horn(0,150,1.2,.1):AU.bad(),1100)})],
    ["End the day: nightfall",0,()=>endDay()]];
 }
@@ -458,7 +462,20 @@ function chooseSup(){
 }
 
 /* ===================== NIGHTFALL: listen from the wall ===================== */
-function endDay(){const d=SG.dusk(S);S.fedNote=d.changed;go("night")}
+const GEAR_SECT=["W","N","R"];
+function mount(id){const it=Arsenal.ITEMS[id];
+  if(it.kind==="gun"&&id!=="sniper"&&id!=="aa"){chooseSector("Mount the "+it.n+" at which sector?",s=>{const r=Arsenal.buy(id);if(!r.ok){go("orders",{msg:r.msg});return}S.gear=S.gear||{W:{},N:{},R:{}};S.gear[s][id]=1;Arsenal.snd(id,PAN[s]);go("orders",{msg:r.msg+" Mounted at "+SG.NAME[s]+". Machine guns, launchers and boats now counter enemy weapons there."})})}
+  else{const r=Arsenal.buy(id);if(!r.ok){go("orders",{msg:r.msg});return}let x=r.msg;
+    if(id==="sniper"){S.enemy.str*=.96;x+=" An enemy officer falls."}
+    else if(id==="aa"){S.aa=1;x+=" Your next air strike will hit harder."}
+    else if(id==="car"){S.apMax++;S.ap++;x+=" You gain one extra order each day."}
+    else if(id==="bike"){S.R=Math.max(S.day+1,S.R-1);S.riders.ok++;x+=" The relief army will arrive sooner."}
+    else if(id==="boat"){S.gear=S.gear||{W:{},N:{},R:{}};S.gear.R.boat=1;x+=" The River Gate is guarded and counters enemy boats."}
+    else if(id==="jet"){const k=S.aa?.1:0;S.enemy.str*=.85-k;Object.keys(S.enemy.ready).forEach(t=>{S.enemy.ready[t]+=2});x+=" The enemy camp burns and every weapon of theirs is delayed two days."}
+    Arsenal.snd(id,0);go("orders",{msg:x})}}
+function chooseArms(){const C=Arsenal.crates();
+  choose("Armoury and motor pool. You have "+Arsenal.funds()+" funds. "+Arsenal.brief(),Object.keys(Arsenal.ITEMS).map(k=>{const it=Arsenal.ITEMS[k];return {t:cap1(it.n)+", "+(C[k]?"free crate":it.cost+" funds")+". "+it.what,v:k}}),mount)}
+function endDay(){Arsenal.nightFire(S,PAN);const d=SG.dusk(S);S.fedNote=d.changed;go("night")}
 function heardWord(h){const l=h.lvl,w=l>.8?"thunderous, a great host on the move":l>.55?"steady, with many torches":l>.35?"a few war-tones and scattered fires":"only whispers";
   return w+". "+(h.type?cap1(TYP[h.type].hear):l<.3?"You cannot make out the weapon":"You cannot tell what weapon it is")}
 function hearSound(type,p,lvl){
@@ -607,7 +624,7 @@ V.aftermath=({res,st})=>{
 
 /* ===================== THE END ===================== */
 V.end=()=>{
-  const e=SG.ending(S),st=S.stats;const _sf=Story.finish("siege",e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie"?e.kind:"fall");let best="",bs=0;
+  const e=SG.ending(S),st=S.stats;const _tw=Story.twistEnd("siege",e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie"?"win":"fall",e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie");Arsenal.award((e.kind==="relief"?600:e.kind==="withdraw"||e.kind==="sortie"?800:200)+_tw.funds);const _sf=_tw.text+" "+Story.flavour("siege",e.kind)+" "+Story.finish("siege",_tw.text?_tw.id:e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie"?e.kind:"fall");let best="",bs=0;
   try{const old=localStorage.getItem("sg_best"),ob=+(localStorage.getItem("sg_bestscore")||0);if(!old||rank.indexOf(e.rank)>rank.indexOf(old))localStorage.setItem("sg_best",e.rank);if(e.score>ob)localStorage.setItem("sg_bestscore",String(e.score));best=localStorage.getItem("sg_best");bs=+localStorage.getItem("sg_bestscore")}catch(x){}
   const lines=[_sf];
   if(e.exposed)lines.push(`You unmasked ${SN[e.mole]} as the enemy's spy. Counter-intelligence protects your decisions as much as your walls.`);

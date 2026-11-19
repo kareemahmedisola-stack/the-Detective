@@ -77,6 +77,7 @@
   function defence(S, s, extraRes, cmds) {
     var f = (S.troops[s] + (extraRes || 0)) * wallF(S, s) * mFactor(S);
     if (S.works[s].plat) f *= 1.1;
+    var G = (S.gear || {})[s]; if (G) { if (G.pistol) f *= 1.03; if (G.rifle) f *= 1.06; if (G.smg) f *= 1.08; if (G.mg) f *= 1.15; if (G.sniper) f *= 1.02; if (G.boat) f *= 1.15; }
     if (S.breach[s]) f *= 0.7;
     if (hasCmd(cmds, 'brace', s)) f *= 1.15;
     if (S.ambush === s) f *= 1.2;
@@ -99,7 +100,10 @@
   }
 
   /* ---- the enemy's plan for tonight: who, where, with what ---- */
-  function counteredByWork(S, s, t) { return (t === 'sappers' && S.works[s].mine) || (t === 'boats' && S.works[s].boom); }
+  function counteredByWork(S, s, t) {
+    var g = (S.gear || {})[s] || {};
+    return (t === 'sappers' && S.works[s].mine) || (t === 'boats' && (S.works[s].boom || g.boat)) || ((t === 'ram' || t === 'tower') && g.rpg) || (t === 'ladders' && g.mg);
+  }
   function planNight(S) {
     var rng = S.rng, w = {}, leak = moleActive(S) && S.day >= 3;
     SECT.forEach(function (s) {
