@@ -1,41 +1,5 @@
 # The Detective: the integrated edition
 
-## Midnight at Ajo Hall: a different thief every time (newest)
-
-A new fourth case (menu option 6). The cash box of a savings club vanishes in a ninety-second blackout, and the thief is drawn at random from four suspects each run. The clues are generated to fit whoever it is, so the answer can never be memorised.
-
-- **Deduction, not luck.** The thief had a motive, the means and the opportunity. Evidence that disproves any one of the three clears a suspect completely. Innocents may hide petty secrets, so a lie is not proof of guilt. The culprit lies about everything.
-- **Chess-like tempo.** Twelve hours until dawn. Every search or question costs an hour. At hours 4 and 8 the thief burns a piece of proof, and at hour 6 a note arrives that may be a friend or a trap.
-- **The case navigator (J).** It tells you who is still possible, which lead is worth most, how close you are to dawn, and warns you about the note. It never names the thief.
-- **Story told in beats.** A narrated blackout opening, physical evidence found by sound, contradictions caught, burnt clues, a twist note, and a confession built from the culprit's own motive, means and opportunity.
-- **Odds, not certainty.** Accusing the right person still goes to the committee: your proof, caught lies and the hours left set the odds. A failed hearing costs two hours; a second ends with the thief escaping.
-- Tones only for sound, 7 to 8 endings, funds earned carry into the Siege armoury.
-
-## Armoury, contracts and random endings
-
-**Starting purse.** A new player starts with 5,000 funds, given once, enough for a machine gun, a war boat and more.
-
-**Funds and contracts.** Each game offers three random contracts (press J to hear them). Complete them to earn funds or a free weapon crate, for example "Scout three times", "Reassure two witnesses" or "Collect ten clues". Funds are saved and carry between all three games, and every ending pays out.
-
-**The Siege armoury and motor pool** (new order in the orders menu). Semi-automatic pistol and rifle, submachine gun, belt-fed machine gun, rocket launcher (RPG), sniper rifle, anti-air missile, plus an armoured car (+1 order a day), a power bike courier (relief arrives sooner), an armed war boat (guards the River Gate) and a fighter jet strike (cuts the enemy army and delays all their weapons). Machine guns counter ladders, RPGs counter rams and towers, boats counter boats. At nightfall each sector fires the guns it owns, panned left to right. All the gunfire, rocket, jet, engine and boat sounds are synthesized live.
-
-**Random endings.** Every ending now has three random epilogue lines, and about one game in three ends on a twist: a betrayal by someone you trusted, a windfall, an air-cover arrival or a mercenary betrayal. There are 8 endings in Balogun, 7 in Echo and 6 in the Siege.
-
-## Story and strategy rewrite
-
-**One saga.** The Ajo Syndicate lends to traders, buys officials, steals the ledgers that prove its debts, and finally funds a warlord. Balogun exposes its fixer, Echo follows its money, the Siege faces what the money bought. The between-mission story changes with how you ended the previous game.
-
-**Tones, not drums.** Every drum is now a pure sine tone: high, middle and low pads in Balogun, a rising tone ladder at the accusation, tone pulses in the suspense riser, and war-tones in the Siege.
-
-**Play it like chess.** Three resources move with every choice: Trust, Leverage and Exposure.
-- Balogun: after each stall you choose Press (fast, but Exposure rises), Reassure (costs an hour, builds Trust, and the one pressured witness, different each run, confides) or Bargain (buys Leverage). At Exposure 3 the thief silences a witness overnight. The trial is decided by odds built from your clues, certainty, Trust, Leverage, Exposure and hours left, never 100 percent. A failed first trial lets you adjourn, offer a plea bargain (needs Leverage) or press on; a second failure ends in bail, not justice.
-- Echo: a correct accusation can still fail. The bench weighs proof, false leads cited, mistakes and nerve; each failed hearing makes new proof count more.
-- Siege: the enemy remembers. It will not hit a sector it has seen you strengthen twice running, so you must rotate your strength.
-
-**The intelligent pointer (J).** In every game, press J: it scores each open lead for value, distance and risk, names the phase (opening, middlegame, endgame) and the best next move, without naming the culprit or spy.
-
-**Reasons to replay.** Each game tracks its endings (6 in Balogun, 5 in Echo, 4 in Siege), and every ending names one story thread you never pulled.
-
 One package, one menu, three games, one campaign, built to be played by ear and to look as good as it sounds.
 
 **Open `index.html` in Chrome or Edge, press Enter, and choose.** Use headphones.

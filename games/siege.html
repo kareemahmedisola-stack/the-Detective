@@ -57,8 +57,6 @@ kbd{background:#0c0710;border:1px solid #6a4540;border-bottom-width:3px;border-r
 <script src="../js/suspense.js"></script>
 <script src="../js/polish.js"></script>
 <script src="../js/ui.js"></script>
-<script src="../js/story.js"></script>
-<script src="../js/arsenal.js"></script>
 <script>try{Tense.layers({heart:false,dread:false})}catch(e){}</script>
 <script src="../js/access.js"></script>
 <script>
@@ -112,7 +110,7 @@ const AU=(()=>{
   const T=()=>ac.currentTime;
   const A={
     init,setVol,
-    drum(p,f,v,len){if(!ok())return;const t=T();f=f||90;len=len||.4;osc("sine",f*3,t,len,(v||.5)*.8,p,f*2.6);osc("sine",f*6,t,len*.5,(v||.5)*.12,p)},
+    drum(p,f,v,len){if(!ok())return;const t=T();f=f||90;len=len||.4;osc("sine",f,t,len,v||.5,p,f*.5);nb(t,.05,"lowpass",900,(v||.5)*.4,p)},
     /* talking drum: each source has its own tone-language motif, so you can tell who is speaking by ear */
     motif(src,p){if(!ok())return;const M={adaora:[[330,.12],[440,.12],[392,.22]],sule:[[196,.2],[165,.2],[196,.3]],kolade:[[300,.1],[300,.1],[520,.28]],tola:[[262,.15],[330,.15],[262,.2]],defectors:[[250,.1],[350,.1],[250,.1],[350,.1]]}[src]||[[300,.15]];let t=T();M.forEach(([f,d])=>{osc("sine",f,t,d*1.6,.22,p,f*(f>300?.85:1.15),.01);osc("sine",f*2,t,d*1.2,.05,p);t+=d})},
     horn(p,f,len,vol){if(!ok())return;const t=T();f=f||110;len=len||1.4;[1,1.006,.5].forEach((m,i)=>{const o=osc("sawtooth",f*m,t,len,(vol||.12)*(i===2?.8:1),p,f*m*1.06,.35);try{const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=5.5;lg.gain.value=f*m*.012;l.connect(lg);lg.connect(o.frequency);l.start(t);l.stop(t+len+.05)}catch(e){}})},
@@ -263,7 +261,7 @@ function showTypes(h){SECT.forEach(s=>{$("#ty-"+s).textContent=h&&h[s]&&h[s].typ
 function typeBit(r){return r.type?` I think it comes with ${TYP[r.type].name}.`:""}
 function reportText(r){
   const c=nm(r.claim);
-  if(r.src==="adaora")return `The ridge war-tones speak of ${c}.${typeBit(r)} I am ${r.conf}.`;
+  if(r.src==="adaora")return `The ridge drums speak of ${c}.${typeBit(r)} I am ${r.conf}.`;
   if(r.src==="sule")return `Forty years taught me one thing: the enemy goes where we are weakest. Today that is ${c}.`;
   if(r.src==="kolade")return `I heard it in the officers' tent myself. ${cap1(c)}. I am certain. Do not doubt me.`;
   return `We heard their captains arguing. They said ${c}. We are ${r.conf}.`;
@@ -278,7 +276,7 @@ const V={};
 V.title=()=>{
   main.innerHTML=`<h2 id="vh" tabindex="-1">Siege of Ilesanmi: Reforged</h2>
   <p class="hint">A war strategy game you play by ear. Use headphones: the West Gate is on your left, the North Wall straight ahead, and the River Gate on your right.</p>
-  <div class="card"><p>The citadel of Ilesanmi has stood on its ridge for three hundred years. This dry season the warlord Zarkan and his Northern Confederacy have surrounded it. Behind you, thirty thousand people. In front, war-tones. A relief army marches from the coast, but the roads are long.</p>
+  <div class="card"><p>The citadel of Ilesanmi has stood on its ridge for three hundred years. This dry season the warlord Zarkan and his Northern Confederacy have surrounded it. Behind you, thirty thousand people. In front, drums. A relief army marches from the coast, but the roads are long.</p>
   <p><b>How the war works.</b> By day you give orders: build, scout, raid, send riders, hunt the spy. At dusk you listen to the enemy. Rams thud, towers creak, sappers scratch under the ground, boats splash. Then you answer each weapon with the right counter. At night the enemy strikes, and when a line breaks you choose: commit the reserve, fall back, or hold. <b>One of your three informants is the enemy's spy, and it is different every game.</b></p></div>
   <label class="f">How should the game speak?<select id="sm"><option value="game">Built-in voices (recommended)</option><option value="sr">My screen reader reads it</option></select></label>
   <label class="f">Difficulty<select id="df"><option value="easy">Recruit: a fairer fight, good for your first siege</option><option value="hard">Commander: a larger enemy, earlier weapons</option><option value="warlord">Warlord: a vast host, scarce supplies, weapons arrive early</option></select></label>
@@ -294,19 +292,19 @@ V.title=()=>{
   try{Sfx.intro()}catch(e){}
   sayq([{t:"Siege of Ilesanmi, reforged. A war strategy game you play by ear. Use headphones. Choose how the game speaks and how hard the war is, then press the Begin button.",v:0}]);
 };
-function newRun(){Story.begin("siege");Arsenal.begin("siege");Story.bind(()=>S?Story.phase(Math.min(1,S.day/(S.R||10)))+" "+SG.hint(S)+" "+Arsenal.brief()+" Funds "+Arsenal.funds()+".":"");S=SG.newGame(undefined,{diff:ST.diff||"easy"});S.hintsUsed=0;S.firstDawn=true;S.hints=0}
+function newRun(){S=SG.newGame(undefined,{diff:ST.diff||"easy"});S.hintsUsed=0;S.firstDawn=true;S.hints=0}
 V.brief=()=>{
   main.innerHTML=`<h2 id="vh" tabindex="-1">The night before</h2>
   <p>You stand on the North Wall as the last fires of the enemy camp flare to life. Three sectors to hold: the West Gate on your left, the North Wall ahead, the River Gate on your right. A hundred and twenty soldiers, ten days of food, and three informants you must learn to read.</p>
   <div class="strip">${["adaora","sule","kolade","tola"].map(k=>People.html(Object.assign({},People.cast[k],{cls:""}))).join("")}</div>
-  <div class="card"><p><b>Adaora</b> reads the enemy war-tones and can name the weapon as well as the place. <b>Baba Sule</b> says the enemy always strikes where you are weakest. <b>Kolade</b> deserted yesterday and brings very good news. <b>Iya Tola</b> keeps the stores.</p>
+  <div class="card"><p><b>Adaora</b> reads the enemy drums and can name the weapon as well as the place. <b>Baba Sule</b> says the enemy always strikes where you are weakest. <b>Kolade</b> deserted yesterday and brings very good news. <b>Iya Tola</b> keeps the stores.</p>
   <p><b>One of the three is the enemy's spy.</b> In old wars it was usually the deserter, but not always. Question them, whisper baits, weigh their records, and arrest the right one. Arrest an innocent and you pay.</p>
   <p><b>The enemy's weapons.</b> Ladders at first. Later rams at the gates, sappers under the walls, boats on the river, and a siege tower at the North Wall. Each has a counter: oil for rams and ladders, fire arrows for towers and boats, a counter-mine for sappers, a boom for boats, and a sally for anything.</p></div>
   <button class="btn primary" id="go">Position your soldiers (Enter)</button>`;
   $("#go").onclick=()=>go("setup");
   AU.drone(.2);AU.wind(6000);AU.heart(54,12000,.2);
   sayq([{t:"The night before. You stand on the North Wall as the last fires of the enemy camp flare to life. Three sectors to hold: the West Gate on your left, the North Wall ahead, the River Gate on your right. A hundred and twenty soldiers, ten days of food, and three informants you must learn to read.",v:0},
-    {t:"Adaora reads the enemy war-tones.",v:1},{t:"Baba Sule has fought for forty years. The enemy always goes where you are weakest.",v:2},{t:"Kolade deserted from the enemy camp yesterday, and he brings very good news.",v:3},
+    {t:"Adaora reads the enemy drums.",v:1},{t:"Baba Sule has fought for forty years. The enemy always goes where you are weakest.",v:2},{t:"Kolade deserted from the enemy camp yesterday, and he brings very good news.",v:3},
     {t:"Iya Tola keeps the granary and the morale of the garrison.",v:4},{t:"One of these three is the enemy's spy. In old wars it was usually the deserter, but not always. The enemy will bring ladders first, then rams, sappers, boats and a siege tower, and each has a counter. Press Enter to position your soldiers.",v:0}]);
 };
 const PRESETS=[["Balanced: 30 at each sector and 30 in reserve",[30,30,30,30]],["Walls first: 40 at each sector, no reserve",[40,40,40,0]],["Flexible: 25 at each sector and 45 in reserve",[25,25,25,45]]];
@@ -364,15 +362,12 @@ V.dawn=(c)=>{
 
 /* ===================== ORDERS ===================== */
 function openBreach(){return SECT.filter(s=>S.breach[s])}
-function arsSync(){if(!S)return;const t=S.stats;["scout:scouts","hold:held","counter:counters","raid:raids","bait:baits","perfect:perfect","sally:sallies"].forEach(x=>{const[a,b]=x.split(":");Arsenal.set(a,t[b]||0)})}
 function ordersList(){
-  arsSync();
   return [
    ["Defences: redeploy, fortify, build works, seal a breach"+(openBreach().length?" (there is a breach!)":""),0,()=>chooseDef()],
    ["Intelligence: scout, question, bait, arrest the spy",0,()=>chooseIntel()],
    ["Offence: raids, parley"+(SG.canSortie(S)?", the grand sortie":""),0,()=>chooseOff()],
    ["Supplies: forage, rally the troops, rations",0,()=>chooseSup()],
-   ["Armoury and motor pool: "+Arsenal.funds()+" funds. Buy guns, machine guns, rocket launchers, cars, bikes, boats and jets. Read your contracts",0,()=>chooseArms()],
    ["Send a rider to hurry the relief army"+(S.riders.ok>=2?" (done: two have got through)":""),1,()=>doAct(SG.rider(S),r=>{AU.steps(.5);setTimeout(()=>r.win?AU.horn(0,150,1.2,.1):AU.bad(),1100)})],
    ["End the day: nightfall",0,()=>endDay()]];
 }
@@ -462,21 +457,8 @@ function chooseSup(){
 }
 
 /* ===================== NIGHTFALL: listen from the wall ===================== */
-const GEAR_SECT=["W","N","R"];
-function mount(id){const it=Arsenal.ITEMS[id];
-  if(it.kind==="gun"&&id!=="sniper"&&id!=="aa"){chooseSector("Mount the "+it.n+" at which sector?",s=>{const r=Arsenal.buy(id);if(!r.ok){go("orders",{msg:r.msg});return}S.gear=S.gear||{W:{},N:{},R:{}};S.gear[s][id]=1;Arsenal.snd(id,PAN[s]);go("orders",{msg:r.msg+" Mounted at "+SG.NAME[s]+". Machine guns, launchers and boats now counter enemy weapons there."})})}
-  else{const r=Arsenal.buy(id);if(!r.ok){go("orders",{msg:r.msg});return}let x=r.msg;
-    if(id==="sniper"){S.enemy.str*=.96;x+=" An enemy officer falls."}
-    else if(id==="aa"){S.aa=1;x+=" Your next air strike will hit harder."}
-    else if(id==="car"){S.apMax++;S.ap++;x+=" You gain one extra order each day."}
-    else if(id==="bike"){S.R=Math.max(S.day+1,S.R-1);S.riders.ok++;x+=" The relief army will arrive sooner."}
-    else if(id==="boat"){S.gear=S.gear||{W:{},N:{},R:{}};S.gear.R.boat=1;x+=" The River Gate is guarded and counters enemy boats."}
-    else if(id==="jet"){const k=S.aa?.1:0;S.enemy.str*=.85-k;Object.keys(S.enemy.ready).forEach(t=>{S.enemy.ready[t]+=2});x+=" The enemy camp burns and every weapon of theirs is delayed two days."}
-    Arsenal.snd(id,0);go("orders",{msg:x})}}
-function chooseArms(){const C=Arsenal.crates();
-  choose("Armoury and motor pool. You have "+Arsenal.funds()+" funds. "+Arsenal.brief(),Object.keys(Arsenal.ITEMS).map(k=>{const it=Arsenal.ITEMS[k];return {t:cap1(it.n)+", "+(C[k]?"free crate":it.cost+" funds")+". "+it.what,v:k}}),mount)}
-function endDay(){Arsenal.nightFire(S,PAN);const d=SG.dusk(S);S.fedNote=d.changed;go("night")}
-function heardWord(h){const l=h.lvl,w=l>.8?"thunderous, a great host on the move":l>.55?"steady, with many torches":l>.35?"a few war-tones and scattered fires":"only whispers";
+function endDay(){const d=SG.dusk(S);S.fedNote=d.changed;go("night")}
+function heardWord(h){const l=h.lvl,w=l>.8?"thunderous, a great host on the move":l>.55?"steady, with many torches":l>.35?"a few drums and scattered fires":"only whispers";
   return w+". "+(h.type?cap1(TYP[h.type].hear):l<.3?"You cannot make out the weapon":"You cannot tell what weapon it is")}
 function hearSound(type,p,lvl){
   switch(type){case "ram":AU.ram(p);setTimeout(()=>AU.ram(p),650);setTimeout(()=>AU.ram(p),1300);break;case "tower":AU.creak(p);break;case "sappers":AU.scrape(p);break;case "boats":AU.oars(p);break;case "ladders":AU.clatter(p);break;default:AU.wind(1500)}
@@ -551,11 +533,11 @@ async function runAssault(){
   const st=SG.assault(S);setSky(true);paintScene();
   if(st.truce){
     AU.stopDrone();AU.drone(.3);AU.wind(5000);
-    await say2([{t:"The truce holds. No war-tones, no ladders. Across the plain you hear hammers, and the creak of timber. The enemy is not resting. It is building.",v:0}]);if(my!==SEQ)return;
+    await say2([{t:"The truce holds. No drums, no ladders. Across the plain you hear hammers, and the creak of timber. The enemy is not resting. It is building.",v:0}]);if(my!==SEQ)return;
     const res=SG.finish(S,st,null);return afterNightUI(res,st)}
   AU.horn(0,98,2.2,.16);fxFlash("#ff9a3c",.25);await wait(900);if(my!==SEQ)return;
   SECT.forEach(s=>{fxCharge(s);AU.drum(PAN[s],70,.5);setTimeout(()=>AU.drum(PAN[s],70,.4),300)});
-  await say2([{t:"The enemy horns sound. The war-tones quicken. Torches pour across the plain toward all three sectors at once!"+(S.cmd.length?" Your orders go out along the wall.":""),v:0}]);if(my!==SEQ)return;
+  await say2([{t:"The enemy horns sound. The drums quicken. Torches pour across the plain toward all three sectors at once!"+(S.cmd.length?" Your orders go out along the wall.":""),v:0}]);if(my!==SEQ)return;
   const maxA=Math.max(...SECT.map(s=>st.sec[s].A));
   for(const s of SECT){const x=st.sec[s],k=x.A/maxA;fxArrows(s,6+Math.round(k*10));AU.arrows(PAN[s],4+Math.round(k*8),.07+k*.08);contactSound(x.type,PAN[s]);AU.swords(PAN[s],1400,3+k*8,.06+k*.12);fxSparks(s,6+Math.round(k*12));
     if(x.info.answer==="oil"||x.info.answer==="fire")fxPulse(s);
@@ -624,9 +606,9 @@ V.aftermath=({res,st})=>{
 
 /* ===================== THE END ===================== */
 V.end=()=>{
-  const e=SG.ending(S),st=S.stats;const _tw=Story.twistEnd("siege",e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie"?"win":"fall",e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie");Arsenal.award((e.kind==="relief"?600:e.kind==="withdraw"||e.kind==="sortie"?800:200)+_tw.funds);const _sf=_tw.text+" "+Story.flavour("siege",e.kind)+" "+Story.finish("siege",_tw.text?_tw.id:e.kind==="relief"||e.kind==="withdraw"||e.kind==="sortie"?e.kind:"fall");let best="",bs=0;
+  const e=SG.ending(S),st=S.stats;let best="",bs=0;
   try{const old=localStorage.getItem("sg_best"),ob=+(localStorage.getItem("sg_bestscore")||0);if(!old||rank.indexOf(e.rank)>rank.indexOf(old))localStorage.setItem("sg_best",e.rank);if(e.score>ob)localStorage.setItem("sg_bestscore",String(e.score));best=localStorage.getItem("sg_best");bs=+localStorage.getItem("sg_bestscore")}catch(x){}
-  const lines=[_sf];
+  const lines=[];
   if(e.exposed)lines.push(`You unmasked ${SN[e.mole]} as the enemy's spy. Counter-intelligence protects your decisions as much as your walls.`);
   else lines.push(`The spy was ${SN[e.mole]}, and you never unmasked him.`+(st.wrongArrest?" You arrested an innocent man along the way.":""));
   if(st.counters>=3)lines.push("You answered the enemy's weapons with the right counters. That is the whole art of siege defence: match the answer to the threat.");
@@ -636,7 +618,7 @@ V.end=()=>{
   if((st.raids||0)>=1)lines.push("You struck at the enemy's supplies and weapons, not only his soldiers.");
   if(st.perfect>=2)lines.push(`${word(st.perfect)} nights without a scratch on any sector.`);
   if(!e.win&&st.counters<2)lines.push("Next time, listen for the weapon and answer it: oil for rams and ladders, fire arrows for towers and boats, a counter-mine for sappers.");
-  const msg={relief:"Horns! From the south road, the relief army rides into view, banners high. The enemy lines dissolve before it. Ilesanmi stands.",withdraw:"The war-tones fall silent. Across the plain the enemy camp is striking its tents. The Northern Confederacy is withdrawing, broken, before the relief army has even arrived. Ilesanmi stands.",sortie:"Your whole garrison pours out at the shaken enemy, and the Confederacy breaks and runs. You won the war with your own spears. Ilesanmi stands.",fall:"The wall is gone, and the enemy pours into Ilesanmi. The citadel has fallen.",starve:"The granaries are empty and the soldiers can no longer lift their spears. The council opens the gates. Ilesanmi surrenders.",mutiny:"The garrison will not fight on. Soldiers lay down their spears and open the gates. Ilesanmi is lost."}[e.kind];
+  const msg={relief:"Horns! From the south road, the relief army rides into view, banners high. The enemy lines dissolve before it. Ilesanmi stands.",withdraw:"The drums fall silent. Across the plain the enemy camp is striking its tents. The Northern Confederacy is withdrawing, broken, before the relief army has even arrived. Ilesanmi stands.",sortie:"Your whole garrison pours out at the shaken enemy, and the Confederacy breaks and runs. You won the war with your own spears. Ilesanmi stands.",fall:"The wall is gone, and the enemy pours into Ilesanmi. The citadel has fallen.",starve:"The granaries are empty and the soldiers can no longer lift their spears. The council opens the gates. Ilesanmi surrenders.",mutiny:"The garrison will not fight on. Soldiers lay down their spears and open the gates. Ilesanmi is lost."}[e.kind];
   AU.stopDrone();AU.stopHeart();e.win?AU.win():AU.lose();setSky(!e.win);showTypes(null);
   main.innerHTML=`<h2 id="vh" tabindex="-1">${e.win?"Ilesanmi stands":"Ilesanmi has fallen"}</h2>
   <p>${msg}</p><div class="card"><b>Rank: ${e.rank}.</b> Renown ${e.score}.<br>Soldiers left: ${e.troops}. Sectors held: ${e.held}. Breaches: ${e.breached}. Days: ${Math.min(e.day,S.R)}. ${S.hints?"Hints used: "+S.hints+". ":""}${best?"Your best rank: "+best+", best renown "+bs+".":""}</div>
