@@ -1,6 +1,17 @@
 # The Detective: the integrated edition
 
-## Armoury, contracts and random endings (newest)
+## Midnight at Ajo Hall: a different thief every time (newest)
+
+A new fourth case (menu option 6). The cash box of a savings club vanishes in a ninety-second blackout, and the thief is drawn at random from four suspects each run. The clues are generated to fit whoever it is, so the answer can never be memorised.
+
+- **Deduction, not luck.** The thief had a motive, the means and the opportunity. Evidence that disproves any one of the three clears a suspect completely. Innocents may hide petty secrets, so a lie is not proof of guilt. The culprit lies about everything.
+- **Chess-like tempo.** Twelve hours until dawn. Every search or question costs an hour. At hours 4 and 8 the thief burns a piece of proof, and at hour 6 a note arrives that may be a friend or a trap.
+- **The case navigator (J).** It tells you who is still possible, which lead is worth most, how close you are to dawn, and warns you about the note. It never names the thief.
+- **Story told in beats.** A narrated blackout opening, physical evidence found by sound, contradictions caught, burnt clues, a twist note, and a confession built from the culprit's own motive, means and opportunity.
+- **Odds, not certainty.** Accusing the right person still goes to the committee: your proof, caught lies and the hours left set the odds. A failed hearing costs two hours; a second ends with the thief escaping.
+- Tones only for sound, 7 to 8 endings, funds earned carry into the Siege armoury.
+
+## Armoury, contracts and random endings
 
 **Starting purse.** A new player starts with 5,000 funds, given once, enough for a machine gun, a war boat and more.
 

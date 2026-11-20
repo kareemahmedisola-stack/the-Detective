@@ -1,4 +1,5 @@
-<!doctype html><html lang="en">
+<!doctype html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -96,6 +97,7 @@ h1 small{-webkit-text-fill-color:var(--lamp)}
   <button class="btn" data-g="both" type="button"><b>3. Play both cases</b><span>Solve Balogun first, then continue straight into the Ledger case.</span></button>
   <button class="btn" data-g="siege" type="button"><b>4. Siege of Ilesanmi</b><span>A war strategy game you play by ear. Listen for rams, towers and sappers, answer each one, hunt the spy in your council, and hold the citadel.</span></button>
   <button class="btn" data-g="full" type="button"><b>5. Full campaign</b><span>The whole story in order: the Balogun Case, then the Ledger case, then the Siege of Ilesanmi. Your results are kept in a record.</span></button>
+  <button class="btn" data-g="ajo" type="button"><b>6. Midnight at Ajo Hall (new)</b><span>A fresh whodunit every time. The thief is drawn at random from four suspects, a case navigator guides you, and the odds change with your choices.</span></button>
   <p id="rec" class="mut" aria-live="polite"></p>
   <div class="row">
     <button id="mute" class="sm" type="button" aria-pressed="false">🔊 Sound: on (M)</button>
@@ -155,7 +157,8 @@ h1 small{-webkit-text-fill-color:var(--lamp)}
   var GAMES = {
     balogun: { src: 'games/balogun.html', title: 'The Balogun Case' },
     echo:    { src: 'games/echo.html',    title: 'Echo Detective: The Missing Ledger' },
-    siege:   { src: 'games/siege.html',   title: 'Siege of Ilesanmi' }
+    siege:   { src: 'games/siege.html',   title: 'Siege of Ilesanmi' },
+    ajo:     { src: 'games/ajo.html',     title: 'Midnight at Ajo Hall' }
   };
   var campaign = false, current = null, seq = null;
   var SEQS = { both: ['balogun', 'echo'], full: ['balogun', 'echo', 'siege'] };

@@ -86,6 +86,10 @@
       { id: 'bargain', k: 'bargain', n: 1, t: 'Win legal leverage by bargaining', r: { funds: 350 } },
       { id: 'clues', k: 'stall', n: 4, t: 'Visit every stall', r: { funds: 400 } }
     ],
+    ajo: [
+      { id: 'search', k: 'clue', n: 5, t: 'Search five places', r: { funds: 300 } },
+      { id: 'search2', k: 'clue', n: 9, t: 'Search nine places', r: { funds: 500 } }
+    ],
     echo: [
       { id: 'clues', k: 'clue', n: 6, t: 'Collect six clues', r: { funds: 350 } },
       { id: 'clues2', k: 'clue', n: 10, t: 'Collect ten clues', r: { funds: 500 } }

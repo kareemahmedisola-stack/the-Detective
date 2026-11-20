@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0b1e">
+<title>Midnight at Ajo Hall - Awesome-Planet</title>
+<style>
+:root{--bg:#0d0b1e;--ink:#f6efe2;--lamp:#f2a93b;--red:#ff2d4d;--ok:#5fd18a;--mut:#a9a2c4}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:radial-gradient(circle at 50% 0,#2a1f52,var(--bg) 60%);color:var(--ink);font:1.15rem/1.55 "Trebuchet MS",Verdana,sans-serif;padding:0 0 3rem}
+body.dark{animation:fl 2.4s steps(1) infinite}@keyframes fl{0%,100%{filter:none}47%{filter:brightness(.35)}50%{filter:brightness(1)}53%{filter:brightness(.2)}}
+header{position:sticky;top:0;display:flex;justify-content:space-between;gap:1rem;padding:.7rem 1.2rem;background:rgba(10,8,24,.92);z-index:2}
+h1{margin:0;font-size:1.35rem;color:var(--lamp)}#mv{font-size:1.4rem;color:var(--lamp)}body.hot #mv{color:var(--red)}
+main{max-width:46rem;margin:1rem auto;padding:0 1.2rem}
+#out{background:#181432;border-left:5px solid var(--lamp);padding:1rem 1.2rem;border-radius:.5rem;min-height:7rem}
+.btn{display:block;width:100%;text-align:left;margin:.5rem 0;padding:.8rem 1rem;font:inherit;color:var(--ink);background:#2b2358;border:2px solid #4a3f8f;border-radius:.5rem;cursor:pointer}
+.btn:focus,.btn:hover{outline:3px solid var(--lamp);background:#3a2f78}
+#nb{margin-top:1.2rem;color:var(--mut);font-size:1rem}#nb b{color:var(--ink)}
+.cl{color:var(--ok)}.xx{color:var(--red)}
+</style></head><body class="dark">
+<header><h1>Midnight at Ajo Hall</h1><span id="mv" aria-live="off"></span></header>
+<main>
+<div id="out" role="status" aria-live="polite" tabindex="-1"></div>
+<div id="opts" role="group" aria-label="Choices"></div>
+<div id="nb" aria-label="Case notebook"></div>
+<p class="mut" style="color:var(--mut);font-size:.95rem">Keys: number keys choose, Enter repeats, J asks the case navigator for your best next move, Escape returns to the menu.</p>
+</main>
+<script src="../js/loud.js"></script>
+<script src="../js/sfx.js"></script>
+<script src="../js/story.js"></script>
+<script src="../js/arsenal.js"></script>
+<script src="../js/access.js"></script>
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- the cast: one of these four took the cash box, and it is different every run ---------- */
+const PIL=['motive','means','opportunity'];
+const SUS=[
+ {n:'Alhaji Sule',role:'the lender',pro:'he',pred:['stood to lose a fortune if the box was audited','kept a copy of the cash box key','was seen walking toward the stage in the dark']},
+ {n:'Mrs Amaka',role:'the secretary',pro:'she',pred:['had hidden a forged entry in the ledger','knew the cash box combination','left her seat the moment the lights failed']},
+ {n:'Tobi',role:'the generator boy',pro:'he',pred:['needed money badly for his sister\'s school fees','had cut the power on purpose twice before','was alone in the dark corridor']},
+ {n:'Pastor Dare',role:'the auditor',pro:'he',pred:['was about to be exposed for borrowing from the box','carried the spare cash box key on his ring','was the last to sit down after the lights returned']}
+];
+const PLACES=[
+ {n:'the stage table',d:'Where the cash box sat. The air still smells of hot dust.'},
+ {n:'the generator shed',d:'Oil, wire and one swinging bulb.'},
+ {n:'the secretary\'s desk',d:'Ledgers stacked like bricks, a cold cup of tea.'},
+ {n:'the back gate',d:'A rusted latch and fresh footprints.'},
+ {n:'the kitchen',d:'Pots, a dripping tap, and a door that does not quite close.'}
+];
+const MAXMOVES=12;
+let K=null; /* the case */
+
+function gen(){
+ const c=rnd(4),T=SUS.map((s,i)=>{if(i===c)return[1,1,1];const n=rnd(3),t=[0,0,0];shuffle([0,1,2]).slice(0,n).forEach(p=>t[p]=1);return t});
+ /* the culprit lies about everything. An innocent with two secrets lies about one of them. */
+ const lie=SUS.map((s,i)=>{const l=[0,0,0];if(i===c)return[1,1,1];const tr=[0,1,2].filter(p=>T[i][p]);if(tr.length===2)l[tr[rnd(2)]]=1;return l});
+ const all=[];SUS.forEach((s,i)=>[0,1,2].forEach(p=>all.push([i,p])));
+ const mine=all.filter(x=>x[0]===c),rest=shuffle(all.filter(x=>x[0]!==c)).slice(0,7);
+ const slots=shuffle(mine.concat(rest));
+ const items=PLACES.map((pl,k)=>[slots[k*2],slots[k*2+1]]);
+ return{c,T,lie,items,found:{},asked:{},visits:PLACES.map(()=>0),moves:0,ver:SUS.map(()=>[null,null,null]),liar:SUS.map(()=>0),burnt:0,fails:0,noteDone:0,noteTrue:0,over:0};
+}
+
+/* ---------- sound: tones only ---------- */
+let AC=null,hum=null;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(AC.state==='suspended')AC.resume();return AC}
+function tn(f,d,v,t0,type,pan){const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain(),p=c.createStereoPanner?c.createStereoPanner():null;o.type=type||'sine';o.frequency.value=f;const t=c.currentTime+(t0||0)+.01;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);if(p){p.pan.value=pan||0;g.connect(p);p.connect(c.destination)}else g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+const SFX={
+ chime(){tn(784,.35,.22,0);tn(1175,.5,.2,.12)},
+ clear(){tn(523,.3,.2,0);tn(659,.3,.2,.12);tn(784,.5,.2,.24)},
+ lie(){tn(311,.5,.22,0,'triangle');tn(440,.5,.2,0,'triangle')},
+ burn(){for(let i=0;i<4;i++)tn(220-i*30,.3,.18,i*.14,'sawtooth')},
+ step(p){tn(180,.1,.15,0,'sine',p||0);tn(150,.1,.12,.2,'sine',p||0)},
+ ladder(){for(let i=0;i<9;i++)tn(262*Math.pow(1.12,i),.16,.22,i*.15)},
+ fail(){tn(220,.6,.25,0,'triangle');tn(165,.9,.25,.3,'triangle')},
+ win(){[523,659,784,1047].forEach((f,i)=>tn(f,.6,.22,i*.18))},
+ flick(){tn(60,.2,.3,0);tn(90,.12,.2,.25)}
+};
+function startHum(){const c=ac();if(!c||hum)return;const o=c.createOscillator(),g=c.createGain(),l=c.createOscillator(),lg=c.createGain();o.type='sine';o.frequency.value=98;g.gain.value=.05;l.frequency.value=.35;lg.gain.value=.03;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(c.destination);o.start();l.start();hum=o}
+
+/* ---------- speech ---------- */
+let last='';
+function say(t){last=t;$('#out').textContent=t;try{if(window.Access&&Access.say)Access.say(t);else if(window.speechSynthesis){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}}catch(e){}}
+let curOpts=[],curCb=null;
+function menu(prompt,opts,cb,keep){curOpts=opts;curCb=cb;const box=$('#opts');box.innerHTML='';opts.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=(i+1)+'. '+o;b.onclick=()=>pick(i);box.appendChild(b)});
+ say(keep?prompt:prompt+' '+opts.map((o,i)=>'Option '+(i+1)+': '+o+'.').join(' '));const f=box.querySelector('button');if(f&&!keep)f.focus()}
+function pick(i){if(!curCb||i<0||i>=curOpts.length)return;const cb=curCb;curCb=null;$('#opts').innerHTML='';cb(i)}
+
+/* ---------- the story ---------- */
+function moveLeft(){return MAXMOVES-K.moves}
+function hud(){const m=moveLeft();$('#mv').textContent='Hours to dawn: '+m+'   Funds: '+Arsenal.funds();document.body.classList.toggle('hot',m<=4)}
+function cleared(i){return K.ver[i].some(v=>v===0)}
+function possible(){return SUS.map((s,i)=>i).filter(i=>!cleared(i))}
+function nb(){let h='<b>Case notebook</b><br>';SUS.forEach((s,i)=>{const v=K.ver[i].map((x,p)=>PIL[p]+':'+(x===1?'<span class="cl">proved</span>':x===0?'<span class="xx">disproved</span>':'unknown')).join(', ');h+=(cleared(i)?'<span class="xx">CLEARED</span> ':'')+s.n+' ('+s.role+'): '+v+(K.liar[i]?' <span class="xx">caught lying '+K.liar[i]+'x</span>':'')+'<br>'});$('#nb').innerHTML=h}
+function notebookText(){const p=possible();let t='Notebook. ';SUS.forEach((s,i)=>{t+=s.n+': '+(cleared(i)?'cleared. ':K.ver[i].map((x,q)=>PIL[q]+' '+(x===1?'proved':'unknown')).join(', ')+(K.liar[i]?', caught lying '+K.liar[i]+' times':'')+'. ')});return t+(p.length===1?'Only '+SUS[p[0]].n+' remains possible.':p.length+' suspects remain possible.')}
+function pretty(i,p,v){const s=SUS[i];return v?s.n+' '+s.pred[p]:'it is not true that '+s.n+' '+s.pred[p]}
+function reveal(i,p){const v=K.T[i][p];K.ver[i][p]=v;let t='Physical evidence confirms that '+pretty(i,p,1)+'.';
+ if(!v){t='Physical evidence shows that '+pretty(i,p,0)+'. '+SUS[i].n+' is cleared, because the thief must have done all three.';SFX.clear()}else SFX.chime();
+ if(K.asked[i+'_'+p]==='deny'&&v){K.liar[i]++;t+=' That contradicts what '+SUS[i].n+' told you: a lie caught.';SFX.lie();Story.flag('lie')}
+ return t}
+function tamper(){const left=[];K.items.forEach((pair,k)=>pair.forEach((it,j)=>{if(it&&it[0]===K.c&&K.ver[K.c][it[1]]!==1&&!(j<K.visits[k]))left.push([k,j])}));
+ if(!left.length)return'';const[k,j]=left[rnd(left.length)];K.items[k][j]=null;K.burnt++;SFX.burn();Story.m('exposure',1);Story.flag('burn');
+ return' You smell smoke. Someone has burned something at '+PLACES[k].n+'. The thief knows you are close, and a piece of proof is gone.'}
+function step(msg){K.moves++;let t='';
+ if(K.moves===4||K.moves===8)t+=tamper();
+ if(K.moves===6&&!K.noteDone){K.noteDone=1;const real=rnd(10)<7;K.noteTrue=real;const cands=[];K.items.forEach((pair,k)=>{if(K.visits[k]<2&&pair.some(it=>it&&it[0]===K.c))cands.push(k)});const k=real&&cands.length?cands[rnd(cands.length)]:rnd(PLACES.length);K.noteAt=k;Story.flag('note');t+=' A folded note slides under the door: "Look carefully at '+PLACES[k].n+'." You cannot tell who sent it. It may be a friend, or a trap.'}
+ hud();nb();
+ if(moveLeft()<=0){return forced(t)}
+ return main(t+' ')}
+function forced(t){say(t+' Dawn breaks. The committee demands a name now.');setTimeout(()=>accuse(),400)}
+
+/* ---------- actions ---------- */
+function main(pre){
+ pre=pre||'';if(K.over)return;
+ menu(pre+moveLeft()+' hours until dawn. What now? ',['Search a place','Question a suspect','Read the notebook','Ask the case navigator','Name the thief'],i=>{
+  if(i===0)searchMenu();else if(i===1)suspectMenu();else if(i===2){say(notebookText());setTimeout(main,300)}
+  else if(i===3){say('The navigator. '+thread());setTimeout(()=>main(''),300)}else accuse()})}
+function searchMenu(){menu('Where do you search?',PLACES.map((p,k)=>cap(p.n)+(K.visits[k]>=2?' (searched twice)':K.visits[k]===1?' (searched once)':'')).concat(['Back']),k=>{
+ if(k===PLACES.length)return main('');
+ const pl=PLACES[k],j=K.visits[k];SFX.step((k-2)/2.5);
+ if(j>=2){say('You have found everything there is to find at '+pl.n+'. It costs you an hour to be sure.');return setTimeout(()=>step(''),600)}
+ K.visits[k]++;Arsenal.count('clue');const it=K.items[k][j];let t=(j===0?pl.d+' ':'You look again. ');
+ if(!it)t+='There is only a scorched patch where something used to be.';else t+=reveal(it[0],it[1])+'.';
+ say(t);setTimeout(()=>step(''),900)})}
+function suspectMenu(){menu('Whom do you question?',SUS.map(s=>s.n+', '+s.role).concat(['Back']),i=>{
+ if(i===SUS.length)return main('');
+ menu('What do you ask '+SUS[i].n+' about?',['Motive: why would you want the box?','Means: could you have opened it?','Opportunity: where were you when the lights failed?','Back'],p=>{
+  if(p===3)return suspectMenu();
+  const s=SUS[i],truth=K.T[i][p],lied=K.lie[i][p],k=i+'_'+p;let t;
+  const admits=truth&&!lied;
+  K.asked[k]=admits?'admit':'deny';
+  if(admits){t=s.n+' admits that '+s.pro+' '+s.pred[p]+'.';Story.m('trust',1)}
+  else{t=s.n+' insists it is not true that '+s.pro+' '+s.pred[p]+'.';
+   if(K.ver[i][p]===1){K.liar[i]++;t+=' But you already hold evidence that it is true. A lie caught.';SFX.lie();Story.flag('lie')}}
+  if(admits)SFX.chime();else if(!(K.ver[i][p]===1))tn(262,.4,.15,0);
+  say(t);setTimeout(()=>step(''),900)})})}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+/* ---------- accusation: odds come from proof, never certainty ---------- */
+function proofOf(i){return K.ver[i].filter(v=>v===1).length}
+function odds(i){return Story.odds(.14+.22*proofOf(i)+.06*Math.min(2,K.liar[i])+.02*moveLeft()-.06*K.burnt)}
+function accuse(){K.over=0;menu('The committee waits. Whom do you accuse?',SUS.map(s=>s.n+', '+s.role+(cleared(SUS.indexOf(s))?' (cleared by evidence)':'')),i=>{
+ SFX.ladder();
+ setTimeout(()=>{
+  if(i!==K.c){return finish(false,'wrong',SUS[i].n+' stares at you in shock, and the committee turns cold. You were wrong. The real thief was '+SUS[K.c].n+', '+SUS[K.c].role+', who walks out of the hall with the cash box in a market bag.')}
+  const r=Story.roll(odds(i)),pc=Math.round(r.p*100);
+  if(r.ok)return finish(true,null,'Your case stood at '+pc+' percent, and it held. '+SUS[i].n+' slumps and confesses: '+SUS[i].pro+' '+SUS[i].pred[0]+', '+SUS[i].pro+' '+SUS[i].pred[1]+', and '+SUS[i].pro+' '+SUS[i].pred[2]+'. '+cap(SUS[i].pro)+' took the box.',pc);
+  K.fails++;SFX.fail();
+  if(K.fails>=2||moveLeft()<=1)return finish(false,'escaped','Your case stood at '+pc+' percent, and it fell. The committee wants more proof than you have, and '+SUS[i].n+' leaves the hall with a smile. The box is never seen again.');
+  K.moves+=2;hud();menu('Your case stood at '+pc+' percent, and the committee is not convinced. You were right but your proof was thin. You lose two hours finding corroboration. '+moveLeft()+' hours left. Search, question or accuse again.',['Search a place','Question a suspect','Name the thief again'],k=>{k===0?searchMenu():k===1?suspectMenu():accuse()})
+ },1500)})}
+function finish(win,id,text,pc){K.over=1;const M=Story.run().m;let eid=id;
+ if(win)eid=(pc||0)<55?'shaky':(M.trust>=4?'trusted':'clean');
+ const tw=Story.twistEnd('ajo',eid,win);if(tw.text)eid=tw.id;
+ const fund=({clean:700,trusted:800,shaky:500,wrong:100,escaped:150,betrayal:200,windfall:0,decoy:0})[eid];Arsenal.award((fund||0)+(tw.funds||0));
+ if(win)SFX.win();else SFX.fail();
+ const out=text+' '+Story.flavour('ajo',eid)+' '+tw.text+' '+Story.finish('ajo',eid)+' You now hold '+Arsenal.funds()+' funds. The thief was '+SUS[K.c].n+'. Press Enter to play again with a new thief.';
+ hud();say(out);try{Sfx.done('ajo',{rank:win?'solved':'failed'})}catch(e){}
+ K.over=2}
+
+/* ---------- the intelligent pointer ---------- */
+function thread(){if(!K)return'';const p=possible();const fr=K.moves/MAXMOVES;let t=Story.phase(fr)+' ';
+ const leads=[];PLACES.forEach((pl,k)=>{if(K.visits[k]<2)leads.push({name:'search '+pl.n,value:2-K.visits[k]*.6+(K.noteDone&&K.noteAt===k?(K.noteTrue?.8:.1):0),dist:0,risk:0,urgent:K.moves>=3&&K.burnt===0})});
+ SUS.forEach((s,i)=>{if(!cleared(i)){const q=[0,1,2].filter(x=>!K.asked[i+'_'+x]).length;if(q)leads.push({name:'question '+s.n,value:1+q*.3,dist:0,risk:0,urgent:false})}});
+ if(p.length===1)t+='Only '+SUS[p[0]].n+' remains possible. Proof on that person stands at '+proofOf(p[0])+' of 3, so each extra proof raises your odds before you accuse. ';
+ else t+=p.length+' suspects remain possible. Anyone proved innocent on even one point is cleared, because the thief did all three. A suspect who denies everything is worth testing. ';
+ const b=Story.best(leads);if(b)t+='Best next move: '+b.name+'. ';
+ if(K.noteDone)t+='Remember the note: it may be a trap. ';
+ if(moveLeft()<=3)t+='Time is short. ';
+ return t+Story.meters()+' '+Arsenal.brief()}
+
+function begin(){K=gen();Story.begin('ajo');Arsenal.begin('ajo');Story.bind(thread);startHum();hud();nb();SFX.flick();
+ const t='Saturday, eleven forty-five at night. Ajo Hall in Mushin is packed with members of the savings club. Mama Bisi the treasurer has just counted two point four million naira into the cash box. Then the generator coughs, the hall goes black for ninety seconds, and when the lights return, the box is gone. The doors were watched, so the thief is one of four people who were inside. '+SUS.map(s=>s.n+', '+s.role).join('; ')+'. You have twelve hours until the police arrive at dawn. Every hour you spend, the thief watches. Press a number to begin.';
+ menu(t,['Begin the investigation'],()=>main(''))}
+addEventListener('keydown',e=>{if(e.target.tagName==='BUTTON'&&e.key==='Enter')return;
+ if(/^[1-9]$/.test(e.key)&&curCb){e.preventDefault();pick(+e.key-1)}
+ else if(e.key==='Enter'){if(K&&K.over===2){e.preventDefault();begin()}else if(last){e.preventDefault();say(last)}}});
+try{Access.register({name:'ajo',speak:t=>say(t),busy:()=>true})}catch(e){}
+begin();
+})();
+</script></body></html>

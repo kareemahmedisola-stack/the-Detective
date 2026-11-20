@@ -15,10 +15,12 @@
   var ENDINGS = {
     balogun: { clean: 'The Market Stands With Tunde', costly: 'Justice With a Price', standard: 'Case Closed', betrayal: 'The Trusted Friend', windfall: 'Reward Money', plea: 'The Quiet Confession', adjourned: 'Bail, Not Justice', lost: 'The Clock Wins' },
     echo: { chiefs: 'The Ledger Speaks', scandal: 'Won on a Knife Edge', second: 'The Court Needed Convincing', escaped: 'The Evening Boat', runout: 'Police Take Over', betrayal: 'The Double Agent', windfall: 'The Grateful Island' },
+    ajo: { clean: 'Case Closed at Dawn', trusted: 'The Hall Stands With You', shaky: 'Won on a Knife Edge', wrong: 'The Wrong Accusation', escaped: 'The Thief Vanishes', betrayal: 'The Nephew at the Gate', windfall: 'The Grateful Hall', decoy: 'The Poisoned Note' },
     siege: { relief: 'The Relief Army Rides In', withdraw: 'The Enemy Breaks', sortie: 'The Grand Sortie', fall: 'Ilesanmi Falls', airlift: 'Air Cover Arrives', mercenary: 'The Mercenary Betrays' }
   };
   /* randomised endings: the same play can end three different ways, and about one game in three ends on a twist */
   var FL = {
+    ajo: { clean: ['The members of the ajo applaud until the lamps shake.', 'Mama Bisi weeps and counts the box twice.'], trusted: ['The whole hall stands to thank you, because you listened to every one of them.', 'Mama Bisi hands you the first slice of the thanksgiving cake.'], shaky: ['Your hands shake as the thief is led away.', 'It was closer than the committee will ever admit.'], wrong: ['The hall will remember who accused the wrong person.', 'Mama Bisi looks at the floor and says nothing.'], escaped: ['A cold wind blows through the empty hall.', 'Somewhere across Mushin, a generator coughs.'] },
     balogun: { clean: ['The market sings your name at dusk.', 'Mama Ify closes her stall early and walks you home.', 'Children chalk your name on the pavement.'],
       standard: ['Tunde cries, then laughs, then cries again.', 'The magistrate nods at you, once.', 'The street goes back to selling, as if nothing had happened.'],
       costly: ['A stranger watches your door all night.', 'The note under your door is unsigned and unforgettable.', 'Your phone rings and nobody speaks.'],
@@ -32,6 +34,7 @@
       fall: ['The garrison walks out with its heads high.', 'The banner is lowered with care.', 'Some of them will fight again.'] }
   };
   var TW = {
+    ajo: { win: [{ id: 'betrayal', text: 'But as the police arrive, you notice the one who tipped the thief off about your plans is Mama Bisi\'s own nephew, who slips out of the back gate.', funds: 150 }, { id: 'windfall', text: 'The recovered box holds a reward envelope from the grateful members, more than you were ever paid for a case.', funds: 700 }], lose: [{ id: 'decoy', text: 'Later you find that the note you trusted was written by the thief to send you to the wrong place.', funds: 0 }] },
     balogun: { win: [{ id: 'betrayal', text: 'But at the celebration a trusted market friend slips away with the recovered savings. The thief was not alone, and your victory has a quiet shadow.', funds: 150 }, { id: 'windfall', text: 'The grateful market takes up a collection for your office. It is more money than you have ever held.', funds: 700 }],
       lose: [{ id: 'betrayal', text: 'Later you learn that someone you trusted at the stalls had been feeding the thief your every move.', funds: 0 }] },
     echo: { win: [{ id: 'betrayal', text: 'The Chief is convicted, but the clerk who handled the ledger vanishes on the evening boat. He was working for the syndicate all along.', funds: 150 }, { id: 'windfall', text: 'The recovered ledger frees a hundred traders from false debts, and the Island pays you in gratitude.', funds: 700 }],

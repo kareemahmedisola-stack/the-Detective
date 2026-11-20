@@ -1,10 +1,10 @@
 /* The Detective - service worker
    Caches the whole game on first visit, so it installs as an app and then plays with no network.
    Bump VERSION whenever a file changes, so players get the new files. */
-const VERSION = 'detective-v9';
+const VERSION = 'detective-v10';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
-  './games/balogun.html', './games/echo.html', './games/siege.html',
+  './games/balogun.html', './games/echo.html', './games/siege.html', './games/ajo.html',
   './js/access.js', './js/atmos.js', './js/lagos.js', './js/people.js', './js/polish.js', './js/ui.js', './js/loud.js', './js/sfx.js',
   './js/siegecore.js', './js/story.js', './js/arsenal.js', './js/suspense.js', './js/traffic.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-64.png',
